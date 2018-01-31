@@ -1,12 +1,12 @@
 <?php
 define('ECCUBE_INSTALL', 'ON');
-define('HTTP_URL', 'http://testvn.hyperion-job.jp/');
-define('HTTPS_URL', 'http://testvn.hyperion-job.jp/');
+define('HTTP_URL', 'http://local.testvn.hyperion-job.jp/');
+define('HTTPS_URL', 'https://local.testvn.hyperion-job.jp/');
 define('ROOT_URLPATH', '/');
 define('DOMAIN_NAME', '.hyperion-job.jp');
 define('DB_TYPE', 'mysql');
 define('DB_USER', 'root');
-define('DB_PASSWORD', 'admin1q2w3e4r');
+define('DB_PASSWORD', '');
 define('DB_SERVER', '127.0.0.1');
 define('DB_NAME', 'eccube_vn.hyperion-job');
 define('DB_PORT', '');
