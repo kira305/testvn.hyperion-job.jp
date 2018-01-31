@@ -1,0 +1,1360 @@
+2017/06/27 12:39:15 [/products/list.php] [execute end 5951d345e88a7#12]
+SQL: PREPARE mdb2_statement_mysql_1270ca88894215fb29e04e48ba404f0f64fc5675c0 FROM 'SELECT              product_id             ,product_code_min             ,product_code_max             ,name             ,comment1             ,comment2             ,comment3             ,main_list_comment             ,main_image             ,main_list_image             ,price01_min             ,price01_max             ,price02_min             ,price02_max             ,stock_min             ,stock_max             ,stock_unlimited_min             ,stock_unlimited_max             ,deliv_date_id             ,status             ,del_flg             ,update_date             ,salary             ,salary_min             ,salary_max             ,work_location             ,experience             ,qualification FROM             (                 SELECT                      dtb_products.*                     ,T4.product_code_min                     ,T4.product_code_max                     ,T4.price01_min                     ,T4.price01_max                     ,T4.price02_min                     ,T4.price02_max                     ,T4.stock_min                     ,T4.stock_max                     ,T4.stock_unlimited_min                     ,T4.stock_unlimited_max                     ,T4.point_rate                     ,T4.deliv_fee                     ,dtb_maker.name AS maker_name                 FROM dtb_products                     INNER JOIN (                         SELECT product_id                             ,MIN(product_code) AS product_code_min                             ,MAX(product_code) AS product_code_max                             ,MIN(price01) AS price01_min                             ,MAX(price01) AS price01_max                             ,MIN(price02) AS price02_min                             ,MAX(price02) AS price02_max                             ,MIN(stock) AS stock_min                             ,MAX(stock) AS stock_max                             ,MIN(stock_unlimited) AS stock_unlimited_min                             ,MAX(stock_unlimited) AS stock_unlimited_max                             ,MAX(point_rate) AS point_rate                             ,MAX(deliv_fee) AS deliv_fee                         FROM dtb_products_class                         WHERE del_flg = 0                          GROUP BY product_id                     ) AS T4                         ON dtb_products.product_id = T4.product_id                     LEFT JOIN dtb_maker                         ON dtb_products.maker_id = dtb_maker.maker_id             ) AS alldtl WHERE alldtl.product_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) AND alldtl.del_flg = 0   '
+PlaceHolder: array (
+  0 => '25',
+  1 => '24',
+  2 => '23',
+  3 => '22',
+  4 => '21',
+  5 => '20',
+  6 => '19',
+  7 => '18',
+  8 => '17',
+  9 => '16',
+  10 => '15',
+  11 => '14',
+  12 => '13',
+  13 => '12',
+  14 => '11',
+  15 => '9',
+)
+execution time: 3.26 sec
+ from 150.129.141.97
+2017/06/27 12:41:09 [/products/list.php] [execute end 5951d34c7dfd5#36]
+SQL: PREPARE mdb2_statement_mysql_368503e4fec60d5cb04e36105494d6760be66697be FROM 'SELECT CASE WHEN EXISTS(SELECT * FROM dtb_session WHERE sess_id = ?   ) THEN 1 ELSE 0 END'
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 3.73 sec
+ from 150.129.141.97
+2017/06/27 12:42:22 [/products/list.php] [execute end 5951d34c7dfd5#37]
+SQL: PREPARE mdb2_statement_mysql_37fc9cf24629fc5e22f16677cfa3f50871a9fa84de FROM 'UPDATE dtb_session SET sess_data= ?, update_date= CURRENT_TIMESTAMP WHERE sess_id = ?'
+PlaceHolder: array (
+  0 => 'cart|a:0:{}prev_url|s:195:"/products/list.php?transactionid=e9c6c92aa3b24fb1309d2117900dc174205f01b1&mode=search&employment_status=3&category_id=&name=&search=%E3%81%93%E3%81%AE%E6%9D%A1%E4%BB%B6%E3%81%A7%E6%A4%9C%E7%B4%A2";transactionid|s:40:"e9c6c92aa3b24fb1309d2117900dc174205f01b1";cert|s:8:"7WDhcBTF";member_id|s:1:"2";login_id|s:5:"uugii";authority|s:1:"0";login_name|s:9:"管理者";uniqid|s:21:"5951b641c80fd3LvJ4Wzt";last_login|s:19:"2017-06-22 11:20:01";cart_referer_url|s:224:"http://testvn.hyperion-job.jp/products/list.php?transactionid=e9c6c92aa3b24fb1309d2117900dc174205f01b1&mode=search&employment_status=3&category_id=&name=&search=%E3%81%93%E3%81%AE%E6%9D%A1%E4%BB%B6%E3%81%A7%E6%A4%9C%E7%B4%A2";',
+  1 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 69.03 sec
+ from 150.129.141.97
+2017/06/27 12:43:13 [/products/list.php] [execute end 5951d420a9670#3]
+SQL: PREPARE mdb2_statement_mysql_3329a24af0d9620407593ea99f3f0a499d5be5669 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 22.47 sec
+ from 150.129.141.97
+2017/06/27 12:44:59 [/products/list.php] [execute end 5951d420a9670#4]
+SQL: PREPARE mdb2_statement_mysql_452d523ff75b2b3caa4501b9f5cac2896be164e77 FROM 'SELECT * FROM dtb_plugin WHERE enable = 1  ORDER BY priority DESC, plugin_id ASC '
+PlaceHolder: array (
+)
+execution time: 4.34 sec
+ from 150.129.141.97
+2017/06/27 12:45:25 [/products/list.php] [execute end 5951d420a9670#5]
+SQL: PREPARE mdb2_statement_mysql_53987ff4bd2cb2402072af2a8760bde60152379c4 FROM 'SELECT * FROM dtb_plugin_hookpoint WHERE plugin_id = ? AND use_flg = 1   '
+PlaceHolder: array (
+  0 => '1',
+)
+execution time: 9.40 sec
+ from 150.129.141.97
+2017/06/27 12:46:24 [/products/list.php] [execute end 5951d4f63eae5#3]
+SQL: PREPARE mdb2_statement_mysql_372af1ffce345ae68e4511a9c2080c5901fe2b3d0 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 8.10 sec
+ from 150.129.141.97
+2017/06/27 12:46:27 [/products/list.php] [execute end 5951d420a9670#6]
+SQL: PREPARE mdb2_statement_mysql_68c4082e6b27a0aa63f8337d34efa19e3b216f54e FROM 'SELECT * FROM dtb_pagelayout WHERE page_id <> ? AND device_type_id = ? AND url = ?  ORDER BY page_id '
+PlaceHolder: array (
+  0 => 0,
+  1 => 10,
+  2 => 'products/list.php',
+)
+execution time: 8.56 sec
+ from 150.129.141.97
+2017/06/27 12:46:50 [/products/list.php] [execute end 5951d4f63eae5#6]
+SQL: PREPARE mdb2_statement_mysql_6a2470befd0546ba96b90e6c71cb0640a9c61bbf6 FROM 'SELECT * FROM dtb_pagelayout WHERE page_id <> ? AND device_type_id = ? AND url = ?  ORDER BY page_id '
+PlaceHolder: array (
+  0 => 0,
+  1 => 10,
+  2 => 'products/list.php',
+)
+execution time: 11.52 sec
+ from 150.129.141.97
+2017/06/27 12:46:52 [/products/list.php] [execute end 5951d420a9670#8]
+SQL: PREPARE mdb2_statement_mysql_878e8a2c61d2789abd74b54cd60abed2c2bf5dfab FROM 'SELECT * FROM         dtb_blocposition AS pos             JOIN dtb_bloc AS bloc                 ON bloc.bloc_id = pos.bloc_id                     AND bloc.device_type_id = pos.device_type_id WHERE bloc.device_type_id = ? AND ((anywhere = 1 AND pos.page_id != 0) OR pos.page_id = ?)  ORDER BY target_id, bloc_row '
+PlaceHolder: array (
+  0 => 10,
+  1 => '2',
+)
+execution time: 9.60 sec
+ from 150.129.141.97
+2017/06/27 12:47:19 [/products/list.php] [execute end 5951d4f63eae5#10]
+SQL: PREPARE mdb2_statement_mysql_10981f4b8e2a406b3a91a72c9af1944689d6b70613 FROM 'SELECT COUNT(*) FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?    '
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 7.27 sec
+ from 150.129.141.97
+2017/06/27 12:47:49 [/products/list.php] [execute end 5951d4f63eae5#11]
+SQL: PREPARE mdb2_statement_mysql_1131fd3e510dfe93e401949b8dca30a7fadc0fb07a FROM 'SELECT alldtl.product_id FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?   ORDER BY (SELECT MAX(T3.rank * 2147483648 + T2.rank) FROM dtb_product_categories T2 JOIN dtb_category T3 ON T2.category_id = T3.category_id WHERE T2.product_id = alldtl.product_id   ) DESC ,product_id DESC LIMIT 0, 20'
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 3.77 sec
+ from 150.129.141.97
+2017/06/27 12:47:57 [/products/list.php] [execute end 5951d420a9670#10]
+SQL: PREPARE mdb2_statement_mysql_10f487e69f4d0a0b967d25c97b728905ffbba2b3ae FROM 'SELECT COUNT(*) FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?    '
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 5.46 sec
+ from 150.129.141.97
+2017/06/27 12:49:17 [/products/list.php] [execute end 5951d4f63eae5#12]
+SQL: PREPARE mdb2_statement_mysql_121df9e09f7b455b30e93398e26a4c7347141a8dc7 FROM 'SELECT              product_id             ,product_code_min             ,product_code_max             ,name             ,comment1             ,comment2             ,comment3             ,main_list_comment             ,main_image             ,main_list_image             ,price01_min             ,price01_max             ,price02_min             ,price02_max             ,stock_min             ,stock_max             ,stock_unlimited_min             ,stock_unlimited_max             ,deliv_date_id             ,status             ,del_flg             ,update_date             ,salary             ,salary_min             ,salary_max             ,work_location             ,experience             ,qualification FROM             (                 SELECT                      dtb_products.*                     ,T4.product_code_min                     ,T4.product_code_max                     ,T4.price01_min                     ,T4.price01_max                     ,T4.price02_min                     ,T4.price02_max                     ,T4.stock_min                     ,T4.stock_max                     ,T4.stock_unlimited_min                     ,T4.stock_unlimited_max                     ,T4.point_rate                     ,T4.deliv_fee                     ,dtb_maker.name AS maker_name                 FROM dtb_products                     INNER JOIN (                         SELECT product_id                             ,MIN(product_code) AS product_code_min                             ,MAX(product_code) AS product_code_max                             ,MIN(price01) AS price01_min                             ,MAX(price01) AS price01_max                             ,MIN(price02) AS price02_min                             ,MAX(price02) AS price02_max                             ,MIN(stock) AS stock_min                             ,MAX(stock) AS stock_max                             ,MIN(stock_unlimited) AS stock_unlimited_min                             ,MAX(stock_unlimited) AS stock_unlimited_max                             ,MAX(point_rate) AS point_rate                             ,MAX(deliv_fee) AS deliv_fee                         FROM dtb_products_class                         WHERE del_flg = 0                          GROUP BY product_id                     ) AS T4                         ON dtb_products.product_id = T4.product_id                     LEFT JOIN dtb_maker                         ON dtb_products.maker_id = dtb_maker.maker_id             ) AS alldtl WHERE alldtl.product_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) AND alldtl.del_flg = 0   '
+PlaceHolder: array (
+  0 => '25',
+  1 => '24',
+  2 => '23',
+  3 => '22',
+  4 => '21',
+  5 => '20',
+  6 => '19',
+  7 => '18',
+  8 => '17',
+  9 => '16',
+  10 => '15',
+  11 => '14',
+  12 => '13',
+  13 => '12',
+  14 => '11',
+  15 => '9',
+)
+execution time: 60.96 sec
+ from 150.129.141.97
+2017/06/27 12:49:22 [/products/list.php] [execute end 5951d420a9670#11]
+SQL: PREPARE mdb2_statement_mysql_1149643ff43af4e56d70f7f6171063630459414997 FROM 'SELECT alldtl.product_id FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?   ORDER BY (SELECT MAX(T3.rank * 2147483648 + T2.rank) FROM dtb_product_categories T2 JOIN dtb_category T3 ON T2.category_id = T3.category_id WHERE T2.product_id = alldtl.product_id   ) DESC ,product_id DESC LIMIT 0, 20'
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 20.72 sec
+ from 150.129.141.97
+2017/06/27 12:50:54 [/products/list.php] [execute end 5951d4f63eae5#13]
+SQL: PREPARE mdb2_statement_mysql_13442d2588a6cb8b360ea102770504a78a19b5c82a FROM 'SELECT * FROM dtb_tax_rule WHERE      product_id = 0  AND product_class_id = 0  AND (pref_id = 0 OR pref_id = ?) AND (country_id = 0 OR country_id = ?) AND apply_date < CURRENT_TIMESTAMP AND del_flg = 0  ORDER BY apply_date DESC '
+PlaceHolder: array (
+  0 => 0,
+  1 => 0,
+)
+execution time: 32.36 sec
+ from 150.129.141.97
+2017/06/27 12:52:41 [/products/list.php] [execute end 5951d4f63eae5#14]
+SQL: PREPARE mdb2_statement_mysql_1447106120a6981f9c0f23a489251904689eddee73 FROM 'SELECT             T1.product_id,             T1.stock,             T1.stock_unlimited,             T1.sale_limit,             T1.price01,             T1.price02,             T1.point_rate,             T1.product_code,             T1.product_class_id,             T1.del_flg,             T1.product_type_id,             T1.down_filename,             T1.down_realfilename,             T3.name AS classcategory_name1,             T3.rank AS rank1,             T4.name AS class_name1,             T4.class_id AS class_id1,             T1.classcategory_id1,             T1.classcategory_id2,             dtb_classcategory2.name AS classcategory_name2,             dtb_classcategory2.rank AS rank2,             dtb_class2.name AS class_name2,             dtb_class2.class_id AS class_id2 FROM             dtb_products_class T1             LEFT JOIN dtb_classcategory T3                 ON T1.classcategory_id1 = T3.classcategory_id             LEFT JOIN dtb_class T4                 ON T3.class_id = T4.class_id             LEFT JOIN dtb_classcategory dtb_classcategory2                 ON T1.classcategory_id2 = dtb_classcategory2.classcategory_id             LEFT JOIN dtb_class dtb_class2                 ON dtb_classcategory2.class_id = dtb_class2.class_id WHERE product_id IN (?) AND T1.del_flg = 0 AND  T3.classcategory_id is not null AND dtb_classcategory2.classcategory_id is not null   ORDER BY T3.rank DESC, dtb_classcategory2.rank DESC '
+PlaceHolder: array (
+  0 => '25',
+)
+execution time: 20.17 sec
+ from 150.129.141.97
+2017/06/27 12:52:52 [/products/list.php] [execute end 5951d4f63eae5#15]
+SQL: PREPARE mdb2_statement_mysql_152428d11f72c0b7f6166849289b43351fe5f18f11 FROM 'SELECT             T1.product_id,             T1.stock,             T1.stock_unlimited,             T1.sale_limit,             T1.price01,             T1.price02,             T1.point_rate,             T1.product_code,             T1.product_class_id,             T1.del_flg,             T1.product_type_id,             T1.down_filename,             T1.down_realfilename,             T3.name AS classcategory_name1,             T3.rank AS rank1,             T4.name AS class_name1,             T4.class_id AS class_id1,             T1.classcategory_id1,             T1.classcategory_id2,             dtb_classcategory2.name AS classcategory_name2,             dtb_classcategory2.rank AS rank2,             dtb_class2.name AS class_name2,             dtb_class2.class_id AS class_id2 FROM             dtb_products_class T1             LEFT JOIN dtb_classcategory T3                 ON T1.classcategory_id1 = T3.classcategory_id             LEFT JOIN dtb_class T4                 ON T3.class_id = T4.class_id             LEFT JOIN dtb_classcategory dtb_classcategory2                 ON T1.classcategory_id2 = dtb_classcategory2.classcategory_id             LEFT JOIN dtb_class dtb_class2                 ON dtb_classcategory2.class_id = dtb_class2.class_id WHERE product_id IN (?) AND T1.del_flg = 0 AND  T3.classcategory_id is not null AND dtb_classcategory2.classcategory_id is not null   ORDER BY T3.rank DESC, dtb_classcategory2.rank DESC '
+PlaceHolder: array (
+  0 => '24',
+)
+execution time: 3.12 sec
+ from 150.129.141.97
+2017/06/27 12:53:01 [/products/list.php] [execute end 5951d4f63eae5#30]
+SQL: PREPARE mdb2_statement_mysql_3002e63ccbef55707c19411fe2c7952693f3f3a913 FROM 'SELECT product_id, product_status_id FROM dtb_product_status WHERE del_flg = 0 AND product_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)   '
+PlaceHolder: array (
+  0 => '25',
+  1 => '24',
+  2 => '23',
+  3 => '22',
+  4 => '21',
+  5 => '20',
+  6 => '19',
+  7 => '18',
+  8 => '17',
+  9 => '16',
+  10 => '15',
+  11 => '14',
+  12 => '13',
+  13 => '12',
+  14 => '11',
+  15 => '9',
+)
+execution time: 4.05 sec
+ from 150.129.141.97
+2017/06/27 12:53:57 [/products/list.php] [execute end 5951d4f63eae5#31]
+SQL: PREPARE mdb2_statement_mysql_3107ecb3a896dbf6f28bd93689b7e8bb8a992d8ecd FROM 'SELECT category_id FROM dtb_category WHERE del_flg = 0 AND del_flg = 0 AND category_id = ?   '
+PlaceHolder: array (
+  0 => 0,
+)
+execution time: 4.80 sec
+ from 150.129.141.97
+2017/06/27 12:54:15 [/products/list.php] [execute end 5951d4f63eae5#32]
+SQL: PREPARE mdb2_statement_mysql_32153d2340bfb072a90b0e1877e7abff21d38ec787 FROM 'SELECT dtb_category.*, dtb_category_total_count.product_count FROM dtb_category left join dtb_category_total_count ON dtb_category.category_id = dtb_category_total_count.category_id WHERE del_flg = 0 AND product_count > 0   ORDER BY rank DESC'
+PlaceHolder: array (
+)
+execution time: 8.68 sec
+ from 150.129.141.97
+2017/06/27 12:54:46 [/products/list.php] [execute end 5951d4f63eae5#34]
+SQL: PREPARE mdb2_statement_mysql_34062a101235b685005405ffb5b6c851d423b4a727 FROM 'SELECT T1.category_id, category_name, level FROM dtb_category AS T1 LEFT JOIN dtb_category_total_count AS T2 ON T1.category_id = T2.category_id WHERE del_flg = 0 AND product_count > 0   ORDER BY rank DESC'
+PlaceHolder: array (
+)
+execution time: 4.05 sec
+ from 150.129.141.97
+2017/06/27 12:55:36 [/products/list.php] [execute end 5951d72990128#3]
+SQL: PREPARE mdb2_statement_mysql_318a32ca432e2dffb6e24f10b356deaf0f1eca446 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 6.94 sec
+ from 150.129.141.97
+2017/06/27 12:55:58 [/products/list.php] [execute end 5951d4f63eae5#36]
+SQL: PREPARE mdb2_statement_mysql_36905960caf8d8f5a1bdcd4af66e8da0d88129c1da FROM 'SELECT CASE WHEN EXISTS(SELECT * FROM dtb_session WHERE sess_id = ?   ) THEN 1 ELSE 0 END'
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 3.56 sec
+ from 150.129.141.97
+2017/06/27 12:56:10 [/products/list.php] [execute end 5951d4f63eae5#37]
+SQL: PREPARE mdb2_statement_mysql_37ec3d7838c298de43025aaa5652a84241e4bea400 FROM 'UPDATE dtb_session SET sess_data= ?, update_date= CURRENT_TIMESTAMP WHERE sess_id = ?'
+PlaceHolder: array (
+  0 => 'cart|a:0:{}prev_url|s:195:"/products/list.php?transactionid=e9c6c92aa3b24fb1309d2117900dc174205f01b1&mode=search&employment_status=3&category_id=&name=&search=%E3%81%93%E3%81%AE%E6%9D%A1%E4%BB%B6%E3%81%A7%E6%A4%9C%E7%B4%A2";transactionid|s:40:"e9c6c92aa3b24fb1309d2117900dc174205f01b1";cert|s:8:"7WDhcBTF";member_id|s:1:"2";login_id|s:5:"uugii";authority|s:1:"0";login_name|s:9:"管理者";uniqid|s:21:"5951b641c80fd3LvJ4Wzt";last_login|s:19:"2017-06-22 11:20:01";cart_referer_url|s:224:"http://testvn.hyperion-job.jp/products/list.php?transactionid=e9c6c92aa3b24fb1309d2117900dc174205f01b1&mode=search&employment_status=3&category_id=&name=&search=%E3%81%93%E3%81%AE%E6%9D%A1%E4%BB%B6%E3%81%A7%E6%A4%9C%E7%B4%A2";',
+  1 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 5.48 sec
+ from 150.129.141.97
+2017/06/27 12:56:10 [/products/list.php] [execute end 5951d729a6b72#5]
+SQL: PREPARE mdb2_statement_mysql_57437edd79548e4ca1a8959379a2f670abb331f65 FROM 'SELECT * FROM dtb_plugin_hookpoint WHERE plugin_id = ? AND use_flg = 1   '
+PlaceHolder: array (
+  0 => '1',
+)
+execution time: 8.21 sec
+ from 150.129.141.97
+2017/06/27 12:57:05 [/products/list.php] [execute end 5951d729a6b72#6]
+SQL: PREPARE mdb2_statement_mysql_61dc7845ca1e5204f586015bdff8a09918ceb5d38 FROM 'SELECT * FROM dtb_pagelayout WHERE page_id <> ? AND device_type_id = ? AND url = ?  ORDER BY page_id '
+PlaceHolder: array (
+  0 => 0,
+  1 => 10,
+  2 => 'products/list.php',
+)
+execution time: 18.22 sec
+ from 150.129.141.97
+2017/06/27 12:57:26 [/products/list.php] [execute end 5951d72990128#6]
+SQL: PREPARE mdb2_statement_mysql_6514f86f70091077419bf96f771521debb8851b5e FROM 'SELECT * FROM dtb_pagelayout WHERE page_id <> ? AND device_type_id = ? AND url = ?  ORDER BY page_id '
+PlaceHolder: array (
+  0 => 0,
+  1 => 10,
+  2 => 'products/list.php',
+)
+execution time: 25.05 sec
+ from 150.129.141.97
+2017/06/27 12:57:39 [/products/list.php] [execute end 5951d729a6b72#7]
+SQL: PREPARE mdb2_statement_mysql_70ecd5c7620b1a294320a67dd7c30fb178ce3af05 FROM 'SELECT * FROM dtb_baseinfo   '
+PlaceHolder: array (
+)
+execution time: 12.35 sec
+ from 150.129.141.97
+2017/06/27 12:58:01 [/products/list.php] [execute end 5951d72990128#7]
+SQL: PREPARE mdb2_statement_mysql_7f968324507387e6b2822d7e6151f13fbabc156c9 FROM 'SELECT * FROM dtb_baseinfo   '
+PlaceHolder: array (
+)
+execution time: 12.34 sec
+ from 150.129.141.97
+2017/06/27 12:58:24 [/products/list.php] [execute end 5951d729a6b72#8]
+SQL: PREPARE mdb2_statement_mysql_80c412a3696192db59ac7bcbc66bf928dec318c3e FROM 'SELECT * FROM         dtb_blocposition AS pos             JOIN dtb_bloc AS bloc                 ON bloc.bloc_id = pos.bloc_id                     AND bloc.device_type_id = pos.device_type_id WHERE bloc.device_type_id = ? AND ((anywhere = 1 AND pos.page_id != 0) OR pos.page_id = ?)  ORDER BY target_id, bloc_row '
+PlaceHolder: array (
+  0 => 10,
+  1 => '2',
+)
+execution time: 22.51 sec
+ from 150.129.141.97
+2017/06/27 12:58:43 [/products/list.php] [execute end 5951d72990128#8]
+SQL: PREPARE mdb2_statement_mysql_8e010a56316925922d2668009bd0fd2ff02bdc07f FROM 'SELECT * FROM         dtb_blocposition AS pos             JOIN dtb_bloc AS bloc                 ON bloc.bloc_id = pos.bloc_id                     AND bloc.device_type_id = pos.device_type_id WHERE bloc.device_type_id = ? AND ((anywhere = 1 AND pos.page_id != 0) OR pos.page_id = ?)  ORDER BY target_id, bloc_row '
+PlaceHolder: array (
+  0 => 10,
+  1 => '2',
+)
+execution time: 19.57 sec
+ from 150.129.141.97
+2017/06/27 13:01:11 [/products/list.php] [execute end 5951d729a6b72#9]
+SQL: PREPARE mdb2_statement_mysql_906853e3f4cb7ddc93c916ec15b690bd801933836 FROM 'SELECT order_id FROM dtb_order WHERE create_date <= ? and status = ? and del_flg = 0   '
+PlaceHolder: array (
+  0 => '2017/06/27 12:43:36',
+  1 => 7,
+)
+execution time: 128.87 sec
+ from 150.129.141.97
+2017/06/27 13:02:10 [/products/list.php] [execute end 5951d72990128#9]
+SQL: PREPARE mdb2_statement_mysql_90a3c28831324dfd8945a150312dcca5df064b000 FROM 'SELECT order_id FROM dtb_order WHERE create_date <= ? and status = ? and del_flg = 0   '
+PlaceHolder: array (
+  0 => '2017/06/27 12:43:56',
+  1 => 7,
+)
+execution time: 32.36 sec
+ from 150.129.141.97
+2017/06/27 13:03:51 [/products/list.php] [execute end 5951d729a6b72#10]
+SQL: PREPARE mdb2_statement_mysql_10e150a1b4b39589a616063e9f2158205547980977 FROM 'SELECT COUNT(*) FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?    '
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 21.63 sec
+ from 150.129.141.97
+2017/06/27 13:03:51 [/products/list.php] [execute end 5951d9074b930#3]
+SQL: PREPARE mdb2_statement_mysql_328f1c87903912d7e7d5badf5c73eab1a6f6632b4 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 14.04 sec
+ from 150.129.141.97
+2017/06/27 13:03:56 [/products/list.php] [execute end 5951d9074b78b#3]
+SQL: PREPARE mdb2_statement_mysql_3a52cee2a8125c64bfa9212ed001379f03ee97ce0 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 19.55 sec
+ from 150.129.141.97
+2017/06/27 13:03:58 [/products/list.php] [execute end 5951d72990128#10]
+SQL: PREPARE mdb2_statement_mysql_1015d4dd5d8a078be2be3750f3dd7ad6e9e4404020 FROM 'SELECT COUNT(*) FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?    '
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 19.35 sec
+ from 150.129.141.97
+2017/06/27 13:04:37 [/products/list.php] [execute end 5951d9074b930#4]
+SQL: PREPARE mdb2_statement_mysql_4aa2f89353574e90a1550dfdab6ebe95f47e2a5c6 FROM 'SELECT * FROM dtb_plugin WHERE enable = 1  ORDER BY priority DESC, plugin_id ASC '
+PlaceHolder: array (
+)
+execution time: 7.94 sec
+ from 150.129.141.97
+2017/06/27 13:04:37 [/products/list.php] [execute end 5951d9074b78b#5]
+SQL: PREPARE mdb2_statement_mysql_5f8e72e89a0239c22dc3774fab071b610cd2ef6a0 FROM 'SELECT * FROM dtb_plugin_hookpoint WHERE plugin_id = ? AND use_flg = 1   '
+PlaceHolder: array (
+  0 => '1',
+)
+execution time: 19.93 sec
+ from 150.129.141.97
+2017/06/27 13:04:40 [/products/list.php] [execute end 5951d72990128#11]
+SQL: PREPARE mdb2_statement_mysql_11812e2af002adc2b5cf3508c05d46f733abac124a FROM 'SELECT alldtl.product_id FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?   ORDER BY (SELECT MAX(T3.rank * 2147483648 + T2.rank) FROM dtb_product_categories T2 JOIN dtb_category T3 ON T2.category_id = T3.category_id WHERE T2.product_id = alldtl.product_id   ) DESC ,product_id DESC LIMIT 0, 20'
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 3.43 sec
+ from 150.129.141.97
+2017/06/27 13:04:40 [/products/list.php] [execute end 5951d729a6b72#11]
+SQL: PREPARE mdb2_statement_mysql_11a232781f67cd64eb741e4d1da3fa3a1338b750b0 FROM 'SELECT alldtl.product_id FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?   ORDER BY (SELECT MAX(T3.rank * 2147483648 + T2.rank) FROM dtb_product_categories T2 JOIN dtb_category T3 ON T2.category_id = T3.category_id WHERE T2.product_id = alldtl.product_id   ) DESC ,product_id DESC LIMIT 0, 20'
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 12.96 sec
+ from 150.129.141.97
+2017/06/27 13:04:47 [/products/list.php] [execute end 5951d9074b930#5]
+SQL: PREPARE mdb2_statement_mysql_57e25bb3ed4b46a4442fbf2f51f44e423dceb59d6 FROM 'SELECT * FROM dtb_plugin_hookpoint WHERE plugin_id = ? AND use_flg = 1   '
+PlaceHolder: array (
+  0 => '1',
+)
+execution time: 4.20 sec
+ from 150.129.141.97
+2017/06/27 13:05:34 [/products/list.php] [execute end 5951d9074b78b#7]
+SQL: PREPARE mdb2_statement_mysql_787b6e82637fac897233b59847aa1b448e6491a7f FROM 'SELECT * FROM dtb_baseinfo   '
+PlaceHolder: array (
+)
+execution time: 42.28 sec
+ from 150.129.141.97
+2017/06/27 13:05:34 [/products/list.php] [execute end 5951d9074b930#7]
+SQL: PREPARE mdb2_statement_mysql_7a927f4a9c7a46e08a9cf7d0c68a71022783ec1c7 FROM 'SELECT * FROM dtb_baseinfo   '
+PlaceHolder: array (
+)
+execution time: 29.07 sec
+ from 150.129.141.97
+2017/06/27 13:06:30 [/products/list.php] [execute end 5951d72990128#12]
+SQL: PREPARE mdb2_statement_mysql_12f8cdc3e765c6cc9796e2378d46122d30e2e213ce FROM 'SELECT              product_id             ,product_code_min             ,product_code_max             ,name             ,comment1             ,comment2             ,comment3             ,main_list_comment             ,main_image             ,main_list_image             ,price01_min             ,price01_max             ,price02_min             ,price02_max             ,stock_min             ,stock_max             ,stock_unlimited_min             ,stock_unlimited_max             ,deliv_date_id             ,status             ,del_flg             ,update_date             ,salary             ,salary_min             ,salary_max             ,work_location             ,experience             ,qualification FROM             (                 SELECT                      dtb_products.*                     ,T4.product_code_min                     ,T4.product_code_max                     ,T4.price01_min                     ,T4.price01_max                     ,T4.price02_min                     ,T4.price02_max                     ,T4.stock_min                     ,T4.stock_max                     ,T4.stock_unlimited_min                     ,T4.stock_unlimited_max                     ,T4.point_rate                     ,T4.deliv_fee                     ,dtb_maker.name AS maker_name                 FROM dtb_products                     INNER JOIN (                         SELECT product_id                             ,MIN(product_code) AS product_code_min                             ,MAX(product_code) AS product_code_max                             ,MIN(price01) AS price01_min                             ,MAX(price01) AS price01_max                             ,MIN(price02) AS price02_min                             ,MAX(price02) AS price02_max                             ,MIN(stock) AS stock_min                             ,MAX(stock) AS stock_max                             ,MIN(stock_unlimited) AS stock_unlimited_min                             ,MAX(stock_unlimited) AS stock_unlimited_max                             ,MAX(point_rate) AS point_rate                             ,MAX(deliv_fee) AS deliv_fee                         FROM dtb_products_class                         WHERE del_flg = 0                          GROUP BY product_id                     ) AS T4                         ON dtb_products.product_id = T4.product_id                     LEFT JOIN dtb_maker                         ON dtb_products.maker_id = dtb_maker.maker_id             ) AS alldtl WHERE alldtl.product_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) AND alldtl.del_flg = 0   '
+PlaceHolder: array (
+  0 => '25',
+  1 => '24',
+  2 => '23',
+  3 => '22',
+  4 => '21',
+  5 => '20',
+  6 => '19',
+  7 => '18',
+  8 => '17',
+  9 => '16',
+  10 => '15',
+  11 => '14',
+  12 => '13',
+  13 => '12',
+  14 => '11',
+  15 => '9',
+)
+execution time: 102.61 sec
+ from 150.129.141.97
+2017/06/27 13:06:40 [/products/list.php] [execute end 5951d997bd55f#3]
+SQL: PREPARE mdb2_statement_mysql_31525b8def5faee3d345a7ab33847b4cb92de8669 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 19.61 sec
+ from 150.129.141.97
+2017/06/27 13:06:34 [/products/list.php] [execute end 5951d970cac6c#3]
+SQL: PREPARE mdb2_statement_mysql_3a33fe36b4a09601a149ce6af57b2ad7e154af19f FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 49.31 sec
+ from 150.129.141.97
+2017/06/27 13:07:09 [/products/list.php] [execute end 5951d9074b78b#8]
+SQL: PREPARE mdb2_statement_mysql_8bd6ee295a3c4a290e13395d3fe39932b627e25cd FROM 'SELECT * FROM         dtb_blocposition AS pos             JOIN dtb_bloc AS bloc                 ON bloc.bloc_id = pos.bloc_id                     AND bloc.device_type_id = pos.device_type_id WHERE bloc.device_type_id = ? AND ((anywhere = 1 AND pos.page_id != 0) OR pos.page_id = ?)  ORDER BY target_id, bloc_row '
+PlaceHolder: array (
+  0 => 10,
+  1 => '2',
+)
+execution time: 34.88 sec
+ from 150.129.141.97
+2017/06/27 13:07:13 [/products/list.php] [execute end 5951d9074b930#8]
+SQL: PREPARE mdb2_statement_mysql_8132550fb82c647e5dd89324d9b19ddc1b5884fb5 FROM 'SELECT * FROM         dtb_blocposition AS pos             JOIN dtb_bloc AS bloc                 ON bloc.bloc_id = pos.bloc_id                     AND bloc.device_type_id = pos.device_type_id WHERE bloc.device_type_id = ? AND ((anywhere = 1 AND pos.page_id != 0) OR pos.page_id = ?)  ORDER BY target_id, bloc_row '
+PlaceHolder: array (
+  0 => 10,
+  1 => '2',
+)
+execution time: 33.90 sec
+ from 150.129.141.97
+2017/06/27 13:07:21 [/products/list.php] [execute end 5951d729a6b72#12]
+SQL: PREPARE mdb2_statement_mysql_12acc297d548745aa34d55b0d6051e8cdde75ad34f FROM 'SELECT              product_id             ,product_code_min             ,product_code_max             ,name             ,comment1             ,comment2             ,comment3             ,main_list_comment             ,main_image             ,main_list_image             ,price01_min             ,price01_max             ,price02_min             ,price02_max             ,stock_min             ,stock_max             ,stock_unlimited_min             ,stock_unlimited_max             ,deliv_date_id             ,status             ,del_flg             ,update_date             ,salary             ,salary_min             ,salary_max             ,work_location             ,experience             ,qualification FROM             (                 SELECT                      dtb_products.*                     ,T4.product_code_min                     ,T4.product_code_max                     ,T4.price01_min                     ,T4.price01_max                     ,T4.price02_min                     ,T4.price02_max                     ,T4.stock_min                     ,T4.stock_max                     ,T4.stock_unlimited_min                     ,T4.stock_unlimited_max                     ,T4.point_rate                     ,T4.deliv_fee                     ,dtb_maker.name AS maker_name                 FROM dtb_products                     INNER JOIN (                         SELECT product_id                             ,MIN(product_code) AS product_code_min                             ,MAX(product_code) AS product_code_max                             ,MIN(price01) AS price01_min                             ,MAX(price01) AS price01_max                             ,MIN(price02) AS price02_min                             ,MAX(price02) AS price02_max                             ,MIN(stock) AS stock_min                             ,MAX(stock) AS stock_max                             ,MIN(stock_unlimited) AS stock_unlimited_min                             ,MAX(stock_unlimited) AS stock_unlimited_max                             ,MAX(point_rate) AS point_rate                             ,MAX(deliv_fee) AS deliv_fee                         FROM dtb_products_class                         WHERE del_flg = 0                          GROUP BY product_id                     ) AS T4                         ON dtb_products.product_id = T4.product_id                     LEFT JOIN dtb_maker                         ON dtb_products.maker_id = dtb_maker.maker_id             ) AS alldtl WHERE alldtl.product_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) AND alldtl.del_flg = 0   '
+PlaceHolder: array (
+  0 => '25',
+  1 => '24',
+  2 => '23',
+  3 => '22',
+  4 => '21',
+  5 => '20',
+  6 => '19',
+  7 => '18',
+  8 => '17',
+  9 => '16',
+  10 => '15',
+  11 => '14',
+  12 => '13',
+  13 => '12',
+  14 => '11',
+  15 => '9',
+)
+execution time: 125.78 sec
+ from 150.129.141.97
+2017/06/27 13:08:34 [/products/list.php] [execute end 5951d997bd55f#4]
+SQL: PREPARE mdb2_statement_mysql_4e5068ba14283535cdda3bcdac2da47e5b39ad47d FROM 'SELECT * FROM dtb_plugin WHERE enable = 1  ORDER BY priority DESC, plugin_id ASC '
+PlaceHolder: array (
+)
+execution time: 10.22 sec
+ from 150.129.141.97
+2017/06/27 13:08:40 [/products/list.php] [execute end 5951d970cac6c#4]
+SQL: PREPARE mdb2_statement_mysql_47879c0299ffa8ce04b6fc23dec036836b7d85262 FROM 'SELECT * FROM dtb_plugin WHERE enable = 1  ORDER BY priority DESC, plugin_id ASC '
+PlaceHolder: array (
+)
+execution time: 13.29 sec
+ from 150.129.141.97
+2017/06/27 13:10:03 [/products/list.php] [execute end 5951d970cac6c#5]
+SQL: PREPARE mdb2_statement_mysql_5778206878119da26a91ef3515d15616c622abf6f FROM 'SELECT * FROM dtb_plugin_hookpoint WHERE plugin_id = ? AND use_flg = 1   '
+PlaceHolder: array (
+  0 => '1',
+)
+execution time: 62.30 sec
+ from 150.129.141.97
+2017/06/27 13:09:58 [/products/list.php] [execute end 5951d997bd55f#5]
+SQL: PREPARE mdb2_statement_mysql_56bf87abfc99232ec1cff85fda58b84922e128cd6 FROM 'SELECT * FROM dtb_plugin_hookpoint WHERE plugin_id = ? AND use_flg = 1   '
+PlaceHolder: array (
+  0 => '1',
+)
+execution time: 55.64 sec
+ from 150.129.141.97
+2017/06/27 13:10:10 [/products/list.php] [execute end 5951d9074b78b#9]
+SQL: PREPARE mdb2_statement_mysql_9ceae7824301657f45e59c14a19f1a97092424d72 FROM 'SELECT order_id FROM dtb_order WHERE create_date <= ? and status = ? and del_flg = 0   '
+PlaceHolder: array (
+  0 => '2017/06/27 12:53:26',
+  1 => 7,
+)
+execution time: 55.93 sec
+ from 150.129.141.97
+2017/06/27 13:11:41 [/products/list.php] [execute end 5951d9074b930#9]
+SQL: PREPARE mdb2_statement_mysql_94325d27d50b57452662a62d79116307bdea530fd FROM 'SELECT order_id FROM dtb_order WHERE create_date <= ? and status = ? and del_flg = 0   '
+PlaceHolder: array (
+  0 => '2017/06/27 12:53:56',
+  1 => 7,
+)
+execution time: 68.60 sec
+ from 150.129.141.97
+2017/06/27 13:11:37 [/products/list.php] [execute end 5951d729a6b72#13]
+SQL: PREPARE mdb2_statement_mysql_13ca5c2b4530aae8f3798a189d16d6becb4eaf7cfe FROM 'SELECT * FROM dtb_tax_rule WHERE      product_id = 0  AND product_class_id = 0  AND (pref_id = 0 OR pref_id = ?) AND (country_id = 0 OR country_id = ?) AND apply_date < CURRENT_TIMESTAMP AND del_flg = 0  ORDER BY apply_date DESC '
+PlaceHolder: array (
+  0 => 0,
+  1 => 0,
+)
+execution time: 67.64 sec
+ from 150.129.141.97
+2017/06/27 13:11:57 [/products/list.php] [execute end 5951d72990128#13]
+SQL: PREPARE mdb2_statement_mysql_13937b12a70f8acb83a51203f64fc1916e9adfb070 FROM 'SELECT * FROM dtb_tax_rule WHERE      product_id = 0  AND product_class_id = 0  AND (pref_id = 0 OR pref_id = ?) AND (country_id = 0 OR country_id = ?) AND apply_date < CURRENT_TIMESTAMP AND del_flg = 0  ORDER BY apply_date DESC '
+PlaceHolder: array (
+  0 => 0,
+  1 => 0,
+)
+execution time: 144.24 sec
+ from 150.129.141.97
+2017/06/27 13:12:11 [/products/list.php] [execute end 5951d9074b78b#10]
+SQL: PREPARE mdb2_statement_mysql_10c69b494785a7eb2b03668e767767d8cb53dc5e9c FROM 'SELECT COUNT(*) FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?    '
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 19.83 sec
+ from 150.129.141.97
+2017/06/27 13:12:12 [/products/list.php] [execute end 5951d997bd55f#6]
+SQL: PREPARE mdb2_statement_mysql_6f7a60305805ecbf3267c33c35ca5eec490f4d01b FROM 'SELECT * FROM dtb_pagelayout WHERE page_id <> ? AND device_type_id = ? AND url = ?  ORDER BY page_id '
+PlaceHolder: array (
+  0 => 0,
+  1 => 10,
+  2 => 'products/list.php',
+)
+execution time: 21.14 sec
+ from 150.129.141.97
+2017/06/27 13:12:41 [/products/list.php] [execute end 5951db075684b#3]
+SQL: PREPARE mdb2_statement_mysql_31a2482eacf84eb2734d223576838ecfe40302b6d FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 35.88 sec
+ from 150.129.141.97
+2017/06/27 13:12:42 [/products/list.php] [execute end 5951d970cac6c#6]
+SQL: PREPARE mdb2_statement_mysql_62c8facb8e04db983aaeae9ea2d754fd7ecb95c55 FROM 'SELECT * FROM dtb_pagelayout WHERE page_id <> ? AND device_type_id = ? AND url = ?  ORDER BY page_id '
+PlaceHolder: array (
+  0 => 0,
+  1 => 10,
+  2 => 'products/list.php',
+)
+execution time: 36.94 sec
+ from 150.129.141.97
+2017/06/27 13:12:58 [/products/list.php] [execute end 5951d997bd55f#7]
+SQL: PREPARE mdb2_statement_mysql_7056ab765c141e4a3ec7e876e6ade43171633d686 FROM 'SELECT * FROM dtb_baseinfo   '
+PlaceHolder: array (
+)
+execution time: 22.41 sec
+ from 150.129.141.97
+2017/06/27 13:12:56 [/products/list.php] [execute end 5951db2531182#3]
+SQL: PREPARE mdb2_statement_mysql_32aa417b025a1359e3fc40735119a9e96d52e74b9 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 26.94 sec
+ from 150.129.141.97
+2017/06/27 13:13:12 [/products/list.php] [execute end 5951d9074b930#10]
+SQL: PREPARE mdb2_statement_mysql_10fb0dbcb1981fab0de6099d404dbdf0afbec919fe FROM 'SELECT COUNT(*) FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?    '
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 27.54 sec
+ from 150.129.141.97
+2017/06/27 13:13:25 [/products/list.php] [execute end 5951d970cac6c#7]
+SQL: PREPARE mdb2_statement_mysql_78db34f7cbc25afaa31975659a794b78cc60a5f43 FROM 'SELECT * FROM dtb_baseinfo   '
+PlaceHolder: array (
+)
+execution time: 13.33 sec
+ from 150.129.141.97
+2017/06/27 13:13:39 [/products/list.php] [execute end 5951d997bd55f#8]
+SQL: PREPARE mdb2_statement_mysql_8350143116658bb61717394c9d3fe535d05639303 FROM 'SELECT * FROM         dtb_blocposition AS pos             JOIN dtb_bloc AS bloc                 ON bloc.bloc_id = pos.bloc_id                     AND bloc.device_type_id = pos.device_type_id WHERE bloc.device_type_id = ? AND ((anywhere = 1 AND pos.page_id != 0) OR pos.page_id = ?)  ORDER BY target_id, bloc_row '
+PlaceHolder: array (
+  0 => 10,
+  1 => '2',
+)
+execution time: 29.89 sec
+ from 150.129.141.97
+2017/06/27 13:13:48 [/products/list.php] [execute end 5951d729a6b72#14]
+SQL: PREPARE mdb2_statement_mysql_14ff16bbc02153e0beeb3b355167e433932b43af34 FROM 'SELECT             T1.product_id,             T1.stock,             T1.stock_unlimited,             T1.sale_limit,             T1.price01,             T1.price02,             T1.point_rate,             T1.product_code,             T1.product_class_id,             T1.del_flg,             T1.product_type_id,             T1.down_filename,             T1.down_realfilename,             T3.name AS classcategory_name1,             T3.rank AS rank1,             T4.name AS class_name1,             T4.class_id AS class_id1,             T1.classcategory_id1,             T1.classcategory_id2,             dtb_classcategory2.name AS classcategory_name2,             dtb_classcategory2.rank AS rank2,             dtb_class2.name AS class_name2,             dtb_class2.class_id AS class_id2 FROM             dtb_products_class T1             LEFT JOIN dtb_classcategory T3                 ON T1.classcategory_id1 = T3.classcategory_id             LEFT JOIN dtb_class T4                 ON T3.class_id = T4.class_id             LEFT JOIN dtb_classcategory dtb_classcategory2                 ON T1.classcategory_id2 = dtb_classcategory2.classcategory_id             LEFT JOIN dtb_class dtb_class2                 ON dtb_classcategory2.class_id = dtb_class2.class_id WHERE product_id IN (?) AND T1.del_flg = 0 AND  T3.classcategory_id is not null AND dtb_classcategory2.classcategory_id is not null   ORDER BY T3.rank DESC, dtb_classcategory2.rank DESC '
+PlaceHolder: array (
+  0 => '25',
+)
+execution time: 65.81 sec
+ from 150.129.141.97
+2017/06/27 13:14:04 [/products/list.php] [execute end 5951d9074b78b#11]
+SQL: PREPARE mdb2_statement_mysql_116a9ec516e2551056b21930d93cba0f10baee80ad FROM 'SELECT alldtl.product_id FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?   ORDER BY (SELECT MAX(T3.rank * 2147483648 + T2.rank) FROM dtb_product_categories T2 JOIN dtb_category T3 ON T2.category_id = T3.category_id WHERE T2.product_id = alldtl.product_id   ) DESC ,product_id DESC LIMIT 0, 20'
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 56.28 sec
+ from 150.129.141.97
+2017/06/27 13:14:38 [/products/list.php] [execute end 5951db92d63a0#1]
+SQL: PREPARE mdb2_statement_mysql_132cb7b623d185adc37c9c2224d63a763c063fc01 FROM 'SET SESSION storage_engine = InnoDB'
+PlaceHolder: array (
+)
+execution time: 18.06 sec
+ from 150.129.141.97
+2017/06/27 13:15:52 [/products/list.php] [execute end 5951db075684b#4]
+SQL: PREPARE mdb2_statement_mysql_4df356e0a8d01b501daaa6cf2511b9719024ddb0d FROM 'SELECT * FROM dtb_plugin WHERE enable = 1  ORDER BY priority DESC, plugin_id ASC '
+PlaceHolder: array (
+)
+execution time: 124.20 sec
+ from 150.129.141.97
+2017/06/27 13:16:58 [/products/list.php] [execute end 5951db2531182#4]
+SQL: PREPARE mdb2_statement_mysql_477fe610fad552f78822d48524171f84c53689a40 FROM 'SELECT * FROM dtb_plugin WHERE enable = 1  ORDER BY priority DESC, plugin_id ASC '
+PlaceHolder: array (
+)
+execution time: 167.50 sec
+ from 150.129.141.97
+2017/06/27 13:17:18 [/products/list.php] [execute end 5951db8c570cc#3]
+SQL: PREPARE mdb2_statement_mysql_3d6a8f65ce06f5a6f47c5b0b4a8042ddbf3fad4ef FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 42.20 sec
+ from 150.129.141.97
+2017/06/27 13:17:20 [/products/list.php] [execute end 5951d9074b930#11]
+SQL: PREPARE mdb2_statement_mysql_11808d65d160562daab038a23740eabc5af0a17e09 FROM 'SELECT alldtl.product_id FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?   ORDER BY (SELECT MAX(T3.rank * 2147483648 + T2.rank) FROM dtb_product_categories T2 JOIN dtb_category T3 ON T2.category_id = T3.category_id WHERE T2.product_id = alldtl.product_id   ) DESC ,product_id DESC LIMIT 0, 20'
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 120.12 sec
+ from 150.129.141.97
+2017/06/27 13:17:16 [/products/list.php] [execute end 5951db85a5c31#3]
+SQL: PREPARE mdb2_statement_mysql_3532592f2daa6d440e2c5a0aabe72193f3e661e01 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 113.57 sec
+ from 150.129.141.97
+2017/06/27 13:17:21 [/products/list.php] [execute end 5951db85a5bfb#3]
+SQL: PREPARE mdb2_statement_mysql_3d4dd5102921ef6f7e8e74720504cadc393cd2754 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 108.84 sec
+ from 150.129.141.97
+2017/06/27 13:17:38 [/products/list.php] [execute end 5951d72990128#14]
+SQL: PREPARE mdb2_statement_mysql_149980011e1e43fd7f27381e250285eb26cfed584c FROM 'SELECT             T1.product_id,             T1.stock,             T1.stock_unlimited,             T1.sale_limit,             T1.price01,             T1.price02,             T1.point_rate,             T1.product_code,             T1.product_class_id,             T1.del_flg,             T1.product_type_id,             T1.down_filename,             T1.down_realfilename,             T3.name AS classcategory_name1,             T3.rank AS rank1,             T4.name AS class_name1,             T4.class_id AS class_id1,             T1.classcategory_id1,             T1.classcategory_id2,             dtb_classcategory2.name AS classcategory_name2,             dtb_classcategory2.rank AS rank2,             dtb_class2.name AS class_name2,             dtb_class2.class_id AS class_id2 FROM             dtb_products_class T1             LEFT JOIN dtb_classcategory T3                 ON T1.classcategory_id1 = T3.classcategory_id             LEFT JOIN dtb_class T4                 ON T3.class_id = T4.class_id             LEFT JOIN dtb_classcategory dtb_classcategory2                 ON T1.classcategory_id2 = dtb_classcategory2.classcategory_id             LEFT JOIN dtb_class dtb_class2                 ON dtb_classcategory2.class_id = dtb_class2.class_id WHERE product_id IN (?) AND T1.del_flg = 0 AND  T3.classcategory_id is not null AND dtb_classcategory2.classcategory_id is not null   ORDER BY T3.rank DESC, dtb_classcategory2.rank DESC '
+PlaceHolder: array (
+  0 => '25',
+)
+execution time: 270.58 sec
+ from 150.129.141.97
+2017/06/27 13:18:05 [/products/list.php] [execute end 5951db075684b#5]
+SQL: PREPARE mdb2_statement_mysql_5c98d2e6084e5e9b75bdc526b24996e869eaec1e1 FROM 'SELECT * FROM dtb_plugin_hookpoint WHERE plugin_id = ? AND use_flg = 1   '
+PlaceHolder: array (
+  0 => '1',
+)
+execution time: 52.71 sec
+ from 150.129.141.97
+2017/06/27 13:18:19 [/products/list.php] [execute end 5951d970cac6c#8]
+SQL: PREPARE mdb2_statement_mysql_8995e8b509707af39feba4dcbbebcc760f722624f FROM 'SELECT * FROM         dtb_blocposition AS pos             JOIN dtb_bloc AS bloc                 ON bloc.bloc_id = pos.bloc_id                     AND bloc.device_type_id = pos.device_type_id WHERE bloc.device_type_id = ? AND ((anywhere = 1 AND pos.page_id != 0) OR pos.page_id = ?)  ORDER BY target_id, bloc_row '
+PlaceHolder: array (
+  0 => 10,
+  1 => '2',
+)
+execution time: 66.02 sec
+ from 150.129.141.97
+2017/06/27 13:18:19 [/products/list.php] [execute end 5951d729a6b72#15]
+SQL: PREPARE mdb2_statement_mysql_153ec739cd84c2f063f6b51033d779b0958518bec0 FROM 'SELECT             T1.product_id,             T1.stock,             T1.stock_unlimited,             T1.sale_limit,             T1.price01,             T1.price02,             T1.point_rate,             T1.product_code,             T1.product_class_id,             T1.del_flg,             T1.product_type_id,             T1.down_filename,             T1.down_realfilename,             T3.name AS classcategory_name1,             T3.rank AS rank1,             T4.name AS class_name1,             T4.class_id AS class_id1,             T1.classcategory_id1,             T1.classcategory_id2,             dtb_classcategory2.name AS classcategory_name2,             dtb_classcategory2.rank AS rank2,             dtb_class2.name AS class_name2,             dtb_class2.class_id AS class_id2 FROM             dtb_products_class T1             LEFT JOIN dtb_classcategory T3                 ON T1.classcategory_id1 = T3.classcategory_id             LEFT JOIN dtb_class T4                 ON T3.class_id = T4.class_id             LEFT JOIN dtb_classcategory dtb_classcategory2                 ON T1.classcategory_id2 = dtb_classcategory2.classcategory_id             LEFT JOIN dtb_class dtb_class2                 ON dtb_classcategory2.class_id = dtb_class2.class_id WHERE product_id IN (?) AND T1.del_flg = 0 AND  T3.classcategory_id is not null AND dtb_classcategory2.classcategory_id is not null   ORDER BY T3.rank DESC, dtb_classcategory2.rank DESC '
+PlaceHolder: array (
+  0 => '24',
+)
+execution time: 69.67 sec
+ from 150.129.141.97
+2017/06/27 13:18:21 [/products/list.php] [execute end 5951d997bd55f#9]
+SQL: PREPARE mdb2_statement_mysql_9a7c01a4bd2de44822ded32d419984d0a4510c50c FROM 'SELECT order_id FROM dtb_order WHERE create_date <= ? and status = ? and del_flg = 0   '
+PlaceHolder: array (
+  0 => '2017/06/27 12:59:11',
+  1 => 7,
+)
+execution time: 52.73 sec
+ from 150.129.141.97
+2017/06/27 13:18:33 [/products/list.php] [execute end 5951db8c570cc#4]
+SQL: PREPARE mdb2_statement_mysql_40c437c813be39c586b0dcd812c410be054a5c8e7 FROM 'SELECT * FROM dtb_plugin WHERE enable = 1  ORDER BY priority DESC, plugin_id ASC '
+PlaceHolder: array (
+)
+execution time: 7.78 sec
+ from 150.129.141.97
+2017/06/27 13:18:25 [/products/list.php] [execute end 5951dc7d2df6e#3]
+SQL: PREPARE mdb2_statement_mysql_371289ff72998863742a38076c004a56e013629f6 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 19.81 sec
+ from 150.129.141.97
+2017/06/27 13:18:38 [/products/list.php] [execute end 5951db2531182#5]
+SQL: PREPARE mdb2_statement_mysql_54899ed1cbb1c292273b60424c07d4ca204e94a7f FROM 'SELECT * FROM dtb_plugin_hookpoint WHERE plugin_id = ? AND use_flg = 1   '
+PlaceHolder: array (
+  0 => '1',
+)
+execution time: 26.06 sec
+ from 150.129.141.97
+2017/06/27 13:18:39 [/products/list.php] [execute end 5951db92d63a0#3]
+SQL: PREPARE mdb2_statement_mysql_35cfed7da9ba378559776d77d86a8d01c1bbcac8a FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 44.17 sec
+ from 150.129.141.97
+2017/06/27 13:18:41 [/products/list.php] [execute end 5951d72990128#15]
+SQL: PREPARE mdb2_statement_mysql_15c0cfc4e3002a1765a7c622970f99692e7b6e12e0 FROM 'SELECT             T1.product_id,             T1.stock,             T1.stock_unlimited,             T1.sale_limit,             T1.price01,             T1.price02,             T1.point_rate,             T1.product_code,             T1.product_class_id,             T1.del_flg,             T1.product_type_id,             T1.down_filename,             T1.down_realfilename,             T3.name AS classcategory_name1,             T3.rank AS rank1,             T4.name AS class_name1,             T4.class_id AS class_id1,             T1.classcategory_id1,             T1.classcategory_id2,             dtb_classcategory2.name AS classcategory_name2,             dtb_classcategory2.rank AS rank2,             dtb_class2.name AS class_name2,             dtb_class2.class_id AS class_id2 FROM             dtb_products_class T1             LEFT JOIN dtb_classcategory T3                 ON T1.classcategory_id1 = T3.classcategory_id             LEFT JOIN dtb_class T4                 ON T3.class_id = T4.class_id             LEFT JOIN dtb_classcategory dtb_classcategory2                 ON T1.classcategory_id2 = dtb_classcategory2.classcategory_id             LEFT JOIN dtb_class dtb_class2                 ON dtb_classcategory2.class_id = dtb_class2.class_id WHERE product_id IN (?) AND T1.del_flg = 0 AND  T3.classcategory_id is not null AND dtb_classcategory2.classcategory_id is not null   ORDER BY T3.rank DESC, dtb_classcategory2.rank DESC '
+PlaceHolder: array (
+  0 => '24',
+)
+execution time: 10.98 sec
+ from 150.129.141.97
+2017/06/27 13:18:34 [/products/list.php] [execute end 5951d9074b78b#12]
+SQL: PREPARE mdb2_statement_mysql_1289a278439291f4569d62f3e297255d8b49557bdd FROM 'SELECT              product_id             ,product_code_min             ,product_code_max             ,name             ,comment1             ,comment2             ,comment3             ,main_list_comment             ,main_image             ,main_list_image             ,price01_min             ,price01_max             ,price02_min             ,price02_max             ,stock_min             ,stock_max             ,stock_unlimited_min             ,stock_unlimited_max             ,deliv_date_id             ,status             ,del_flg             ,update_date             ,salary             ,salary_min             ,salary_max             ,work_location             ,experience             ,qualification FROM             (                 SELECT                      dtb_products.*                     ,T4.product_code_min                     ,T4.product_code_max                     ,T4.price01_min                     ,T4.price01_max                     ,T4.price02_min                     ,T4.price02_max                     ,T4.stock_min                     ,T4.stock_max                     ,T4.stock_unlimited_min                     ,T4.stock_unlimited_max                     ,T4.point_rate                     ,T4.deliv_fee                     ,dtb_maker.name AS maker_name                 FROM dtb_products                     INNER JOIN (                         SELECT product_id                             ,MIN(product_code) AS product_code_min                             ,MAX(product_code) AS product_code_max                             ,MIN(price01) AS price01_min                             ,MAX(price01) AS price01_max                             ,MIN(price02) AS price02_min                             ,MAX(price02) AS price02_max                             ,MIN(stock) AS stock_min                             ,MAX(stock) AS stock_max                             ,MIN(stock_unlimited) AS stock_unlimited_min                             ,MAX(stock_unlimited) AS stock_unlimited_max                             ,MAX(point_rate) AS point_rate                             ,MAX(deliv_fee) AS deliv_fee                         FROM dtb_products_class                         WHERE del_flg = 0                          GROUP BY product_id                     ) AS T4                         ON dtb_products.product_id = T4.product_id                     LEFT JOIN dtb_maker                         ON dtb_products.maker_id = dtb_maker.maker_id             ) AS alldtl WHERE alldtl.product_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) AND alldtl.del_flg = 0   '
+PlaceHolder: array (
+  0 => '25',
+  1 => '24',
+  2 => '23',
+  3 => '22',
+  4 => '21',
+  5 => '20',
+  6 => '19',
+  7 => '18',
+  8 => '17',
+  9 => '16',
+  10 => '15',
+  11 => '14',
+  12 => '13',
+  13 => '12',
+  14 => '11',
+  15 => '9',
+)
+execution time: 90.87 sec
+ from 150.129.141.97
+2017/06/27 13:19:12 [/products/list.php] [execute end 5951dc7d2df6e#12]
+SQL: PREPARE mdb2_statement_mysql_1235908c75993a80c6ea5b2f9c59636c8c0a2171a0 FROM 'SELECT              product_id             ,product_code_min             ,product_code_max             ,name             ,comment1             ,comment2             ,comment3             ,main_list_comment             ,main_image             ,main_list_image             ,price01_min             ,price01_max             ,price02_min             ,price02_max             ,stock_min             ,stock_max             ,stock_unlimited_min             ,stock_unlimited_max             ,deliv_date_id             ,status             ,del_flg             ,update_date             ,salary             ,salary_min             ,salary_max             ,work_location             ,experience             ,qualification FROM             (                 SELECT                      dtb_products.*                     ,T4.product_code_min                     ,T4.product_code_max                     ,T4.price01_min                     ,T4.price01_max                     ,T4.price02_min                     ,T4.price02_max                     ,T4.stock_min                     ,T4.stock_max                     ,T4.stock_unlimited_min                     ,T4.stock_unlimited_max                     ,T4.point_rate                     ,T4.deliv_fee                     ,dtb_maker.name AS maker_name                 FROM dtb_products                     INNER JOIN (                         SELECT product_id                             ,MIN(product_code) AS product_code_min                             ,MAX(product_code) AS product_code_max                             ,MIN(price01) AS price01_min                             ,MAX(price01) AS price01_max                             ,MIN(price02) AS price02_min                             ,MAX(price02) AS price02_max                             ,MIN(stock) AS stock_min                             ,MAX(stock) AS stock_max                             ,MIN(stock_unlimited) AS stock_unlimited_min                             ,MAX(stock_unlimited) AS stock_unlimited_max                             ,MAX(point_rate) AS point_rate                             ,MAX(deliv_fee) AS deliv_fee                         FROM dtb_products_class                         WHERE del_flg = 0                          GROUP BY product_id                     ) AS T4                         ON dtb_products.product_id = T4.product_id                     LEFT JOIN dtb_maker                         ON dtb_products.maker_id = dtb_maker.maker_id             ) AS alldtl WHERE alldtl.product_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) AND alldtl.del_flg = 0   '
+PlaceHolder: array (
+  0 => '25',
+  1 => '24',
+  2 => '23',
+  3 => '22',
+  4 => '21',
+  5 => '20',
+  6 => '19',
+  7 => '18',
+  8 => '17',
+  9 => '16',
+  10 => '15',
+  11 => '14',
+  12 => '13',
+  13 => '12',
+  14 => '11',
+  15 => '9',
+)
+execution time: 18.06 sec
+ from 150.129.141.97
+2017/06/27 13:19:21 [/products/list.php] [execute end 5951db85a5bfb#9]
+SQL: PREPARE mdb2_statement_mysql_99428b95208c4f8f839dacbb43928ecf6f9491dc3 FROM 'SELECT order_id FROM dtb_order WHERE create_date <= ? and status = ? and del_flg = 0   '
+PlaceHolder: array (
+  0 => '2017/06/27 13:04:16',
+  1 => 7,
+)
+execution time: 2.07 sec
+ from 150.129.141.97
+2017/06/27 13:19:21 [/products/list.php] [execute end 5951db8c570cc#15]
+SQL: PREPARE mdb2_statement_mysql_1596f91e64d4fba7b2ea637bb72fdc2c64fa0f2977 FROM 'SELECT             T1.product_id,             T1.stock,             T1.stock_unlimited,             T1.sale_limit,             T1.price01,             T1.price02,             T1.point_rate,             T1.product_code,             T1.product_class_id,             T1.del_flg,             T1.product_type_id,             T1.down_filename,             T1.down_realfilename,             T3.name AS classcategory_name1,             T3.rank AS rank1,             T4.name AS class_name1,             T4.class_id AS class_id1,             T1.classcategory_id1,             T1.classcategory_id2,             dtb_classcategory2.name AS classcategory_name2,             dtb_classcategory2.rank AS rank2,             dtb_class2.name AS class_name2,             dtb_class2.class_id AS class_id2 FROM             dtb_products_class T1             LEFT JOIN dtb_classcategory T3                 ON T1.classcategory_id1 = T3.classcategory_id             LEFT JOIN dtb_class T4                 ON T3.class_id = T4.class_id             LEFT JOIN dtb_classcategory dtb_classcategory2                 ON T1.classcategory_id2 = dtb_classcategory2.classcategory_id             LEFT JOIN dtb_class dtb_class2                 ON dtb_classcategory2.class_id = dtb_class2.class_id WHERE product_id IN (?) AND T1.del_flg = 0 AND  T3.classcategory_id is not null AND dtb_classcategory2.classcategory_id is not null   ORDER BY T3.rank DESC, dtb_classcategory2.rank DESC '
+PlaceHolder: array (
+  0 => '24',
+)
+execution time: 2.07 sec
+ from 150.129.141.97
+2017/06/27 13:19:21 [/products/list.php] [execute end 5951d729a6b72#16]
+SQL: PREPARE mdb2_statement_mysql_16ed2287f3fab75827ee7f884e42d5c6427d734e04 FROM 'SELECT             T1.product_id,             T1.stock,             T1.stock_unlimited,             T1.sale_limit,             T1.price01,             T1.price02,             T1.point_rate,             T1.product_code,             T1.product_class_id,             T1.del_flg,             T1.product_type_id,             T1.down_filename,             T1.down_realfilename,             T3.name AS classcategory_name1,             T3.rank AS rank1,             T4.name AS class_name1,             T4.class_id AS class_id1,             T1.classcategory_id1,             T1.classcategory_id2,             dtb_classcategory2.name AS classcategory_name2,             dtb_classcategory2.rank AS rank2,             dtb_class2.name AS class_name2,             dtb_class2.class_id AS class_id2 FROM             dtb_products_class T1             LEFT JOIN dtb_classcategory T3                 ON T1.classcategory_id1 = T3.classcategory_id             LEFT JOIN dtb_class T4                 ON T3.class_id = T4.class_id             LEFT JOIN dtb_classcategory dtb_classcategory2                 ON T1.classcategory_id2 = dtb_classcategory2.classcategory_id             LEFT JOIN dtb_class dtb_class2                 ON dtb_classcategory2.class_id = dtb_class2.class_id WHERE product_id IN (?) AND T1.del_flg = 0 AND  T3.classcategory_id is not null AND dtb_classcategory2.classcategory_id is not null   ORDER BY T3.rank DESC, dtb_classcategory2.rank DESC '
+PlaceHolder: array (
+  0 => '23',
+)
+execution time: 6.19 sec
+ from 150.129.141.97
+2017/06/27 13:28:27 [/products/list.php] [execute end 5951dec398c27#2]
+SQL: PREPARE mdb2_statement_mysql_2bbde419b7e58e05195b6b5be60f700d8c89d3a8a FROM 'SET SESSION sql_mode = \'ANSI\''
+PlaceHolder: array (
+)
+execution time: 14.77 sec
+ from 150.129.141.97
+2017/06/27 13:28:27 [/products/list.php] [execute end 5951dec398dce#2]
+SQL: PREPARE mdb2_statement_mysql_23ae66f82c293b67eefda1b16afb5511e6d4fcec3 FROM 'SET SESSION sql_mode = \'ANSI\''
+PlaceHolder: array (
+)
+execution time: 3.08 sec
+ from 150.129.141.97
+2017/06/27 13:28:31 [/products/list.php] [execute end 5951d9074b930#14]
+SQL: PREPARE mdb2_statement_mysql_14fbcbfce99f4069c3d4e90c1bcf67a5b686252c67 FROM 'SELECT             T1.product_id,             T1.stock,             T1.stock_unlimited,             T1.sale_limit,             T1.price01,             T1.price02,             T1.point_rate,             T1.product_code,             T1.product_class_id,             T1.del_flg,             T1.product_type_id,             T1.down_filename,             T1.down_realfilename,             T3.name AS classcategory_name1,             T3.rank AS rank1,             T4.name AS class_name1,             T4.class_id AS class_id1,             T1.classcategory_id1,             T1.classcategory_id2,             dtb_classcategory2.name AS classcategory_name2,             dtb_classcategory2.rank AS rank2,             dtb_class2.name AS class_name2,             dtb_class2.class_id AS class_id2 FROM             dtb_products_class T1             LEFT JOIN dtb_classcategory T3                 ON T1.classcategory_id1 = T3.classcategory_id             LEFT JOIN dtb_class T4                 ON T3.class_id = T4.class_id             LEFT JOIN dtb_classcategory dtb_classcategory2                 ON T1.classcategory_id2 = dtb_classcategory2.classcategory_id             LEFT JOIN dtb_class dtb_class2                 ON dtb_classcategory2.class_id = dtb_class2.class_id WHERE product_id IN (?) AND T1.del_flg = 0 AND  T3.classcategory_id is not null AND dtb_classcategory2.classcategory_id is not null   ORDER BY T3.rank DESC, dtb_classcategory2.rank DESC '
+PlaceHolder: array (
+  0 => '25',
+)
+execution time: 541.36 sec
+ from 150.129.141.97
+2017/06/27 13:28:33 [/products/list.php] [execute end 5951db8c570cc#24]
+SQL: PREPARE mdb2_statement_mysql_2424bca5fa77ee076736e8cb6daab426aaa73af336 FROM 'SELECT             T1.product_id,             T1.stock,             T1.stock_unlimited,             T1.sale_limit,             T1.price01,             T1.price02,             T1.point_rate,             T1.product_code,             T1.product_class_id,             T1.del_flg,             T1.product_type_id,             T1.down_filename,             T1.down_realfilename,             T3.name AS classcategory_name1,             T3.rank AS rank1,             T4.name AS class_name1,             T4.class_id AS class_id1,             T1.classcategory_id1,             T1.classcategory_id2,             dtb_classcategory2.name AS classcategory_name2,             dtb_classcategory2.rank AS rank2,             dtb_class2.name AS class_name2,             dtb_class2.class_id AS class_id2 FROM             dtb_products_class T1             LEFT JOIN dtb_classcategory T3                 ON T1.classcategory_id1 = T3.classcategory_id             LEFT JOIN dtb_class T4                 ON T3.class_id = T4.class_id             LEFT JOIN dtb_classcategory dtb_classcategory2                 ON T1.classcategory_id2 = dtb_classcategory2.classcategory_id             LEFT JOIN dtb_class dtb_class2                 ON dtb_classcategory2.class_id = dtb_class2.class_id WHERE product_id IN (?) AND T1.del_flg = 0 AND  T3.classcategory_id is not null AND dtb_classcategory2.classcategory_id is not null   ORDER BY T3.rank DESC, dtb_classcategory2.rank DESC '
+PlaceHolder: array (
+  0 => '15',
+)
+execution time: 539.69 sec
+ from 150.129.141.97
+2017/06/27 13:29:13 [/products/list.php] [execute end 5951d729a6b72#19]
+SQL: PREPARE mdb2_statement_mysql_19582441a97abc6b2f557f8f9ce9d660665bb17257 FROM 'SELECT             T1.product_id,             T1.stock,             T1.stock_unlimited,             T1.sale_limit,             T1.price01,             T1.price02,             T1.point_rate,             T1.product_code,             T1.product_class_id,             T1.del_flg,             T1.product_type_id,             T1.down_filename,             T1.down_realfilename,             T3.name AS classcategory_name1,             T3.rank AS rank1,             T4.name AS class_name1,             T4.class_id AS class_id1,             T1.classcategory_id1,             T1.classcategory_id2,             dtb_classcategory2.name AS classcategory_name2,             dtb_classcategory2.rank AS rank2,             dtb_class2.name AS class_name2,             dtb_class2.class_id AS class_id2 FROM             dtb_products_class T1             LEFT JOIN dtb_classcategory T3                 ON T1.classcategory_id1 = T3.classcategory_id             LEFT JOIN dtb_class T4                 ON T3.class_id = T4.class_id             LEFT JOIN dtb_classcategory dtb_classcategory2                 ON T1.classcategory_id2 = dtb_classcategory2.classcategory_id             LEFT JOIN dtb_class dtb_class2                 ON dtb_classcategory2.class_id = dtb_class2.class_id WHERE product_id IN (?) AND T1.del_flg = 0 AND  T3.classcategory_id is not null AND dtb_classcategory2.classcategory_id is not null   ORDER BY T3.rank DESC, dtb_classcategory2.rank DESC '
+PlaceHolder: array (
+  0 => '20',
+)
+execution time: 578.76 sec
+ from 150.129.141.97
+2017/06/27 13:30:25 [/products/list.php] [execute end 5951db075684b#13]
+SQL: PREPARE mdb2_statement_mysql_13d0f359e22a3d236928a912ee64a067a5584353d1 FROM 'SELECT * FROM dtb_tax_rule WHERE      product_id = 0  AND product_class_id = 0  AND (pref_id = 0 OR pref_id = ?) AND (country_id = 0 OR country_id = ?) AND apply_date < CURRENT_TIMESTAMP AND del_flg = 0  ORDER BY apply_date DESC '
+PlaceHolder: array (
+  0 => 0,
+  1 => 0,
+)
+execution time: 483.02 sec
+ from 150.129.141.97
+2017/06/27 13:30:27 [/products/list.php] [execute end 5951db2531182#10]
+SQL: PREPARE mdb2_statement_mysql_1013574614d6a255e4a2a535a0664fa2afe17c8ed1 FROM 'SELECT COUNT(*) FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?    '
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 484.14 sec
+ from 150.129.141.97
+2017/06/27 13:30:31 [/products/list.php] [execute end 5951d997bd55f#10]
+SQL: PREPARE mdb2_statement_mysql_103e9263b67399ce1aedce4517b18e3575eba9be8a FROM 'SELECT COUNT(*) FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?    '
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 505.70 sec
+ from 150.129.141.97
+2017/06/27 13:30:39 [/products/list.php] [execute end 5951db92d63a0#6]
+SQL: PREPARE mdb2_statement_mysql_637c53f197524f71a926dc5ce7855deea88e52319 FROM 'SELECT * FROM dtb_pagelayout WHERE page_id <> ? AND device_type_id = ? AND url = ?  ORDER BY page_id '
+PlaceHolder: array (
+  0 => 0,
+  1 => 10,
+  2 => 'products/list.php',
+)
+execution time: 499.55 sec
+ from 150.129.141.97
+2017/06/27 13:33:37 [/products/list.php] [execute end 5951db85a5bfb#10]
+SQL: PREPARE mdb2_statement_mysql_1056c29048a53f76178b6a9edd1362efe351e09838 FROM 'SELECT COUNT(*) FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?    '
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 374.90 sec
+ from 150.129.141.97
+2017/06/27 13:33:39 [/products/list.php] [execute end 5951d970cac6c#10]
+SQL: PREPARE mdb2_statement_mysql_10d0ddc7590557380f2624950c22abac4c953eee78 FROM 'SELECT COUNT(*) FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?    '
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 354.63 sec
+ from 150.129.141.97
+2017/06/27 13:34:36 [/products/list.php] [execute end 5951de68dd8da#3]
+SQL: PREPARE mdb2_statement_mysql_30485f3c354209447eb9d5301b50fe5d1ea76909e FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 276.88 sec
+ from 150.129.141.97
+2017/06/27 13:35:09 [/products/list.php] [execute end 5951d9074b78b#13]
+SQL: PREPARE mdb2_statement_mysql_13835b49da0b562924c4f9f7c701db8008871d6ada FROM 'SELECT * FROM dtb_tax_rule WHERE      product_id = 0  AND product_class_id = 0  AND (pref_id = 0 OR pref_id = ?) AND (country_id = 0 OR country_id = ?) AND apply_date < CURRENT_TIMESTAMP AND del_flg = 0  ORDER BY apply_date DESC '
+PlaceHolder: array (
+  0 => 0,
+  1 => 0,
+)
+execution time: 373.29 sec
+ from 150.129.141.97
+2017/06/27 13:35:32 [/products/list.php] [execute end 5951d72990128#31]
+SQL: PREPARE mdb2_statement_mysql_31750518b59d839559754160a3334d94b4e4aa7721 FROM 'SELECT category_id FROM dtb_category WHERE del_flg = 0 AND del_flg = 0 AND category_id = ?   '
+PlaceHolder: array (
+  0 => 0,
+)
+execution time: 157.85 sec
+ from 150.129.141.97
+2017/06/27 13:35:32 [/products/list.php] [execute end 5951dc7d2df6e#31]
+SQL: PREPARE mdb2_statement_mysql_31e0a828db71c99e370cc01cfa4810fb46b4d916c9 FROM 'SELECT category_id FROM dtb_category WHERE del_flg = 0 AND del_flg = 0 AND category_id = ?   '
+PlaceHolder: array (
+  0 => 0,
+)
+execution time: 210.13 sec
+ from 150.129.141.97
+2017/06/27 13:35:50 [/products/list.php] [execute end 5951dec398c27#3]
+SQL: PREPARE mdb2_statement_mysql_3c4f05ca8923b4dcccca92617c47ae4e76e5d7842 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 127.61 sec
+ from 150.129.141.97
+2017/06/27 13:36:03 [/products/list.php] [execute end 5951db85a5bfb#11]
+SQL: PREPARE mdb2_statement_mysql_11e740533e7253febce0091b4af6afa94757fc483e FROM 'SELECT alldtl.product_id FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?   ORDER BY (SELECT MAX(T3.rank * 2147483648 + T2.rank) FROM dtb_product_categories T2 JOIN dtb_category T3 ON T2.category_id = T3.category_id WHERE T2.product_id = alldtl.product_id   ) DESC ,product_id DESC LIMIT 0, 20'
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 19.19 sec
+ from 150.129.141.97
+2017/06/27 13:36:08 [/products/list.php] [execute end 5951db85a5c31#11]
+SQL: PREPARE mdb2_statement_mysql_11426dc932ee2687368a49c3b32a3dc97a08d4ea99 FROM 'SELECT alldtl.product_id FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?   ORDER BY (SELECT MAX(T3.rank * 2147483648 + T2.rank) FROM dtb_product_categories T2 JOIN dtb_category T3 ON T2.category_id = T3.category_id WHERE T2.product_id = alldtl.product_id   ) DESC ,product_id DESC LIMIT 0, 20'
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 118.37 sec
+ from 150.129.141.97
+2017/06/27 13:36:20 [/products/list.php] [execute end 5951db92d63a0#7]
+SQL: PREPARE mdb2_statement_mysql_74b9a05a5c77419f41622c8a798d78a9a775b04ca FROM 'SELECT * FROM dtb_baseinfo   '
+PlaceHolder: array (
+)
+execution time: 49.10 sec
+ from 150.129.141.97
+2017/06/27 13:36:25 [/products/list.php] [execute end 5951dec398dce#3]
+SQL: PREPARE mdb2_statement_mysql_37f805e6a04b3e2af27605fa8f31baafe89bccce8 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 130.22 sec
+ from 150.129.141.97
+2017/06/27 13:44:08 [/products/list.php] [execute end 5951de68dd8da#4]
+SQL: PREPARE mdb2_statement_mysql_48f8c5adc2ee3a5870fa31c842496b61cba775fab FROM 'SELECT * FROM dtb_plugin WHERE enable = 1  ORDER BY priority DESC, plugin_id ASC '
+PlaceHolder: array (
+)
+execution time: 453.50 sec
+ from 150.129.141.97
+2017/06/27 13:44:37 [/products/list.php] [execute end 5951d970cac6c#11]
+SQL: PREPARE mdb2_statement_mysql_116c348bae297534cca8683d70085e1371e82d469a FROM 'SELECT alldtl.product_id FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?   ORDER BY (SELECT MAX(T3.rank * 2147483648 + T2.rank) FROM dtb_product_categories T2 JOIN dtb_category T3 ON T2.category_id = T3.category_id WHERE T2.product_id = alldtl.product_id   ) DESC ,product_id DESC LIMIT 0, 20'
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 489.88 sec
+ from 150.129.141.97
+2017/06/27 13:45:57 [/products/list.php] [execute end 5951db2531182#11]
+SQL: PREPARE mdb2_statement_mysql_11f7ae54634077921d65afa659b9f685282a6459e1 FROM 'SELECT alldtl.product_id FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?   ORDER BY (SELECT MAX(T3.rank * 2147483648 + T2.rank) FROM dtb_product_categories T2 JOIN dtb_category T3 ON T2.category_id = T3.category_id WHERE T2.product_id = alldtl.product_id   ) DESC ,product_id DESC LIMIT 0, 20'
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 525.73 sec
+ from 150.129.141.97
+2017/06/27 13:46:09 [/products/list.php] [execute end 5951d997bd55f#11]
+SQL: PREPARE mdb2_statement_mysql_11ea8711223af0b0bf825e28551838758e5d7480a5 FROM 'SELECT alldtl.product_id FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?   ORDER BY (SELECT MAX(T3.rank * 2147483648 + T2.rank) FROM dtb_product_categories T2 JOIN dtb_category T3 ON T2.category_id = T3.category_id WHERE T2.product_id = alldtl.product_id   ) DESC ,product_id DESC LIMIT 0, 20'
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 568.75 sec
+ from 150.129.141.97
+2017/06/27 13:46:11 [/products/list.php] [execute end 5951d72990128#32]
+SQL: PREPARE mdb2_statement_mysql_32a260d1310258c30b81b7b705e6dbe8e1b989d284 FROM 'SELECT dtb_category.*, dtb_category_total_count.product_count FROM dtb_category left join dtb_category_total_count ON dtb_category.category_id = dtb_category_total_count.category_id WHERE del_flg = 0 AND product_count > 0   ORDER BY rank DESC'
+PlaceHolder: array (
+)
+execution time: 596.74 sec
+ from 150.129.141.97
+2017/06/27 13:46:13 [/products/list.php] [execute end 5951db075684b#14]
+SQL: PREPARE mdb2_statement_mysql_142d198a6b0edb50a08eea6edb776cba16dac359c9 FROM 'SELECT             T1.product_id,             T1.stock,             T1.stock_unlimited,             T1.sale_limit,             T1.price01,             T1.price02,             T1.point_rate,             T1.product_code,             T1.product_class_id,             T1.del_flg,             T1.product_type_id,             T1.down_filename,             T1.down_realfilename,             T3.name AS classcategory_name1,             T3.rank AS rank1,             T4.name AS class_name1,             T4.class_id AS class_id1,             T1.classcategory_id1,             T1.classcategory_id2,             dtb_classcategory2.name AS classcategory_name2,             dtb_classcategory2.rank AS rank2,             dtb_class2.name AS class_name2,             dtb_class2.class_id AS class_id2 FROM             dtb_products_class T1             LEFT JOIN dtb_classcategory T3                 ON T1.classcategory_id1 = T3.classcategory_id             LEFT JOIN dtb_class T4                 ON T3.class_id = T4.class_id             LEFT JOIN dtb_classcategory dtb_classcategory2                 ON T1.classcategory_id2 = dtb_classcategory2.classcategory_id             LEFT JOIN dtb_class dtb_class2                 ON dtb_classcategory2.class_id = dtb_class2.class_id WHERE product_id IN (?) AND T1.del_flg = 0 AND  T3.classcategory_id is not null AND dtb_classcategory2.classcategory_id is not null   ORDER BY T3.rank DESC, dtb_classcategory2.rank DESC '
+PlaceHolder: array (
+  0 => '25',
+)
+execution time: 569.42 sec
+ from 150.129.141.97
+2017/06/27 13:46:33 [/products/list.php] [execute end 5951db8c570cc#25]
+SQL: PREPARE mdb2_statement_mysql_25b8b62d8bad85ad3b2b1017e42423a709a5d66299 FROM 'SELECT             T1.product_id,             T1.stock,             T1.stock_unlimited,             T1.sale_limit,             T1.price01,             T1.price02,             T1.point_rate,             T1.product_code,             T1.product_class_id,             T1.del_flg,             T1.product_type_id,             T1.down_filename,             T1.down_realfilename,             T3.name AS classcategory_name1,             T3.rank AS rank1,             T4.name AS class_name1,             T4.class_id AS class_id1,             T1.classcategory_id1,             T1.classcategory_id2,             dtb_classcategory2.name AS classcategory_name2,             dtb_classcategory2.rank AS rank2,             dtb_class2.name AS class_name2,             dtb_class2.class_id AS class_id2 FROM             dtb_products_class T1             LEFT JOIN dtb_classcategory T3                 ON T1.classcategory_id1 = T3.classcategory_id             LEFT JOIN dtb_class T4                 ON T3.class_id = T4.class_id             LEFT JOIN dtb_classcategory dtb_classcategory2                 ON T1.classcategory_id2 = dtb_classcategory2.classcategory_id             LEFT JOIN dtb_class dtb_class2                 ON dtb_classcategory2.class_id = dtb_class2.class_id WHERE product_id IN (?) AND T1.del_flg = 0 AND  T3.classcategory_id is not null AND dtb_classcategory2.classcategory_id is not null   ORDER BY T3.rank DESC, dtb_classcategory2.rank DESC '
+PlaceHolder: array (
+  0 => '14',
+)
+execution time: 619.13 sec
+ from 150.129.141.97
+2017/06/27 13:46:45 [/products/list.php] [execute end 5951d729a6b72#20]
+SQL: PREPARE mdb2_statement_mysql_20889fc9e049a42914c6144bfcd9c1bd3d3b43ba01 FROM 'SELECT             T1.product_id,             T1.stock,             T1.stock_unlimited,             T1.sale_limit,             T1.price01,             T1.price02,             T1.point_rate,             T1.product_code,             T1.product_class_id,             T1.del_flg,             T1.product_type_id,             T1.down_filename,             T1.down_realfilename,             T3.name AS classcategory_name1,             T3.rank AS rank1,             T4.name AS class_name1,             T4.class_id AS class_id1,             T1.classcategory_id1,             T1.classcategory_id2,             dtb_classcategory2.name AS classcategory_name2,             dtb_classcategory2.rank AS rank2,             dtb_class2.name AS class_name2,             dtb_class2.class_id AS class_id2 FROM             dtb_products_class T1             LEFT JOIN dtb_classcategory T3                 ON T1.classcategory_id1 = T3.classcategory_id             LEFT JOIN dtb_class T4                 ON T3.class_id = T4.class_id             LEFT JOIN dtb_classcategory dtb_classcategory2                 ON T1.classcategory_id2 = dtb_classcategory2.classcategory_id             LEFT JOIN dtb_class dtb_class2                 ON dtb_classcategory2.class_id = dtb_class2.class_id WHERE product_id IN (?) AND T1.del_flg = 0 AND  T3.classcategory_id is not null AND dtb_classcategory2.classcategory_id is not null   ORDER BY T3.rank DESC, dtb_classcategory2.rank DESC '
+PlaceHolder: array (
+  0 => '19',
+)
+execution time: 590.74 sec
+ from 150.129.141.97
+2017/06/27 13:47:17 [/products/list.php] [execute end 5951d9074b930#15]
+SQL: PREPARE mdb2_statement_mysql_154e06e9b59aa2bf9f6abacee48d60162a073dc970 FROM 'SELECT             T1.product_id,             T1.stock,             T1.stock_unlimited,             T1.sale_limit,             T1.price01,             T1.price02,             T1.point_rate,             T1.product_code,             T1.product_class_id,             T1.del_flg,             T1.product_type_id,             T1.down_filename,             T1.down_realfilename,             T3.name AS classcategory_name1,             T3.rank AS rank1,             T4.name AS class_name1,             T4.class_id AS class_id1,             T1.classcategory_id1,             T1.classcategory_id2,             dtb_classcategory2.name AS classcategory_name2,             dtb_classcategory2.rank AS rank2,             dtb_class2.name AS class_name2,             dtb_class2.class_id AS class_id2 FROM             dtb_products_class T1             LEFT JOIN dtb_classcategory T3                 ON T1.classcategory_id1 = T3.classcategory_id             LEFT JOIN dtb_class T4                 ON T3.class_id = T4.class_id             LEFT JOIN dtb_classcategory dtb_classcategory2                 ON T1.classcategory_id2 = dtb_classcategory2.classcategory_id             LEFT JOIN dtb_class dtb_class2                 ON dtb_classcategory2.class_id = dtb_class2.class_id WHERE product_id IN (?) AND T1.del_flg = 0 AND  T3.classcategory_id is not null AND dtb_classcategory2.classcategory_id is not null   ORDER BY T3.rank DESC, dtb_classcategory2.rank DESC '
+PlaceHolder: array (
+  0 => '24',
+)
+execution time: 621.77 sec
+ from 150.129.141.97
+2017/06/27 15:49:25 [/products/list.php] [execute end 5951ffeec84f8#2]
+SQL: PREPARE mdb2_statement_mysql_2dd7db94a38f78bc6a0ceb4d7949fb6b6a27c3162 FROM 'SET SESSION sql_mode = \'ANSI\''
+PlaceHolder: array (
+)
+execution time: 5.85 sec
+ from 202.9.40.2
+2017/06/27 15:49:25 [/products/list.php] [execute end 5951ffec287a5#1]
+SQL: PREPARE mdb2_statement_mysql_1c855cb61102d4f0055da355e8c97c0bc72086c22 FROM 'SET SESSION storage_engine = InnoDB'
+PlaceHolder: array (
+)
+execution time: 7.36 sec
+ from 202.9.40.2
+2017/06/27 15:50:36 [/products/list.php] [execute end 59520033c1a9c#1]
+SQL: PREPARE mdb2_statement_mysql_1716ffd889d6c91cf7e0639a4ed9fb44c8ae756d4 FROM 'SET SESSION storage_engine = InnoDB'
+PlaceHolder: array (
+)
+execution time: 8.19 sec
+ from 202.9.40.2
+2017/06/27 15:51:00 [/products/list.php] [execute end 5952004ba1b9d#1]
+SQL: PREPARE mdb2_statement_mysql_188f771039145d7edb9cad9bac7b7e82877518358 FROM 'SET SESSION storage_engine = InnoDB'
+PlaceHolder: array (
+)
+execution time: 5.23 sec
+ from 202.9.40.2
+2017/06/27 15:51:54 [/products/list.php] [execute end 59520033c1a9c#2]
+SQL: PREPARE mdb2_statement_mysql_2a0f6ea66c6d8c3d7dc41f4206572606d89011398 FROM 'SET SESSION sql_mode = \'ANSI\''
+PlaceHolder: array (
+)
+execution time: 13.17 sec
+ from 202.9.40.2
+2017/06/27 15:51:59 [/products/list.php] [execute end 5952004ba1b9d#2]
+SQL: PREPARE mdb2_statement_mysql_2eabe7d95da4981e122d9b54e3f76e6c1b374cfa0 FROM 'SET SESSION sql_mode = \'ANSI\''
+PlaceHolder: array (
+)
+execution time: 13.94 sec
+ from 202.9.40.2
+2017/06/27 15:51:59 [/products/list.php] [execute end 59520088561ef#1]
+SQL: PREPARE mdb2_statement_mysql_1bc126fbf1fc96cb5b138f07ecff69055350ba57f FROM 'SET SESSION storage_engine = InnoDB'
+PlaceHolder: array (
+)
+execution time: 6.31 sec
+ from 202.9.40.2
+2017/06/27 15:53:09 [/products/list.php] [execute end 59520088561ef#2]
+SQL: PREPARE mdb2_statement_mysql_20138b2f4f988b6a007145e8bb333576707c4e991 FROM 'SET SESSION sql_mode = \'ANSI\''
+PlaceHolder: array (
+)
+execution time: 12.11 sec
+ from 202.9.40.2
+2017/06/27 15:53:10 [/index.php] [execute end 595200c87bf45#1]
+SQL: PREPARE mdb2_statement_mysql_160f7a9093e391b16dffcc15b016f5cd3caba9eb9 FROM 'SET SESSION storage_engine = InnoDB'
+PlaceHolder: array (
+)
+execution time: 13.79 sec
+ from 122.132.197.91
+2017/06/27 15:55:22 [/index.php] [execute end 595200c87bf45#2]
+SQL: PREPARE mdb2_statement_mysql_2f8332096f8ac436e0fa497890f0d54ba7a95664a FROM 'SET SESSION sql_mode = \'ANSI\''
+PlaceHolder: array (
+)
+execution time: 63.34 sec
+ from 122.132.197.91
+2017/06/27 16:07:49 [/products/list.php] [execute end 595204388939a#1]
+SQL: PREPARE mdb2_statement_mysql_144068baf5336efb3eca835795f61ffbf7ae10fa5 FROM 'SET SESSION storage_engine = InnoDB'
+PlaceHolder: array (
+)
+execution time: 12.85 sec
+ from 202.9.40.2
+2017/06/27 16:08:47 [/products/list.php] [execute end 5952046c8adce#1]
+SQL: PREPARE mdb2_statement_mysql_1b4e28ef861373a30581eff0fb051332a4ab97b33 FROM 'SET SESSION storage_engine = InnoDB'
+PlaceHolder: array (
+)
+execution time: 16.71 sec
+ from 202.9.40.2
+2017/06/27 16:08:57 [/products/list.php] [execute end 595204388939a#2]
+SQL: PREPARE mdb2_statement_mysql_23278bd2724d0a8984f5348fff04abd345d6152a4 FROM 'SET SESSION sql_mode = \'ANSI\''
+PlaceHolder: array (
+)
+execution time: 7.47 sec
+ from 202.9.40.2
+2017/06/27 16:14:08 [/products/list.php] [execute end 595205bd25e25#1]
+SQL: PREPARE mdb2_statement_mysql_1977abb22308d69c1553adef2362b740e89914298 FROM 'SET SESSION storage_engine = InnoDB'
+PlaceHolder: array (
+)
+execution time: 2.43 sec
+ from 202.9.40.2
+2017/06/27 16:14:54 [/products/list.php] [execute end 5951ffeec84f8#3]
+SQL: PREPARE mdb2_statement_mysql_366ec7d4ba02b86b16309010f23df4da341ab7e8e FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 176.63 sec
+ from 202.9.40.2
+2017/06/27 16:15:22 [/products/list.php] [execute end 5952000689603#3]
+SQL: PREPARE mdb2_statement_mysql_3654e48ddd0fbc1bc18536cc2503ab9bf7160d4e9 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 311.57 sec
+ from 202.9.40.2
+2017/06/27 16:15:35 [/products/list.php] [execute end 5951ffec287a5#3]
+SQL: PREPARE mdb2_statement_mysql_356a0088ea9a8f3f4a6b657b82a32913b63c44106 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 201.10 sec
+ from 202.9.40.2
+2017/06/27 16:15:41 [/products/list.php] [execute end 5952046c8adce#3]
+SQL: PREPARE mdb2_statement_mysql_32b13b5bf599159b254fcc9e003aa144a3d5b6fe4 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 59.93 sec
+ from 202.9.40.2
+2017/06/27 16:15:46 [/index.php] [execute end 595200c87bf45#3]
+SQL: PREPARE mdb2_statement_mysql_3145f12d0cd71c2cba86ed644c6c30547f4ccf84e FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => '487d0ahjq8insphloqr0dob7r1',
+)
+execution time: 72.13 sec
+ from 122.132.197.91
+2017/06/27 16:16:09 [/products/list.php] [execute end 595205b5add00#3]
+SQL: PREPARE mdb2_statement_mysql_336ceac503de36822c27c7667a7b049c32156b11d FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 40.60 sec
+ from 202.9.40.2
+2017/06/27 16:16:10 [/products/list.php] [execute end 595205bd25e25#3]
+SQL: PREPARE mdb2_statement_mysql_3eb0865934067cb6c693c1280f4870b4c4a6ab84e FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 40.47 sec
+ from 202.9.40.2
+2017/06/27 16:16:21 [/products/list.php] [execute end 59520033c1a9c#3]
+SQL: PREPARE mdb2_statement_mysql_32b8e96f3602afe41925de4055734ea5eb63f300c FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 121.62 sec
+ from 202.9.40.2
+2017/06/27 16:16:26 [/products/list.php] [execute end 5952004ba1b9d#3]
+SQL: PREPARE mdb2_statement_mysql_3422e77ae96bd67dbcae3bb870c2e51cecc58850e FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 120.04 sec
+ from 202.9.40.2
+2017/06/27 16:16:48 [/products/list.php] [execute end 595204388939a#3]
+SQL: PREPARE mdb2_statement_mysql_39996936fda56120c17ea6ad78f488712894c084e FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 83.88 sec
+ from 202.9.40.2
+2017/06/27 16:26:54 [/products/list.php] [execute end 59520088561ef#3]
+SQL: PREPARE mdb2_statement_mysql_3f15b860740d406daf27d7cc76ebfa44ab612260c FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 726.41 sec
+ from 202.9.40.2
+2017/06/27 17:13:40 [/products/list.php] [execute end 595213aaf208b#1]
+SQL: PREPARE mdb2_statement_mysql_15bd243b5de9059259b16c024bfca2aa772e435aa FROM 'SET SESSION storage_engine = InnoDB'
+PlaceHolder: array (
+)
+execution time: 7.14 sec
+ from 202.9.40.2
+2017/06/27 17:13:49 [/products/list.php] [execute end 59521379c783b#3]
+SQL: PREPARE mdb2_statement_mysql_3519c1511c85a848e753d9a64d115c58cac36d268 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 17.75 sec
+ from 202.9.40.2
+2017/06/27 17:14:04 [/products/list.php] [execute end 595213aaf208b#3]
+SQL: PREPARE mdb2_statement_mysql_3c8639bfd7bde0dbf9a7067beffbfba12f8beeb5d FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 6.88 sec
+ from 202.9.40.2
+2017/06/27 17:15:37 [/products/list.php] [execute end 59521379c783b#4]
+SQL: PREPARE mdb2_statement_mysql_449bc694aec2d4398904840b0d521d7ad97ae6051 FROM 'SELECT * FROM dtb_plugin WHERE enable = 1  ORDER BY priority DESC, plugin_id ASC '
+PlaceHolder: array (
+)
+execution time: 4.78 sec
+ from 202.9.40.2
+2017/06/27 17:15:40 [/products/list.php] [execute end 59521379c783b#5]
+SQL: PREPARE mdb2_statement_mysql_576e37d903f3f7e7d1888900ef573c3826c9d05ab FROM 'SELECT * FROM dtb_plugin_hookpoint WHERE plugin_id = ? AND use_flg = 1   '
+PlaceHolder: array (
+  0 => '1',
+)
+execution time: 3.18 sec
+ from 202.9.40.2
+2017/06/27 17:16:56 [/products/list.php] [execute end 59521379c783b#9]
+SQL: PREPARE mdb2_statement_mysql_96d3cd8497c151c1325bc39ccba43cfee722bc6e1 FROM 'SELECT order_id FROM dtb_order WHERE create_date <= ? and status = ? and del_flg = 0   '
+PlaceHolder: array (
+  0 => '2017/06/27 17:01:38',
+  1 => 7,
+)
+execution time: 14.96 sec
+ from 202.9.40.2
+2017/06/27 17:17:13 [/products/list.php] [execute end 595213aaf208b#10]
+SQL: PREPARE mdb2_statement_mysql_10b38ad0929a2e3765021ae6192f609eba9b2d667e FROM 'SELECT COUNT(*) FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?    '
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 16.75 sec
+ from 202.9.40.2
+2017/06/27 17:17:37 [/products/list.php] [execute end 595213aaf208b#11]
+SQL: PREPARE mdb2_statement_mysql_119cecddedeac9e86e30c59eaca59cfe396932eb5e FROM 'SELECT alldtl.product_id FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?   ORDER BY (SELECT MAX(T3.rank * 2147483648 + T2.rank) FROM dtb_product_categories T2 JOIN dtb_category T3 ON T2.category_id = T3.category_id WHERE T2.product_id = alldtl.product_id   ) DESC ,product_id DESC LIMIT 0, 20'
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 13.43 sec
+ from 202.9.40.2
+2017/06/27 17:17:37 [/products/list.php] [execute end 59521379c783b#11]
+SQL: PREPARE mdb2_statement_mysql_118b8adfdeacff99299933086ba492e9c76e967bb7 FROM 'SELECT alldtl.product_id FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?   ORDER BY (SELECT MAX(T3.rank * 2147483648 + T2.rank) FROM dtb_product_categories T2 JOIN dtb_category T3 ON T2.category_id = T3.category_id WHERE T2.product_id = alldtl.product_id   ) DESC ,product_id DESC LIMIT 0, 20'
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 10.57 sec
+ from 202.9.40.2
+2017/06/27 17:18:30 [/products/list.php] [execute end 595213aaf208b#12]
+SQL: PREPARE mdb2_statement_mysql_121dcb61307f9259e3b3a6a437018e97fab07149cd FROM 'SELECT              product_id             ,product_code_min             ,product_code_max             ,name             ,comment1             ,comment2             ,comment3             ,main_list_comment             ,main_image             ,main_list_image             ,price01_min             ,price01_max             ,price02_min             ,price02_max             ,stock_min             ,stock_max             ,stock_unlimited_min             ,stock_unlimited_max             ,deliv_date_id             ,status             ,del_flg             ,update_date             ,salary             ,salary_min             ,salary_max             ,work_location             ,experience             ,qualification FROM             (                 SELECT                      dtb_products.*                     ,T4.product_code_min                     ,T4.product_code_max                     ,T4.price01_min                     ,T4.price01_max                     ,T4.price02_min                     ,T4.price02_max                     ,T4.stock_min                     ,T4.stock_max                     ,T4.stock_unlimited_min                     ,T4.stock_unlimited_max                     ,T4.point_rate                     ,T4.deliv_fee                     ,dtb_maker.name AS maker_name                 FROM dtb_products                     INNER JOIN (                         SELECT product_id                             ,MIN(product_code) AS product_code_min                             ,MAX(product_code) AS product_code_max                             ,MIN(price01) AS price01_min                             ,MAX(price01) AS price01_max                             ,MIN(price02) AS price02_min                             ,MAX(price02) AS price02_max                             ,MIN(stock) AS stock_min                             ,MAX(stock) AS stock_max                             ,MIN(stock_unlimited) AS stock_unlimited_min                             ,MAX(stock_unlimited) AS stock_unlimited_max                             ,MAX(point_rate) AS point_rate                             ,MAX(deliv_fee) AS deliv_fee                         FROM dtb_products_class                         WHERE del_flg = 0                          GROUP BY product_id                     ) AS T4                         ON dtb_products.product_id = T4.product_id                     LEFT JOIN dtb_maker                         ON dtb_products.maker_id = dtb_maker.maker_id             ) AS alldtl WHERE alldtl.product_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) AND alldtl.del_flg = 0   '
+PlaceHolder: array (
+  0 => '25',
+  1 => '24',
+  2 => '23',
+  3 => '22',
+  4 => '21',
+  5 => '20',
+  6 => '19',
+  7 => '18',
+  8 => '17',
+  9 => '16',
+  10 => '15',
+  11 => '14',
+  12 => '13',
+  13 => '12',
+  14 => '11',
+  15 => '9',
+)
+execution time: 23.69 sec
+ from 202.9.40.2
+2017/06/27 17:18:30 [/products/list.php] [execute end 59521379c783b#12]
+SQL: PREPARE mdb2_statement_mysql_12d73206ba9074a483d8706a2ef667629da948b0de FROM 'SELECT              product_id             ,product_code_min             ,product_code_max             ,name             ,comment1             ,comment2             ,comment3             ,main_list_comment             ,main_image             ,main_list_image             ,price01_min             ,price01_max             ,price02_min             ,price02_max             ,stock_min             ,stock_max             ,stock_unlimited_min             ,stock_unlimited_max             ,deliv_date_id             ,status             ,del_flg             ,update_date             ,salary             ,salary_min             ,salary_max             ,work_location             ,experience             ,qualification FROM             (                 SELECT                      dtb_products.*                     ,T4.product_code_min                     ,T4.product_code_max                     ,T4.price01_min                     ,T4.price01_max                     ,T4.price02_min                     ,T4.price02_max                     ,T4.stock_min                     ,T4.stock_max                     ,T4.stock_unlimited_min                     ,T4.stock_unlimited_max                     ,T4.point_rate                     ,T4.deliv_fee                     ,dtb_maker.name AS maker_name                 FROM dtb_products                     INNER JOIN (                         SELECT product_id                             ,MIN(product_code) AS product_code_min                             ,MAX(product_code) AS product_code_max                             ,MIN(price01) AS price01_min                             ,MAX(price01) AS price01_max                             ,MIN(price02) AS price02_min                             ,MAX(price02) AS price02_max                             ,MIN(stock) AS stock_min                             ,MAX(stock) AS stock_max                             ,MIN(stock_unlimited) AS stock_unlimited_min                             ,MAX(stock_unlimited) AS stock_unlimited_max                             ,MAX(point_rate) AS point_rate                             ,MAX(deliv_fee) AS deliv_fee                         FROM dtb_products_class                         WHERE del_flg = 0                          GROUP BY product_id                     ) AS T4                         ON dtb_products.product_id = T4.product_id                     LEFT JOIN dtb_maker                         ON dtb_products.maker_id = dtb_maker.maker_id             ) AS alldtl WHERE alldtl.product_id IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) AND alldtl.del_flg = 0   '
+PlaceHolder: array (
+  0 => '25',
+  1 => '24',
+  2 => '23',
+  3 => '22',
+  4 => '21',
+  5 => '20',
+  6 => '19',
+  7 => '18',
+  8 => '17',
+  9 => '16',
+  10 => '15',
+  11 => '14',
+  12 => '13',
+  13 => '12',
+  14 => '11',
+  15 => '9',
+)
+execution time: 23.69 sec
+ from 202.9.40.2
+2017/06/27 17:19:12 [/products/list.php] [execute end 595213aaf208b#13]
+SQL: PREPARE mdb2_statement_mysql_13fb8b0a825802a6cb83c653bc80a39934a50d7ef2 FROM 'SELECT * FROM dtb_tax_rule WHERE      product_id = 0  AND product_class_id = 0  AND (pref_id = 0 OR pref_id = ?) AND (country_id = 0 OR country_id = ?) AND apply_date < CURRENT_TIMESTAMP AND del_flg = 0  ORDER BY apply_date DESC '
+PlaceHolder: array (
+  0 => 0,
+  1 => 0,
+)
+execution time: 7.86 sec
+ from 202.9.40.2
+2017/06/27 17:19:13 [/products/list.php] [execute end 59521379c783b#13]
+SQL: PREPARE mdb2_statement_mysql_13dd483dda97dc9c298ab357d96345dff5d5c34559 FROM 'SELECT * FROM dtb_tax_rule WHERE      product_id = 0  AND product_class_id = 0  AND (pref_id = 0 OR pref_id = ?) AND (country_id = 0 OR country_id = ?) AND apply_date < CURRENT_TIMESTAMP AND del_flg = 0  ORDER BY apply_date DESC '
+PlaceHolder: array (
+  0 => 0,
+  1 => 0,
+)
+execution time: 9.55 sec
+ from 202.9.40.2
+2017/06/27 17:21:38 [/products/list.php] [execute end 59521379c783b#31]
+SQL: PREPARE mdb2_statement_mysql_31ced2b5e725fdf94b0f5f1068f99dd8abc83deff9 FROM 'SELECT category_id FROM dtb_category WHERE del_flg = 0 AND del_flg = 0 AND category_id = ?   '
+PlaceHolder: array (
+  0 => 0,
+)
+execution time: 6.01 sec
+ from 202.9.40.2
+2017/06/27 17:21:59 [/products/list.php] [execute end 59521379c783b#32]
+SQL: PREPARE mdb2_statement_mysql_32cd13ff76f65434669175b3ae43311d4bbae320bd FROM 'SELECT dtb_category.*, dtb_category_total_count.product_count FROM dtb_category left join dtb_category_total_count ON dtb_category.category_id = dtb_category_total_count.category_id WHERE del_flg = 0 AND product_count > 0   ORDER BY rank DESC'
+PlaceHolder: array (
+)
+execution time: 6.17 sec
+ from 202.9.40.2
+2017/06/27 17:22:08 [/products/list.php] [execute end 595213aaf208b#32]
+SQL: PREPARE mdb2_statement_mysql_32feecfb9a842790ceaceb3ccc200523490ac98e88 FROM 'SELECT dtb_category.*, dtb_category_total_count.product_count FROM dtb_category left join dtb_category_total_count ON dtb_category.category_id = dtb_category_total_count.category_id WHERE del_flg = 0 AND product_count > 0   ORDER BY rank DESC'
+PlaceHolder: array (
+)
+execution time: 8.31 sec
+ from 202.9.40.2
+2017/06/27 17:23:30 [/products/list.php] [execute end 595213aaf208b#36]
+SQL: PREPARE mdb2_statement_mysql_368dad04fb08020281edce0a95bae86bc229ed0cef FROM 'SELECT CASE WHEN EXISTS(SELECT * FROM dtb_session WHERE sess_id = ?   ) THEN 1 ELSE 0 END'
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 10.46 sec
+ from 202.9.40.2
+2017/06/27 17:23:30 [/products/list.php] [execute end 59521379c783b#36]
+SQL: PREPARE mdb2_statement_mysql_36fa6e1273caf556bed50078a85faf793da41dd403 FROM 'SELECT CASE WHEN EXISTS(SELECT * FROM dtb_session WHERE sess_id = ?   ) THEN 1 ELSE 0 END'
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 10.46 sec
+ from 202.9.40.2
+2017/06/27 17:23:40 [/products/list.php] [execute end 59521379c783b#37]
+SQL: PREPARE mdb2_statement_mysql_37603c3d92ef441e95d2f6c538c8bef06b27b5439d FROM 'UPDATE dtb_session SET sess_data= ?, update_date= CURRENT_TIMESTAMP WHERE sess_id = ?'
+PlaceHolder: array (
+  0 => 'cart|a:0:{}prev_url|s:195:"/products/list.php?transactionid=e9c6c92aa3b24fb1309d2117900dc174205f01b1&mode=search&employment_status=3&category_id=&name=&search=%E3%81%93%E3%81%AE%E6%9D%A1%E4%BB%B6%E3%81%A7%E6%A4%9C%E7%B4%A2";transactionid|s:40:"e9c6c92aa3b24fb1309d2117900dc174205f01b1";cert|s:8:"7WDhcBTF";member_id|s:1:"2";login_id|s:5:"uugii";authority|s:1:"0";login_name|N;id|s:21:"5951b641c80fd3LvJ4Wzt";last_login|s:19:"2017-06-22 11:20:01";cart_referer_url|s:224:"http://testvn.hyperion-job.jp/products/list.php?transactionid=e9c6c92aa3b24fb1309d2117900dc174205f01b1&mode=search&employment_status=3&category_id=&name=&search=%E3%81%93%E3%81%AE%E6%9D%A1%E4%BB%B6%E3%81%A7%E6%A4%9C%E7%B4%A2";',
+  1 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 2.08 sec
+ from 202.9.40.2
+2017/06/27 17:44:09 [/products/list.php] [execute end 59521abfa1c37#3]
+SQL: PREPARE mdb2_statement_mysql_3a11278e5120a1f4982252ea7d645c7912beac5c1 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 14.43 sec
+ from 202.9.40.2
+2017/06/27 17:44:09 [/products/list.php] [execute end 59521acf5431e#3]
+SQL: PREPARE mdb2_statement_mysql_3be9039cef9ea8fbc66549951b3400da1747d6632 FROM 'SELECT sess_data FROM dtb_session WHERE sess_id = ?   '
+PlaceHolder: array (
+  0 => 's4hijvkc13u08csslt3krar5p7',
+)
+execution time: 10.34 sec
+ from 202.9.40.2
+2017/06/27 17:44:28 [/products/list.php] [execute end 59521abfa1c37#7]
+SQL: PREPARE mdb2_statement_mysql_737a0cd441eb506582df74bded9f089890dbb868f FROM 'SELECT * FROM dtb_baseinfo   '
+PlaceHolder: array (
+)
+execution time: 2.18 sec
+ from 202.9.40.2
+2017/06/27 17:44:39 [/products/list.php] [execute end 59521abfa1c37#10]
+SQL: PREPARE mdb2_statement_mysql_1078bea4b63aec9ad3d956b15d0f9ada6b541b6430 FROM 'SELECT COUNT(*) FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?    '
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 3.25 sec
+ from 202.9.40.2
+2017/06/27 17:44:43 [/products/list.php] [execute end 59521acf5431e#10]
+SQL: PREPARE mdb2_statement_mysql_10c2c7bcb848cf27bea41112334e0af2a8a073a491 FROM 'SELECT COUNT(*) FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?    '
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 7.58 sec
+ from 202.9.40.2
+2017/06/27 17:44:46 [/products/list.php] [execute end 59521abfa1c37#11]
+SQL: PREPARE mdb2_statement_mysql_1160b54a22fb5969f4f824b17c3e890942d0acc7b0 FROM 'SELECT alldtl.product_id FROM dtb_products AS alldtl WHERE alldtl.del_flg = 0 AND alldtl.status = 1  AND alldtl.employment_status = ?   ORDER BY (SELECT MAX(T3.rank * 2147483648 + T2.rank) FROM dtb_product_categories T2 JOIN dtb_category T3 ON T2.category_id = T3.category_id WHERE T2.product_id = alldtl.product_id   ) DESC ,product_id DESC LIMIT 0, 20'
+PlaceHolder: array (
+  0 => '3',
+)
+execution time: 3.25 sec
+ from 202.9.40.2
+2017/08/04 13:42:00 [/admin/basis/zip_install.php] [execute end 5983fae52b3bd#6]
+SQL: PREPARE mdb2_statement_mysql_6b04d4df3072dbade21118f3cd9b4b3a551386f32 FROM 'DELETE FROM `mtb_zip` WHERE 1=1'
+PlaceHolder: array (
+)
+execution time: 51.66 sec
+ from 150.129.141.66
+2017/08/04 13:42:41 [/admin/basis/zip_install.php] [execute end 5983fb0e82c43#6]
+SQL: PREPARE mdb2_statement_mysql_6f35edbc6361b5e45fe2c2cace68190388b7bad36 FROM 'DELETE FROM `mtb_zip` WHERE 1=1'
+PlaceHolder: array (
+)
+execution time: 51.39 sec
+ from 150.129.141.66
+2017/08/04 13:43:25 [/admin/basis/zip_install.php] [execute end 5983fb39f11be#6]
+SQL: PREPARE mdb2_statement_mysql_664cc0a1d2797c97ed3bc6d234ab5d3788e663fb8 FROM 'DELETE FROM `mtb_zip` WHERE 1=1'
+PlaceHolder: array (
+)
+execution time: 51.02 sec
+ from 150.129.141.66
+2017/08/04 13:44:34 [/admin/basis/zip_install.php] [execute end 5983fb7fbc531#6]
+SQL: PREPARE mdb2_statement_mysql_66ef9d9bfdff613faedd4cf0e968ecaef3339abd5 FROM 'DELETE FROM `mtb_zip` WHERE 1=1'
+PlaceHolder: array (
+)
+execution time: 50.33 sec
+ from 150.129.141.66
+2017/08/04 13:45:38 [/admin/basis/zip_install.php] [execute end 5983fbef4c7db#6]
+SQL: PREPARE mdb2_statement_mysql_6ce800d9c3a7769187355701e03fad769033b5333 FROM 'DELETE FROM `mtb_zip` WHERE 1=1'
+PlaceHolder: array (
+)
+execution time: 3.35 sec
+ from 150.129.141.66

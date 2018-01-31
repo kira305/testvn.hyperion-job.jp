@@ -1,0 +1,6 @@
+<?php /* Smarty version 2.6.27, created on 2017-12-06 20:07:12
+         compiled from /var/www/testvn.hyperion-job.jp/html/../data/Smarty/templates/default/frontparts/form_cv_upload_confirm.tpl */ ?>
+<?php require_once(SMARTY_CORE_DIR . 'core.load_plugins.php');
+smarty_core_load_plugins(array('plugins' => array(array('modifier', 'script_escape', '/var/www/testvn.hyperion-job.jp/html/../data/Smarty/templates/default/frontparts/form_cv_upload_confirm.tpl', 32, false),array('modifier', 'h', '/var/www/testvn.hyperion-job.jp/html/../data/Smarty/templates/default/frontparts/form_cv_upload_confirm.tpl', 33, false),)), $this); ?>
+
+<?php echo '<table><col width="30%" /><col width="70%" /><tr><th>Tệp hồ sơ</th><td>'; ?><?php if (((is_array($_tmp=$this->_tpl_vars['arrForm']['cv'])) ? $this->_run_mod_handler('script_escape', true, $_tmp) : smarty_modifier_script_escape($_tmp)) != ""): ?><?php echo ''; ?><?php echo ((is_array($_tmp=((is_array($_tmp=$this->_tpl_vars['arrForm']['cv_name'])) ? $this->_run_mod_handler('script_escape', true, $_tmp) : smarty_modifier_script_escape($_tmp)))) ? $this->_run_mod_handler('h', true, $_tmp) : smarty_modifier_h($_tmp)); ?><?php echo ''; ?><?php endif; ?><?php echo '</td></tr></table>'; ?>
