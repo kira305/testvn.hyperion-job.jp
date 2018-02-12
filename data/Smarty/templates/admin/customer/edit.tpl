@@ -138,6 +138,19 @@
     <!--{/foreach}-->
 
     <div id="customer" class="contents-main">
+
+        <div class="mycontents_area">
+            <h2 class="title">Tải hồ sơ trực tuyến</h2>
+            <!--{include file="`$smarty.const.TEMPLATE_REALDIR`frontparts/form_cv_upload_input.tpl"}-->
+            <div class="btn_area">
+                <ul>
+                    <li>
+                        <button class="bttn" type="button" onClick="eccube.setModeAndSubmit('cv_complete', '', '');"><span>Lưu</span></button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
         <table class="form">
             <!--{if $arrForm.customer_id}-->
             <tr>
