@@ -200,6 +200,29 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
                 $this->lfRegistData($objFormParam, $objUpFile);
                 $this->tpl_mainpage = 'customer/edit_complete.tpl';
                 break;
+
+            // 会員登録と完了画面
+            case 'cv_complete':
+                var_dump(" vao day dc ko");die;
+                $this->arrErr = $objDownFile->checkExists();
+
+                // 入力エラーなし
+                if (empty($this->arrErr)) {
+                    // 会員情報の登録
+                    $val = $objFormParam->getDbArray();
+                    $sqlval['cv'] = $val['cv'];
+                    $sqlval['cv_name'] = $val['cv_name'];
+                    SC_Helper_Customer_Ex::sfEditCustomerData($sqlval, $customer_id);
+                    $objDownFile->moveTempDownFile();
+
+                    //セッション情報を最新の状態に更新する
+                    $objCustomer->updateSession();
+
+                    // 完了ページに移動させる。
+                    SC_Response_Ex::sendRedirect('cv_complete.php');
+                }
+                break;
+
             case 'complete_return':
                 // 入力パラメーターチェック
                 $this->lfInitParam($objFormParam);
