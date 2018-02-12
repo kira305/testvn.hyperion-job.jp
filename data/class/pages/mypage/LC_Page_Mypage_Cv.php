@@ -39,6 +39,7 @@ class LC_Page_Mypage_Cv extends LC_Page_AbstractMypage_Ex {
      * @return void
      */
     public function init() {
+
         parent::init();
         $this->tpl_subtitle = 'Chỉnh sửa hồ sơ (trang nhập thông tin)';
         $this->tpl_mypageno = 'cv';
@@ -82,6 +83,7 @@ class LC_Page_Mypage_Cv extends LC_Page_AbstractMypage_Ex {
         $this->arrReleaseYear = $objDate->getYear();
 
         $this->httpCacheControl('nocache');
+
     }
 
     /**
@@ -98,10 +100,10 @@ class LC_Page_Mypage_Cv extends LC_Page_AbstractMypage_Ex {
      * @return void
      */
     public function action() {
+
         $objCustomer = new SC_Customer_Ex();
         $customer_id = $objCustomer->getValue('customer_id');
         $this->customer_data = SC_Helper_Customer_Ex::sfGetCustomerData($customer_id);
-
         // mobile用（戻るボタンでの遷移かどうかを判定）
         if (!empty($_POST['return'])) {
             $_REQUEST['mode'] = 'return';
@@ -166,6 +168,7 @@ class LC_Page_Mypage_Cv extends LC_Page_AbstractMypage_Ex {
                 break;
             // 会員登録と完了画面
             case 'cv_complete':
+
                 $this->arrErr = $objDownFile->checkExists();
 
                 // 入力エラーなし
