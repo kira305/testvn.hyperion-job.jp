@@ -1,7 +1,7 @@
-<?php /* Smarty version 2.6.27, created on 2017-11-17 20:14:16
+<?php /* Smarty version 2.6.27, created on 2018-03-12 12:53:16
          compiled from customer/index.tpl */ ?>
 <?php require_once(SMARTY_CORE_DIR . 'core.load_plugins.php');
-smarty_core_load_plugins(array('plugins' => array(array('modifier', 'script_escape', 'customer/index.tpl', 60, false),array('modifier', 'h', 'customer/index.tpl', 95, false),array('modifier', 'truncate', 'customer/index.tpl', 147, false),array('function', 'html_checkboxes', 'customer/index.tpl', 70, false),array('function', 'html_options', 'customer/index.tpl', 76, false),array('function', 'mailto', 'customer/index.tpl', 147, false),)), $this); ?>
+smarty_core_load_plugins(array('plugins' => array(array('modifier', 'script_escape', 'customer/index.tpl', 67, false),array('modifier', 'h', 'customer/index.tpl', 102, false),array('modifier', 'truncate', 'customer/index.tpl', 160, false),array('function', 'html_checkboxes', 'customer/index.tpl', 77, false),array('function', 'html_options', 'customer/index.tpl', 83, false),array('function', 'mailto', 'customer/index.tpl', 160, false),)), $this); ?>
 
 <script type="text/javascript">
 <!--
@@ -13,6 +13,13 @@ smarty_core_load_plugins(array('plugins' => array(array('modifier', 'script_esca
             document.form1.submit();
             return false;
         }
+    }
+
+    function fnDownload(customer_id) {
+            document.form1.mode.value = "downloadCv"
+            document.form1['edit_customer_id'].value = customer_id;
+            document.form1.submit();
+            return false;
     }
 
     function fnEdit(customer_id) {
@@ -131,6 +138,7 @@ unset($_smarty_tpl_vars);
                     <th>TEL</th>
                     <th rowspan="2">編集</th>
                     <th rowspan="2">削除</th>
+                    <th rowspan="2">CV UPLOADED</th>
                 </tr>
                 <tr>
                     <th>都道府県</th>
@@ -156,6 +164,12 @@ unset($_smarty_tpl_vars);
 ');">編集</a></span></td>
                         <td class="center" rowspan="2"><span class="icon_delete"><a href="#" onclick="return fnDelete('<?php echo ((is_array($_tmp=((is_array($_tmp=$this->_tpl_vars['row']['customer_id'])) ? $this->_run_mod_handler('script_escape', true, $_tmp) : smarty_modifier_script_escape($_tmp)))) ? $this->_run_mod_handler('h', true, $_tmp) : smarty_modifier_h($_tmp)); ?>
 ');">削除</a></span></td>
+                        <?php if (((is_array($_tmp=((is_array($_tmp=$this->_tpl_vars['row']['existsCv'])) ? $this->_run_mod_handler('script_escape', true, $_tmp) : smarty_modifier_script_escape($_tmp)))) ? $this->_run_mod_handler('h', true, $_tmp) : smarty_modifier_h($_tmp)) == true): ?>
+                        <td class="center" rowspan="2"><a href="#" onclick="return fnDownload('<?php echo ((is_array($_tmp=((is_array($_tmp=$this->_tpl_vars['row']['customer_id'])) ? $this->_run_mod_handler('script_escape', true, $_tmp) : smarty_modifier_script_escape($_tmp)))) ? $this->_run_mod_handler('h', true, $_tmp) : smarty_modifier_h($_tmp)); ?>
+');">ダウンロード</a></td>
+                        <?php else: ?>
+                        <td class="center" rowspan="2">なし</td>
+                        <?php endif; ?>
                     </tr>
                     <tr>
                         <td><?php echo ((is_array($_tmp=((is_array($_tmp=$this->_tpl_vars['row']['pref_by_text'])) ? $this->_run_mod_handler('script_escape', true, $_tmp) : smarty_modifier_script_escape($_tmp)))) ? $this->_run_mod_handler('h', true, $_tmp) : smarty_modifier_h($_tmp)); ?>
@@ -173,4 +187,4 @@ unset($_smarty_tpl_vars);
         <!--★★検索結果一覧★★-->
 
     <?php endif; ?>
-</div>
+</div>

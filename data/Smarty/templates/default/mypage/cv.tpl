@@ -43,9 +43,9 @@
         <!--{foreach key=key item=item from=$arrForm.arrHidden}-->
             <input type="hidden" name="<!--{$key}-->" value="<!--{$item|h}-->" />
         <!--{/foreach}-->
-        
-        <!--{if $tpl_subtitle == '履歴書'}-->
-        
+
+        <!--{if $tpl_subtitle == 'Hồ sơ'}-->
+
         <h2 class="title"><!--{$tpl_subtitle|h}--></h2>
         <div id="mycontents_area">
             <!--{include file="`$smarty.const.TEMPLATE_REALDIR`frontparts/form_cv_upload_confirm.tpl"}-->
@@ -63,9 +63,9 @@
                 </ul>
             </div>
         </div>
-            
+
         <!--{else}-->
-    
+
         <div class="mycontents_area">
             <h2 class="title">Tải hồ sơ trực tuyến</h2>
             <!--{include file="`$smarty.const.TEMPLATE_REALDIR`frontparts/form_cv_upload_input.tpl"}-->
@@ -94,8 +94,8 @@
                 </ul>
             </div>
         </div>
-                   
+
         <!--{/if}-->
-                    
+
     </form>
 </div>

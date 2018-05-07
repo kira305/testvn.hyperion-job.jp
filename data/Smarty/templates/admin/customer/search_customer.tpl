@@ -93,6 +93,7 @@ function func_submit(customer_id){
                 <th>お名前(フリガナ)</th>
                 <th>TEL</th>
                 <th>決定</th>
+                <th>CV upload</th>
             </tr>
             <!--{section name=cnt loop=$arrCustomer}-->
             <!--▼会員<!--{$smarty.section.cnt.iteration}-->-->

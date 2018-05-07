@@ -97,6 +97,10 @@ class LC_Page_Admin_Customer extends LC_Page_Admin_Ex
     {
         // パラメーター管理クラス
         $objFormParam = new SC_FormParam_Ex();
+
+        //customer helper
+        $objCustomerHelper = new SC_Helper_Customer_Ex();
+
         // パラメーター設定
         $this->lfInitParam($objFormParam);
         $objFormParam->setParam($_POST);
@@ -114,6 +118,11 @@ class LC_Page_Admin_Customer extends LC_Page_Admin_Ex
 
         // モードによる処理切り替え
         switch ($this->getMode()) {
+            case 'downloadCv':
+                $cvInfo = $objCustomerHelper->sfGetCVInfo($objFormParam->getValue('edit_customer_id'));
+                $file_path=DOWN_SAVE_REALDIR.$cvInfo["cv"];
+                $this->lfDownloadCV($file_path, $cvInfo["cv_name"], 'text/plain');
+                break;
             case 'delete':
                 $this->is_delete = $this->lfDoDeleteCustomer($objFormParam->getValue('edit_customer_id'));
                 list($this->tpl_linemax, $this->arrData, $this->objNavi) = $this->lfDoSearch($objFormParam->getHashArray());
@@ -205,7 +214,7 @@ class LC_Page_Admin_Customer extends LC_Page_Admin_Ex
     {
         return SC_Helper_Customer_Ex::sfGetSearchData($arrParam);
     }
-
+    
     /**
      * 会員一覧CSVを検索してダウンロードする処理
      *
@@ -223,4 +232,91 @@ class LC_Page_Admin_Customer extends LC_Page_Admin_Ex
 
         return $objCSV->sfDownloadCsv('2', $where, $arrVal, $order, true);
     }
+
+    public function lfDownloadCV($file, $name, $mime_type='')
+    {
+        if(!is_readable($file)) die('Error');
+
+        $size = filesize($file);
+        $name = rawurldecode($name);
+        $known_mime_types=array(
+        "pdf" => "application/pdf",
+        "txt" => "text/plain",
+        "html" => "text/html",
+        "htm" => "text/html",
+        "exe" => "application/octet-stream",
+        "zip" => "application/zip",
+        "doc" => "application/msword",
+        "xls" => "application/vnd.ms-excel",
+        "ppt" => "application/vnd.ms-powerpoint",
+        "gif" => "image/gif",
+        "png" => "image/png",
+        "jpeg"=> "image/jpg",
+        "jpg" => "image/jpg",
+        "php" => "text/plain"
+        );
+        if($mime_type==''){
+        $file_extension = strtolower(substr(strrchr($file,"."),1));
+        if(array_key_exists($file_extension, $known_mime_types)){
+        $mime_type=$known_mime_types[$file_extension];
+        } else {
+        $mime_type="application/force-download";
+        };
+        };
+
+        @ob_end_clean();
+
+
+        if(ini_get('zlib.output_compression'))
+        ini_set('zlib.output_compression', 'Off');
+        header('Content-Type: ' . $mime_type);
+        header('Content-Disposition: attachment; filename="'.$name.'"');
+        header("Content-Transfer-Encoding: binary");
+        header('Accept-Ranges: bytes');
+        header("Cache-control: private");
+        header('Pragma: private');
+        header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+        if(isset($_SERVER['HTTP_RANGE']))
+        {
+        list($a, $range) = explode("=",$_SERVER['HTTP_RANGE'],2);
+        list($range) = explode(",",$range,2);
+        list($range, $range_end) = explode("-", $range);
+        $range=intval($range);
+        if(!$range_end) {
+        $range_end=$size-1;
+        } else {
+        $range_end=intval($range_end);
+        }
+        $new_length = $range_end-$range+1;
+        header("HTTP/1.1 206 Partial Content");
+        header("Content-Length: $new_length");
+        header("Content-Range: bytes $range-$range_end/$size");
+        } else {
+        $new_length=$size;
+        header("Content-Length: ".$size);
+        }
+        $chunksize = 1*(1024*1024);
+        $bytes_send = 0;
+        if ($file = fopen($file, 'r'))
+        {
+        if(isset($_SERVER['HTTP_RANGE']))
+        fseek($file, $range);
+
+        while(!feof($file) &&
+        (!connection_aborted()) &&
+        ($bytes_send<$new_length)
+        )
+        {
+        $buffer = fread($file, $chunksize);
+        print($buffer);
+        flush();
+        $bytes_send += strlen($buffer);
+        }
+        fclose($file);
+        } else
+
+        die('Error - can not open file.');
+        die();
+    }
+
 }

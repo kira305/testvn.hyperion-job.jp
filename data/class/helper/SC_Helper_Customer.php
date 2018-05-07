@@ -75,7 +75,7 @@ class SC_Helper_Customer {
             $arrData['password'] = SC_Utils_Ex::sfGetHashString($arrData['password'], $salt);
         }
         //-- 秘密の質問の更新がある場合は暗号化
-        if ($arrData['reminder_answer'] == DEFAULT_PASSWORD or $arrData['reminder_answer'] == '') {
+        if ($arrData['  '] == DEFAULT_PASSWORD or $arrData['reminder_answer'] == '') {
             //更新しない
             unset($arrData['reminder_answer']);
 
@@ -363,6 +363,28 @@ class SC_Helper_Customer {
         }
 
         return $objQuery->get('customer_id', 'dtb_customer', $where, array($uniqid));
+    }
+
+    /**
+     * 会員登録キーから会員の履歴書情報を取得する.
+     *
+    　* @param integer $customer_id 会員ID
+     * @access public
+     * @return void
+     */
+    public function sfGetCVInfo($customer_id) {
+        $objQuery = & SC_Query_Ex::getSingletonInstance();
+
+        $col = "cv, cv_name";
+        $from = "dtb_customer";
+        $where = 'customer_id = ?';
+        $objQuery = new SC_Query_Ex();
+        $arrRet = $objQuery->select($col, $from, $where, array($customer_id));
+
+        if (!empty($arrRet[0]["cv"])) {
+            return $arrRet[0];
+        }
+        return false;
     }
 
     /**
@@ -790,8 +812,20 @@ class SC_Helper_Customer {
         if ($limitMode == '') {
             $objQuery->setLimitOffset($page_max, $offset);
         }
-        $arrData = $objQuery->getAll($objSelect->getList(), $objSelect->arrVal);
+        $arrData = $objQuery->getAll($objSelect->getListforSearch(), $objSelect->arrVal);
 
+        foreach ($arrData as $key => $obj) {
+           if(!empty($obj['cv']))
+           {
+                if(file_exists(DOWN_SAVE_REALDIR.$obj["cv"]))
+                    $arrData[$key]['existsCv'] = true;
+                else
+                    $arrData[$key]['existsCv'] = false;
+           }else
+           {
+               $arrData[$key]['existsCv'] = false;
+           }
+        }
         // 該当全体件数の取得
         $objQuery = & SC_Query_Ex::getSingletonInstance();
         $linemax = $objQuery->getOne($objSelect->getListCount(), $objSelect->arrVal);

@@ -62,13 +62,13 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
         $this->arrRegion = $masterData->getMasterData('mtb_region');
         $this->arrJLPT = $masterData->getMasterData('mtb_jlpt');
         $this->arrWorkExperience = array(1 => '経験あり', 0 => '未経験');
-        
+
         $objQuery = & SC_Query_Ex::getSingletonInstance();
         $arrPref = $objQuery->select('*', 'mtb_pref');
         $this->arrPrefByTarget = array();
         foreach ($arrPref as $pref)
             $this->arrPrefByTarget[$pref['object_id']][$pref['id']] = $pref['name'];
-        
+
         $this->arrCategory = $masterData->getMasterData('mtb_category');
         $arrCategory = $objQuery->select('*', 'mtb_category');
         $this->arrCategoryByTarget = array();
@@ -80,12 +80,13 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
         $this->arrYear = $objDate->getYear();
         $this->arrMonth = $objDate->getMonth();
         $this->arrDay = $objDate->getDay();
-        
+
         $objDate = new SC_Date_Ex(RELEASE_YEAR, DATE('Y'));
         $this->arrReleaseYear = $objDate->getYear();
 
         // 支払い方法種別
         $this->arrPayment = SC_Helper_Payment_Ex::getIDValueList();
+
     }
 
     /**
@@ -104,16 +105,22 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
      * @return void
      */
     public function action() {
+
         // パラメーター管理クラス
         $objFormParam = new SC_FormParam_Ex();
+        SC_Helper_Customer_Ex::sfCustomerCvParam($objFormParam);
         // 検索引き継ぎ用パラメーター管理クラス
         $objFormSearchParam = new SC_FormParam_Ex();
-        
+
         // アップロードファイル情報の初期化
         $objUpFile = new SC_UploadFile_Ex(IMAGE_TEMP_REALDIR, IMAGE_SAVE_REALDIR);
         $objUpFile->addFile('写真', 'image', array('jpg', 'gif', 'png'), IMAGE_SIZE, false, LARGE_IMAGE_WIDTH, LARGE_IMAGE_HEIGHT);
         $objUpFile->setHiddenFileList($_POST);
 
+        // ダウンロード販売ファイル情報の初期化
+        $objDownFile = new SC_UploadFile_Ex(DOWN_TEMP_REALDIR, DOWN_SAVE_REALDIR);
+        $objDownFile->addFile('Tệp hồ sơ', 'down_file', explode(',', DOWNLOAD_EXTENSION), DOWN_SIZE, true, 0, 0);
+        $objDownFile->setHiddenFileList($_POST);
         // モードによる処理切り替え
         switch ($this->getMode()) {
             case 'edit_search':
@@ -135,6 +142,7 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
                 $this->tpl_pageno = '0';
                 break;
             case 'confirm':
+                // var_dump("1");die;
                 // パラメーター処理
                 $this->lfInitParam($objFormParam);
                 $objFormParam->setParam($_POST);
@@ -143,7 +151,7 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
                 $this->arrErr = $this->lfCheckError($objFormParam, $objUpFile);
                 $this->arrForm = $objFormParam->getHashArray();
                 $this->setUploadFile($objUpFile, $this->arrForm);
-                
+
                 // 検索引き継ぎ用パラメーター処理
                 $this->lfInitSearchParam($objFormSearchParam);
                 $objFormSearchParam->setParam($objFormParam->getValue('search_data'));
@@ -156,6 +164,7 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
                 $this->tpl_mainpage = 'customer/edit_confirm.tpl';
                 break;
             case 'return':
+            var_dump("2");die;
                 // パラメーター処理
                 $this->lfInitParam($objFormParam);
                 $objFormParam->setParam($_POST);
@@ -180,11 +189,13 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
 
                 break;
             case 'complete':
+            
                 // 登録・保存処理
                 // パラメーター処理
                 $this->lfInitParam($objFormParam);
                 $objFormParam->setParam($_POST);
                 $objFormParam->convParam();
+
                 // 入力パラメーターチェック
                 $this->arrErr = $this->lfCheckError($objFormParam, $objUpFile);
                 $this->arrForm = $objFormParam->getHashArray();
@@ -203,27 +214,75 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
 
             // 会員登録と完了画面
             case 'cv_complete':
-                var_dump(" vao day dc ko");die;
-                $this->arrErr = $objDownFile->checkExists();
+                var_dump("4");die;
+                $this->lfInitParam($objFormParam);
+                $objFormParam->setParam($_POST);
+                $objFormParam->convParam();
 
+                // 入力パラメーターチェック
+                $this->arrErr = $this->lfCheckError($objFormParam, $objUpFile);
+                $this->arrForm = $objFormParam->getHashArray();
+                $this->setUploadFile($objUpFile, $this->arrForm);
+
+                // 検索引き継ぎ用パラメーター処理
+                $this->lfInitSearchParam($objFormSearchParam);
+                $objFormSearchParam->setParam($objFormParam->getValue('search_data'));
+                $this->arrSearchErr = $this->lfCheckErrorSearchParam($objFormSearchParam);
+                $this->arrSearchData = $objFormSearchParam->getSearchArray();
+
+                $this->arrErr = $objDownFile->checkExists();
                 // 入力エラーなし
                 if (empty($this->arrErr)) {
+
                     // 会員情報の登録
                     $val = $objFormParam->getDbArray();
+
                     $sqlval['cv'] = $val['cv'];
                     $sqlval['cv_name'] = $val['cv_name'];
+                    $customer_id = $objFormParam->getValue('customer_id');
                     SC_Helper_Customer_Ex::sfEditCustomerData($sqlval, $customer_id);
                     $objDownFile->moveTempDownFile();
-
                     //セッション情報を最新の状態に更新する
-                    $objCustomer->updateSession();
-
                     // 完了ページに移動させる。
-                    SC_Response_Ex::sendRedirect('cv_complete.php');
+                    $this->tpl_mainpage = 'customer/edit_complete.tpl';
                 }
                 break;
+            case 'upload_down':
+            case 'delete_down':
+                // 登録・保存処理
+                // パラメーター処理
+                $this->lfInitParam($objFormParam);
+                $objFormParam->setParam($_POST);
+                $objFormParam->convParam();
+                // 入力パラメーターチェック
+                $this->arrErr = $this->lfCheckError($objFormParam, $objUpFile);
+                // 検索引き継ぎ用パラメーター処理
+                $this->lfInitSearchParam($objFormSearchParam);
+                $objFormSearchParam->setParam($objFormParam->getValue('search_data'));
+                $this->arrSearchErr = $this->lfCheckErrorSearchParam($objFormSearchParam);
+                $this->arrSearchData = $objFormSearchParam->getSearchArray();
 
+                switch ($this->getMode()) {
+                    case 'upload_down':
+                        // ファイルを一時ディレクトリにアップロード
+                        $this->arrErr['down_file'] = $objDownFile->makeTempDownFile();
+                        $objFormParam->setParam(array('cv_name' => $_FILES['down_file']['name']));
+                        $this->arrForm = $objFormParam->getHashArray();
+                        $this->setUploadFileForCVUpload($objUpFile, $objDownFile, $this->arrForm);
+                        break;
+                    case 'delete_down':
+                        // ファイル削除
+                        $objDownFile->deleteFile('down_file');
+                        $objFormParam->setParam(array('cv' => ''));
+                        $this->arrForm = $objFormParam->getHashArray();
+                        $this->setUploadFileForCVUpload($objUpFile, $objDownFile, $this->arrForm);
+                        break;
+                    default:
+                        break;
+                }
+                break;
             case 'complete_return':
+            var_dump("5");die;
                 // 入力パラメーターチェック
                 $this->lfInitParam($objFormParam);
                 $objFormParam->setParam($_POST);
@@ -235,7 +294,7 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
                 if (!SC_Utils_Ex::isBlank($this->arrSearchErr)) {
                     return;
                 }
-            // 画像のアップロード
+            //画像のアップロード
             case 'upload_image':
             case 'delete_image':
                 // パラメーター処理
@@ -264,17 +323,28 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
             default:
                 $this->lfInitParam($objFormParam);
                 $this->arrForm = $objFormParam->getHashArray();
-                $this->setUploadFile($objUpFile, $this->arrForm);
+                $this->setUploadFileForCVUpload($objUpFile, $objDownFile, $this->arrForm);
                 break;
         }
+
     }
-    
+
     public function setUploadFile(&$objUpFile, &$arrForm) {
         $objUpFile->setDBFileList($arrForm);
         $arrForm['arrHidden'] = $objUpFile->getHiddenFileList();
         $arrForm['arrFile'] = $objUpFile->getFormFileList(IMAGE_TEMP_URLPATH, IMAGE_SAVE_URLPATH);
     }
-    
+
+    public function setUploadFileForCVUpload(&$objUpFile, &$objDownFile, &$arrForm) {
+
+       $objUpFile->setDBFileList($arrForm);
+        $objDownFile->setDBDownFile($arrForm);
+        $arrHidden = $objUpFile->getHiddenFileList();
+        $arrForm['arrHidden'] = array_merge((array) $arrHidden, (array) $objDownFile->getHiddenFileList());
+        $arrForm['arrFile'] = $objUpFile->getFormFileList(IMAGE_TEMP_URLPATH, IMAGE_SAVE_URLPATH);
+        $arrForm['cv'] = $objDownFile->getFormDownFile();
+    }
+
     public function lfDeleteTempFile(&$objUpFile, $image_key) {
         // TODO: SC_UploadFile::deleteFileの画像削除条件見直し要
         $arrTempFile = $objUpFile->temp_file;
@@ -388,6 +458,8 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
     public function lfRegistData(&$objFormParam, $objUpFile) {
         // 登録用データ取得
         $arrData = $objFormParam->getDbArray();
+               
+        
         // 足りないものを作る
         if (!SC_Utils_Ex::isBlank($objFormParam->getValue('year'))) {
             $arrData['birth'] = $objFormParam->getValue('year') . '/'
@@ -409,7 +481,6 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
         }
         $arrRet = $objUpFile->getDBFileList();
         $arrData = array_merge($arrData, $arrRet);
-        
         $this->lfSaveUploadFiles($objUpFile);
 
         return SC_Helper_Customer_Ex::sfEditCustomerData($arrData, $arrData['customer_id']);

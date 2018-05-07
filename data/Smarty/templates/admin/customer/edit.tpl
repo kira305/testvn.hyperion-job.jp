@@ -138,20 +138,22 @@
     <!--{/foreach}-->
 
     <div id="customer" class="contents-main">
-
+         <!--{if $arrForm.customer_id}-->
         <div class="mycontents_area">
-            <h2 class="title">Tải hồ sơ trực tuyến</h2>
+            <h2 class="title">履歴書ファイルアップロード</h2>
             <!--{include file="`$smarty.const.TEMPLATE_REALDIR`frontparts/form_cv_upload_input.tpl"}-->
-            <div class="btn_area">
+            <div class="btn_area" >
                 <ul>
-                    <li>
-                        <button class="bttn" type="button" onClick="eccube.setModeAndSubmit('cv_complete', '', '');"><span>Lưu</span></button>
+                    <li style="text-align:center;">
+                        <button class="bttn" type="button" onClick="eccube.setModeAndSubmit('cv_complete', '', '');"><span>保存・完了</span></button>
                     </li>
                 </ul>
             </div>
         </div>
-        
-        <table class="form">
+        <!--{/if}-->
+
+
+        <table class="form" style="margin-top:20px;">
             <!--{if $arrForm.customer_id}-->
             <tr>
                 <th>会員ID<span class="attention"> *</span></th>
@@ -372,7 +374,7 @@
                 </td>
             </tr>
         </table>
-                    
+
         <div id="career_area" class="form" <!--{if $arrForm.work_experience != 1}-->style='display: none'<!--{/if}--> >
             <h2>職歴</h2>
             <table class="list" id="career_list">

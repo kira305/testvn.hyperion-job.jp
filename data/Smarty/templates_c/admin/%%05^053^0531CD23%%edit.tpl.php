@@ -1,7 +1,7 @@
-<?php /* Smarty version 2.6.27, created on 2017-11-21 19:37:19
+<?php /* Smarty version 2.6.27, created on 2018-04-06 17:04:00
          compiled from customer/edit.tpl */ ?>
 <?php require_once(SMARTY_CORE_DIR . 'core.load_plugins.php');
-smarty_core_load_plugins(array('plugins' => array(array('modifier', 'script_escape', 'customer/edit.tpl', 24, false),array('modifier', 'h', 'customer/edit.tpl', 110, false),array('modifier', 'default', 'customer/edit.tpl', 171, false),array('modifier', 'sfGetErrorColor', 'customer/edit.tpl', 316, false),array('modifier', 'count', 'customer/edit.tpl', 423, false),array('modifier', 'sfDispDBDate', 'customer/edit.tpl', 543, false),array('modifier', 'n2s', 'customer/edit.tpl', 545, false),array('function', 'sfSetErrorStyle', 'customer/edit.tpl', 153, false),array('function', 'html_options', 'customer/edit.tpl', 171, false),array('function', 'html_radios', 'customer/edit.tpl', 188, false),array('function', 'html_checkboxes', 'customer/edit.tpl', 428, false),)), $this); ?>
+smarty_core_load_plugins(array('plugins' => array(array('modifier', 'script_escape', 'customer/edit.tpl', 24, false),array('modifier', 'h', 'customer/edit.tpl', 110, false),array('modifier', 'default', 'customer/edit.tpl', 186, false),array('modifier', 'sfGetErrorColor', 'customer/edit.tpl', 331, false),array('modifier', 'count', 'customer/edit.tpl', 438, false),array('modifier', 'sfDispDBDate', 'customer/edit.tpl', 558, false),array('modifier', 'n2s', 'customer/edit.tpl', 560, false),array('function', 'sfSetErrorStyle', 'customer/edit.tpl', 168, false),array('function', 'html_options', 'customer/edit.tpl', 186, false),array('function', 'html_radios', 'customer/edit.tpl', 203, false),array('function', 'html_checkboxes', 'customer/edit.tpl', 443, false),)), $this); ?>
 <script type="text/javascript" src="<?php echo ((is_array($_tmp=@ROOT_URLPATH)) ? $this->_run_mod_handler('script_escape', true, $_tmp) : smarty_modifier_script_escape($_tmp)); ?>
 js/chosen.jquery.js"></script>
 <script type="text/javascript" src="<?php echo ((is_array($_tmp=@ROOT_URLPATH)) ? $this->_run_mod_handler('script_escape', true, $_tmp) : smarty_modifier_script_escape($_tmp)); ?>
@@ -162,7 +162,26 @@ css/chosen.css" type="text/css" media="all" />
     <?php endforeach; endif; unset($_from); ?>
 
     <div id="customer" class="contents-main">
-        <table class="form">
+         <?php if (((is_array($_tmp=$this->_tpl_vars['arrForm']['customer_id'])) ? $this->_run_mod_handler('script_escape', true, $_tmp) : smarty_modifier_script_escape($_tmp))): ?>
+        <div class="mycontents_area">
+            <h2 class="title">履歴書ファイルアップロード</h2>
+            <?php $_smarty_tpl_vars = $this->_tpl_vars;
+$this->_smarty_include(array('smarty_include_tpl_file' => (@TEMPLATE_REALDIR)."frontparts/form_cv_upload_input.tpl", 'smarty_include_vars' => array()));
+$this->_tpl_vars = $_smarty_tpl_vars;
+unset($_smarty_tpl_vars);
+ ?>
+            <div class="btn_area" >
+                <ul>
+                    <li style="text-align:center;">
+                        <button class="bttn" type="button" onClick="eccube.setModeAndSubmit('cv_complete', '', '');"><span>保存・完了</span></button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <?php endif; ?>
+
+
+        <table class="form" style="margin-top:20px;">
             <?php if (((is_array($_tmp=$this->_tpl_vars['arrForm']['customer_id'])) ? $this->_run_mod_handler('script_escape', true, $_tmp) : smarty_modifier_script_escape($_tmp))): ?>
             <tr>
                 <th>会員ID<span class="attention"> *</span></th>
@@ -497,7 +516,7 @@ css/chosen.css" type="text/css" media="all" />
                 </td>
             </tr>
         </table>
-                    
+
         <div id="career_area" class="form" <?php if (((is_array($_tmp=$this->_tpl_vars['arrForm']['work_experience'])) ? $this->_run_mod_handler('script_escape', true, $_tmp) : smarty_modifier_script_escape($_tmp)) != 1): ?>style='display: none'<?php endif; ?> >
             <h2>職歴</h2>
             <table class="list" id="career_list">
@@ -837,4 +856,4 @@ $this->_sections['cnt']['last']       = ($this->_sections['cnt']['iteration'] ==
         <?php endif; ?>
 
     </div>
-</form>
+</form>

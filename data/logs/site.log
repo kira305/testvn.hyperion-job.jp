@@ -358,3 +358,7 @@
 2018/01/22 11:37:16 [/user_data/apply_popup.php] order complete. order_id=168 from 117.4.246.220
 2018/01/24 18:48:29 [/entry/cv.php] order complete. order_id=171 from 117.4.246.220
 2018/01/24 18:48:29 [/entry/cv.php] order complete. order_id=171 from 117.4.246.220
+2018/02/01 15:16:50 [/index.php] PAGE_DISPLAY_TIME_LOG [2.44sec] from 127.0.0.1
+2018/02/01 19:23:17 [/mypage/cv.php] PAGE_DISPLAY_TIME_LOG [2.07sec] from 127.0.0.1
+2018/02/02 12:26:07 [/mypage/cv.php] PAGE_DISPLAY_TIME_LOG [3.56sec] from 127.0.0.1
+2018/02/02 19:20:23 [/index.php] PAGE_DISPLAY_TIME_LOG [2.25sec] from 127.0.0.1

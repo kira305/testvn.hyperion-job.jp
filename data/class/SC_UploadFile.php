@@ -173,7 +173,6 @@ class SC_UploadFile
                 $cnt++;
             }
         }
-
         return $objErr->arrErr[$keyname];
     }
 
@@ -505,7 +504,7 @@ class SC_UploadFile
                     if ($this->save_file[$cnt] == ''
                         && $this->temp_file[$cnt] == ''
                     ) {
-                        $arrRet[$val] = '※ ' .'Không thể tải'. $this->disp_name[$cnt] . '<br>';
+                        $arrRet[$val] = '※ ' .'Không thể tải '. $this->disp_name[$cnt] . '<br>';
                     }
                 }
             }

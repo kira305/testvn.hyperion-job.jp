@@ -34,6 +34,13 @@
         }
     }
 
+    function fnDownload(customer_id) {
+            document.form1.mode.value = "downloadCv"
+            document.form1['edit_customer_id'].value = customer_id;
+            document.form1.submit();
+            return false;
+    }
+
     function fnEdit(customer_id) {
         document.form1.action = './edit.php';
         document.form1.mode.value = "edit_search"
@@ -127,6 +134,7 @@
                     <th>TEL</th>
                     <th rowspan="2">編集</th>
                     <th rowspan="2">削除</th>
+                    <th rowspan="2">CV UPLOADED</th>
                 </tr>
                 <tr>
                     <th>都道府県</th>
@@ -141,6 +149,11 @@
                         <td><!--{$row.tel|h}--></td>
                         <td class="center" rowspan="2"><span class="icon_edit"><a href="#" onclick="return fnEdit('<!--{$row.customer_id|h}-->');">編集</a></span></td>
                         <td class="center" rowspan="2"><span class="icon_delete"><a href="#" onclick="return fnDelete('<!--{$row.customer_id|h}-->');">削除</a></span></td>
+                        <!--{if $row.existsCv|h == true}-->
+                        <td class="center" rowspan="2"><a href="#" onclick="return fnDownload('<!--{$row.customer_id|h}-->');">ダウンロード</a></td>
+                        <!--{else}-->
+                        <td class="center" rowspan="2">なし</td>
+                        <!--{/if}-->
                     </tr>
                     <tr>
                         <td><!--{$row.pref_by_text|h}--></td>

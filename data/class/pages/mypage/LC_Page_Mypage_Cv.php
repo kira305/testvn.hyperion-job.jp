@@ -66,7 +66,7 @@ class LC_Page_Mypage_Cv extends LC_Page_AbstractMypage_Ex {
         $this->arrCategoryByTarget = array();
         foreach ($arrCategory as $category){
             if($category['object_id'] != '' && $category['object_id'] > 0)
-                $this->arrCategoryByTarget[$category['object_id']][$category['id']] = $category['name_vn'];
+                $this->arrCategoryByTarget[$category['object_id']][$category['id']] = $category['f'];
             else{
                 $this->arrCategoryByTarget[1][$category['id']] = $category['name_vn'];
                 $this->arrCategoryByTarget[2][$category['id']] = $category['name_vn'];
@@ -168,9 +168,7 @@ class LC_Page_Mypage_Cv extends LC_Page_AbstractMypage_Ex {
                 break;
             // 会員登録と完了画面
             case 'cv_complete':
-
                 $this->arrErr = $objDownFile->checkExists();
-
                 // 入力エラーなし
                 if (empty($this->arrErr)) {
                     // 会員情報の登録
@@ -240,7 +238,6 @@ class LC_Page_Mypage_Cv extends LC_Page_AbstractMypage_Ex {
         }
         if ($this->getMode() != '')
             $this->arrForm = $objFormParam->getHashArray();
-
         $this->setUploadFile($objUpFile, $objDownFile, $this->arrForm);
     }
 

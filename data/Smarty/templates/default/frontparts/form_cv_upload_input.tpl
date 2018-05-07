@@ -34,7 +34,7 @@
     <col width="70%" />
     <tr class="type-download">
         <!--{assign var=key value="down_file"}-->
-        <th>Tải hồ sơ lên</th>
+        <th>履歴書ファイルアップロード</th>
         <td>
             <a name="<!--{$key}-->"></a>
             <span class="attention"><!--{$arrErr[$key]}--><!--{$arrErr.cv}--></span>
@@ -45,7 +45,7 @@
                 <a href="" onclick="eccube.setModeAndSubmit('delete_down', '', ''); return false;">[Xóa file]</a><br />
             <!--{/if}-->
             <input type="file" name="<!--{$key}-->" size="40" style="<!--{$arrErr[$key]|sfGetErrorColor}-->" />
-            <br />Cho phép tải lên bằng định dạng：<!--{$smarty.const.DOWNLOAD_EXTENSION}-->
+            <br />登録可能拡張子：<!--{$smarty.const.DOWNLOAD_EXTENSION}-->
         </td>
     </tr>
 </table>

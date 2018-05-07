@@ -335,6 +335,13 @@ class SC_CustomerList extends SC_SelectSql_Ex
         return $this->getSql(2);
     }
 
+    // 検索用SQL
+    public function getListforSearch()
+    {
+        $this->select = 'SELECT customer_id,name01,name02,kana01,kana02,sex,email,email_mobile,tel01,tel02,tel03,pref,status,update_date,mailmaga_flg,pref_by_text,tel,cv,cv_name FROM dtb_customer ';
+
+        return $this->getSql(2);
+    }
     public function getListMailMagazine($is_mobile = false)
     {
         $colomn = $this->getMailMagazineColumn($is_mobile);
