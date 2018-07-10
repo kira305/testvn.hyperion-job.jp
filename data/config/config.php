@@ -1,19 +1,19 @@
 <?php
 define('ECCUBE_INSTALL', 'ON');
-define('HTTP_URL', 'http://local.testvn.hyperion-job.jp/');
-define('HTTPS_URL', 'https://local.testvn.hyperion-job.jp/');
+define('HTTP_URL', 'http://local.hyperion-job.jp/');
+define('HTTPS_URL', 'https://local.hyperion-job.jp/');
 define('ROOT_URLPATH', '/');
-define('DOMAIN_NAME', '.hyperion-job.jp');
+define('DOMAIN_NAME', '');
 define('DB_TYPE', 'mysql');
 define('DB_USER', 'root');
 define('DB_PASSWORD', '');
-define('DB_SERVER', '127.0.0.1');
-define('DB_NAME', 'eccube_vn.hyperion-job');
+define('DB_SERVER', 'localhost');
+define('DB_NAME', 'eccube_hyperion-job');
 define('DB_PORT', '');
 define('ADMIN_DIR', 'admin/');
 define('ADMIN_FORCE_SSL', FALSE);
 define('ADMIN_ALLOW_HOSTS', 'a:0:{}');
-define('AUTH_MAGIC', 'geagakaephoudrapouuaecliwrousliodrunapia');
+define('AUTH_MAGIC', 'cosliotathagoustiaslianiseasiogiwoustouw');
 define('PASSWORD_HASH_ALGOS', 'sha256');
 define('MAIL_BACKEND', 'mail');
 define('SMTP_HOST', '');

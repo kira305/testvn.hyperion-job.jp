@@ -1,8 +1,9 @@
 <?php
+
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -30,10 +31,9 @@
  * @author LOCKON CO.,LTD.
  * @version $Id$
  */
-
-class SC_Api_Operation
-{
+class SC_Api_Operation {
     /** API_DEBUG_MODE */
+
     const API_DEBUG_MODE = false;
 
     /** 認証タイプ */
@@ -52,13 +52,13 @@ class SC_Api_Operation
     /**
      * 有効な管理者ID/PASSかどうかチェックする
      *
-     * @param  string  $member_id       ログインID文字列
-     * @param  string  $member_password ログインパスワード文字列
+     * @param string $member_id ログインID文字列
+     * @param string $member_password ログインパスワード文字列
      * @return boolean ログイン情報が有効な場合 true
      */
-    protected function checkMemberAccount($member_id, $member_password)
-    {
-        $objQuery =& SC_Query_Ex::getSingletonInstance();
+
+    protected function checkMemberAccount($member_id, $member_password) {
+        $objQuery = & SC_Query_Ex::getSingletonInstance();
         //パスワード、saltの取得
         $cols = 'password, salt';
         $table = 'dtb_member';
@@ -71,19 +71,17 @@ class SC_Api_Operation
         if (SC_Utils_Ex::sfIsMatchHashPassword($member_password, $arrData['password'], $arrData['salt'])) {
             return true;
         }
-
         return false;
     }
 
     /**
      * 会員ログインチェックを実行する.
      *
-     * @param  string  $login_email ログインメールアドレス
-     * @param  string  $login_password    ログインパスワード
+     * @param string $login_email ログインメールアドレス
+     * @param string $password ログインパスワード
      * @return boolean ログインに成功した場合 true; 失敗した場合 false
      */
-    protected function checkCustomerAccount($login_email, $login_password)
-    {
+    protected function checkCustomerAccount($login_email, $login_password) {
         $objCustomer = new SC_Customer_Ex();
         if ($objCustomer->getCustomerDataFromEmailPass($login_password, $login_email)) {
             return true;
@@ -97,18 +95,16 @@ class SC_Api_Operation
      *
      * @return boolean チェックに成功した場合 true; 失敗した場合 false
      */
-    protected function checkReferer()
-    {
+    protected function checkReferer() {
         $ret = false;
         if (!SC_Utils_Ex::isBlank($_SERVER['HTTP_REFERER'])) {
-            $domain  = SC_Utils_Ex::sfIsHTTPS() ? HTTPS_URL : HTTP_URL;
+            $domain = SC_Utils_Ex::sfIsHTTPS() ? HTTPS_URL : HTTP_URL;
             $pattern = sprintf('|^%s.*|', $domain);
             $referer = $_SERVER['HTTP_REFERER'];
             if (preg_match($pattern, $referer)) {
-               $ret = true;
+                $ret = true;
             }
         }
-
         return $ret;
     }
 
@@ -120,20 +116,20 @@ class SC_Api_Operation
      * @param array リクエストパラメータ
      * @return boolean 署名認証に成功した場合 true; 失敗した場合 false
      */
-    protected function checkApiSignature($operation_name, $arrParam, $arrApiConfig)
-    {
+    protected function checkApiSignature($operation_name, $arrParam, $arrApiConfig) {
         if (SC_Utils_Ex::isBlank($arrParam['Signature'])) {
             return false;
         }
         if (SC_Utils_Ex::isBlank($arrParam['Timestamp'])) {
             return false;
         }
-/*
-        $allow_account_id = SC_Api_Operation_Ex::getOperationSubConfig($operation_name, 'allow_account_id', $arrApiConfig);
-        if (!SC_Utils_Ex::isBlank($allow_account_id) and) {
-            $arrAllowAccountIds = explode('|', $allow_account_id);
-        }
-*/
+        /*
+          $allow_account_id = SC_Api_Operation_Ex::getOperationSubConfig($operation_name, 'allow_account_id', $arrApiConfig);
+          if (!SC_Utils_Ex::isBlank($allow_account_id) and) {
+          $arrAllowAccountIds = explode('|', $allow_account_id);
+
+          }
+         */
 
         $access_key = $arrParam['AccessKeyId'];
         $secret_key = SC_Api_Operation_Ex::getApiSecretKey($access_key);
@@ -158,14 +154,13 @@ class SC_Api_Operation
         }
         $check_str = substr($check_str, 1);
         $check_str = strtoupper($_SERVER['REQUEST_METHOD']) . "\n"
-                     . strtolower($_SERVER['SERVER_NAME']) . "\n"
-                     . $_SERVER['PHP_SELF'] . "\n"
-                     . $check_str;
+                . strtolower($_SERVER['SERVER_NAME']) . "\n"
+                . $_SERVER['PHP_SELF'] . "\n"
+                . $check_str;
         $signature = base64_encode(hash_hmac('sha256', $check_str, $secret_key, true));
         if ($signature === $arrParam['Signature']) {
             return true;
         }
-
         return false;
     }
 
@@ -175,8 +170,7 @@ class SC_Api_Operation
      * @param  string 実行処理名
      * @return boolean チェックに成功した場合 true; 失敗した場合 false
      */
-    protected function checkIp($operation_name)
-    {
+    protected function checkIp($operation_name) {
         $ret = false;
         $allow_hosts = SC_Api_Utils_Ex::getOperationSubConfig($operation_name, 'allow_hosts');
         $arrAllowHost = explode("\n", $allow_hosts);
@@ -185,21 +179,18 @@ class SC_Api_Operation
                 $ret = true;
             }
         }
-
         return $ret;
     }
 
     /**
      * ApiAccessKeyに対応した秘密鍵を取得する。
      *
-     * @param  string $access_key
+     * @param string $access_key
      * @return string 秘密鍵文字列
      */
-    protected function getApiSecretKey($access_key)
-    {
-        $objQuery =& SC_Query_Ex::getSingletonInstance();
+    protected function getApiSecretKey($access_key) {
+        $objQuery = & SC_Query_Ex::getSingletonInstance();
         $secret_key = $objQuery->get('api_secret_key', 'dtb_api_account', 'api_access_key = ? and enable = 1 and del_flg = 0', array($access_key));
-
         return $secret_key;
     }
 
@@ -210,8 +201,7 @@ class SC_Api_Operation
      * @param array リクエストパラメータ
      * @return boolean 権限がある場合 true; 無い場合 false
      */
-    protected function checkOperationAuth($operation_name, &$arrParam, &$arrApiConfig)
-    {
+    protected function checkOperationAuth($operation_name, &$arrParam, &$arrApiConfig) {
         if (SC_Utils_Ex::isBlank($operation_name)) {
             return false;
         }
@@ -265,7 +255,6 @@ class SC_Api_Operation
                 break;  // 1つでもfalseがあれば，その時点で終了
             }
         }
-
         return $result;
     }
 
@@ -273,11 +262,9 @@ class SC_Api_Operation
      * APIのリクエスト基本パラメーターの設定
      *
      * @param object SC_FormParam
-     * @param SC_FormParam_Ex $objFormParam
      * @return void
      */
-    protected function setApiBaseParam(&$objFormParam)
-    {
+    protected function setApiBaseParam(&$objFormParam) {
         $objFormParam->addParam('Operation', 'Operation', STEXT_LEN, 'an', array('EXIST_CHECK', 'GRAPH_CHECK', 'MAX_LENGTH_CHECK'));
         $objFormParam->addParam('Service', 'Service', STEXT_LEN, 'an', array('EXIST_CHECK', 'GRAPH_CHECK', 'MAX_LENGTH_CHECK'));
         $objFormParam->addParam('Style', 'Style', STEXT_LEN, 'an', array('GRAPH_CHECK', 'MAX_LENGTH_CHECK'));
@@ -288,11 +275,10 @@ class SC_Api_Operation
     /**
      * API実行
      *
-     * @param  array        $arrPost リクエストパラメーター
+     * @param array $arrPost リクエストパラメーター
      * @return array(string レスポンス名, array レスポンス配列)
      */
-    public function doApiAction($arrPost)
-    {
+    public function doApiAction($arrPost) {
         // 実行時間計測用
         $start_time = microtime(true);
 
@@ -301,12 +287,7 @@ class SC_Api_Operation
         $objFormParam->setParam($arrPost);
         $objFormParam->convParam();
 
-        $arrErr = SC_Api_Operation_Ex::checkParam($objFormParam); 
-        
-        // API機能が有効であるかをチェック.
-        if (API_ENABLE_FLAG == false) {
-            $arrErr['ECCUBE.Function.Disable'] = 'API機能が無効です。';
-        }
+        $arrErr = $objFormParam->checkError();
         if (SC_Utils_Ex::isBlank($arrErr)) {
             $arrParam = $objFormParam->getHashArray();
             $operation_name = $arrParam['Operation'];
@@ -333,7 +314,7 @@ class SC_Api_Operation
                     // オペレーション結果処理
                     if ($operation_result) {
                         $arrOperationRequestValid = $objApiOperation->getRequestValidate();
-                        $arrResponseBody =  $objApiOperation->getResponseArray();
+                        $arrResponseBody = $objApiOperation->getResponseArray();
                         $response_group_name = $objApiOperation->getResponseGroupName();
                     } else {
                         $arrErr = $objApiOperation->getErrorArray();
@@ -349,10 +330,10 @@ class SC_Api_Operation
         if (count($arrErr) == 0) {
             // 実行成功
             $arrResponseValidSection = array('Request' => array(
-                                                            'IsValid' => 'True',
-                                                            $operation_name . 'Request' => $arrOperationRequestValid
-                                                            )
-                                            );
+                    'IsValid' => 'True',
+                    $operation_name . 'Request' => $arrOperationRequestValid
+                )
+            );
             $response_outer = $operation_name . 'Response';
             SC_Api_Utils_Ex::printApiLog('Operation SUCCESS', $start_time, $response_outer);
         } else {
@@ -362,10 +343,10 @@ class SC_Api_Operation
                 $arrResponseErrorSection[] = array('Code' => $error_code, 'Message' => $error_msg);
             }
             $arrResponseValidSection = array('Request' => array(
-                                                            'IsValid' => 'False',
-                                                            'Errors' => array('Error' => $arrResponseErrorSection)
-                                                            )
-                                            );
+                    'IsValid' => 'False',
+                    'Errors' => array('Error' => $arrResponseErrorSection)
+                )
+            );
             if (is_object($objApiOperation)) {
                 $response_outer = $operation_name . 'Response';
             } else {
@@ -388,34 +369,26 @@ class SC_Api_Operation
     /**
      * APIのリクエストのエコー情報の作成
      *
-     * @param  array $arrParam   リクエストパラメーター
-     * @param  float $start_time 実行時間計測用開始時間
+     * @param array $arrParam リクエストパラメーター
+     * @param float $start_time 実行時間計測用開始時間
      * @return array エコー情報配列 (XML用の _attributes 指定入り）
      */
-    protected function getOperationRequestEcho($arrParam, $start_time)
-    {
+    protected function getOperationRequestEcho($arrParam, $start_time) {
         $arrRet = array(
-                'HTTPHeaders' => array('Header' => array('_attributes' => array('Name' => 'UserAgent',
-                                                                                'Value' => htmlspecialchars($_SERVER['HTTP_USER_AGENT'])))),
-                'RequestId' => $start_time,
-                'Arguments' => array(),
-                );
+            'HTTPHeaders' => array('Header' => array('_attributes' => array('Name' => 'UserAgent',
+                        'Value' => htmlspecialchars($_SERVER['HTTP_USER_AGENT'])))),
+            'RequestId' => $start_time,
+            'Arguments' => array(),
+        );
         foreach ($arrParam as $key => $val) {
             $arrRet['Arguments'][] = array('_attributes' => array('Name' => htmlentities($key, ENT_NOQUOTES, 'UTF-8'), 'Value' => htmlentities($val, ENT_NOQUOTES, 'UTF-8')));
         }
         $arrRet['RequestProcessingTime'] = microtime(true) - $start_time;
-
         return $arrRet;
     }
 
     // TODO: ここらへんは SC_Displayに持って行きたい所だが・・
-
-    /**
-     * @param string $type
-     * @param string $response_outer_name
-     */
-    public function sendApiResponse($type, $response_outer_name, &$arrResponse)
-    {
+    public function sendApiResponse($type, $response_outer_name, &$arrResponse) {
         switch ($type) {
             case 'xml':
                 SC_Api_Utils_Ex::sendResponseXml($response_outer_name, $arrResponse);
@@ -429,15 +402,14 @@ class SC_Api_Operation
                 break;
         }
     }
-    
+
     /**
      * APIのリクエスト基本パラメーターのチェック
      *
-     * @param SC_FormParam_Ex $objFormParam
+     * @param object $objFormParam
      * @return array $arrErr
      */
-    protected function checkParam($objFormParam)
-    {
+    protected function checkParam($objFormParam) {
         $arrErr = $objFormParam->checkError();
         if (!preg_match("/^[a-zA-Z0-9\-\_]+$/", $objFormParam->getValue('Operation')) && !SC_Utils::isBlank($objFormParam->getValue('Operation'))) {
             $arrErr['ECCUBE.Operation.ParamError'] = 'Operationの値が不正です。';
@@ -456,4 +428,5 @@ class SC_Api_Operation
         }
         return $arrErr;
     }
+
 }

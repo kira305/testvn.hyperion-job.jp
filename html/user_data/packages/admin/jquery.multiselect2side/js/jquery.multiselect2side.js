@@ -106,7 +106,7 @@
 			$(this).find("option:not(:selected)").clone().appendTo(leftSel);
 
 			// SELECT FIRST LEFT ITEM
-			if (!(navigator.userAgent.toLowerCase().indexOf('msie 6') != -1))
+			if (!($.browser.msie && $.browser.version == '6.0'))
 				leftSel.find("option").eq(0).attr("selected", true);
 
 			// ON CHANGE REFRESH ALL BUTTON STATUS

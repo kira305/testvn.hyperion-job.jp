@@ -1,224 +1,323 @@
-<!--{*
- * This file is part of EC-CUBE
- *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
- *
- * http://www.lockon.co.jp/
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *}-->
+                                    
+<!-- ▼メイン -->
 
+<!--{*
+* This file is part of EC-CUBE
+*
+* Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
+*
+* http://www.lockon.co.jp/
+*
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 2
+* of the License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+*}-->
+
+<script type="text/javascript" src="<!--{$smarty.const.ROOT_URLPATH}-->js/products.js"></script>
 <script type="text/javascript">//<![CDATA[
     function fnSetClassCategories(form, classcat_id2_selected) {
         var $form = $(form);
         var product_id = $form.find('input[name=product_id]').val();
         var $sele1 = $form.find('select[name=classcategory_id1]');
         var $sele2 = $form.find('select[name=classcategory_id2]');
-        eccube.setClassCategories($form, product_id, $sele1, $sele2, classcat_id2_selected);
+        setClassCategories($form, product_id, $sele1, $sele2, classcat_id2_selected);
     }
     // 並び順を変更
     function fnChangeOrderby(orderby) {
-        eccube.setValue('orderby', orderby);
-        eccube.setValue('pageno', 1);
-        eccube.submitForm();
+        fnSetVal('orderby', orderby);
+        fnSetVal('pageno', 1);
+        fnSubmit();
     }
     // 表示件数を変更
     function fnChangeDispNumber(dispNumber) {
-        eccube.setValue('disp_number', dispNumber);
-        eccube.setValue('pageno', 1);
-        eccube.submitForm();
+        fnSetVal('disp_number', dispNumber);
+        fnSetVal('pageno', 1);
+        fnSubmit();
     }
     // カゴに入れる
-    function fnInCart(th, mode) {
+    function fnInCart(productForm) {
         var searchForm = $("#form1");
-        var cartForm = $(th).closest('form');
+        var cartForm = $(productForm);
         // 検索条件を引き継ぐ
-        var hiddenValues = ['mode','prevPage','employment_status','category_id','region','position','city','name','welfare','orderby','disp_number','pageno','rnd'];
-        $.each(hiddenValues, function(){
-            // 仕事別のフォームに検索条件の値があれば上書き
-            if (cartForm.has('input[name='+this+']').length != 0) {
-                cartForm.find('input[name='+this+']').val(searchForm.find('input[name='+this+']').val());
+        var hiddenValues = ['mode', 'work_location_flg[]', 'employment_status[]', 'condition[]', 'category_id', 'name', 'orderby', 'disp_number', 'pageno', 'rnd'];
+        $.each(hiddenValues, function() {
+            // 商品別のフォームに検索条件の値があれば上書き
+            if (this == 'work_location_flg[]' || this == 'employment_status[]' || this == 'condition[]') {
+                $.each(searchForm.find('input[name=' + this + ']'), function() {
+                    cartForm.append($("<input/>").attr("name", this.name).attr("type", "hidden").val(this.value));
+                });
             }
-            // なければ追加
-            else {
-                cartForm.append($('<input type="hidden" />').attr("name", this).val(searchForm.find('input[name='+this+']').val()));
-            }
+            else
+                cartForm.append($("<input/>").attr("name", this).attr("type", "hidden").val(searchForm.find('input[name=' + this + ']').val()));
         });
-        cartForm.find('input[name=mode]').val(mode);
-        // 仕事別のフォームを送信
+        // 商品別のフォームを送信
         cartForm.submit();
     }
-    
-    $(document).ready(function() {
-  $("h3 a, .skill").dotdotdot({
-            ellipsis  : '...',
-            wrap  : 'letter',
-            height  : null
-  });
-    });
-
-    $(window).load(function(){
-        if($('.list_area_form').length > 0){
-            for (var i = 0; i < $('.list_area_form').length; i += 2) {
-                if( $('.list_area_form').eq(i).height() > $('.list_area_form').eq(i+1).height() ){
-                    $('.list_area_form .list_area').eq(i+1).height( $('.list_area_form .list_area').eq(i).height() );
-                } else {
-                    $('.list_area_form .list_area').eq(i).height( $('.list_area_form .list_area').eq(i+1).height() );
-                }
-            }
-        }
-    });
 //]]></script>
 
+<script type="text/javascript">
+    function back() {
+        document.form1.mode.value = 'back';
+        document.form1.submit();
+    }
+</script>
+<style>
+    .list_button.ordered{
+        cursor: default !important;
+    }
+</style>
+
 <div id="undercolumn">
+
+    <span class="attention"><!--{$msg}--></span>
+
     <form name="form1" id="form1" method="get" action="?">
         <input type="hidden" name="<!--{$smarty.const.TRANSACTION_ID_NAME}-->" value="<!--{$transactionid}-->" />
         <input type="hidden" name="mode" value="<!--{$mode|h}-->" />
-        <!-- {* ▼検索条件 *} -->
-        <!--{foreach key=key item=item from=$arrSearchData}-->
-            <!--{if is_array($item)}-->
-                <!--{foreach item=c_item from=$item}-->
-                    <input type="hidden" name="<!--{$key|h}-->[]" value="<!--{$c_item|h}-->" />
-                <!--{/foreach}-->
-            <!--{else}-->
-                <input type="hidden" name="<!--{$key|h}-->" value="<!--{$item|h}-->" />
-            <!--{/if}-->
+        <!--{* ▼検索条件 *}-->
+        <!--{foreach from=$arrSearchData.work_location_flg item="status"}-->
+        <input type="hidden" name="work_location_flg[]" value="<!--{$status}-->" />
         <!--{/foreach}-->
+        <!--{foreach from=$arrSearchData.condition item="status"}-->
+        <input type="hidden" name="condition[]" value="<!--{$status}-->" />
+        <!--{/foreach}-->
+        <!--{foreach from=$arrSearchData.employment_status item="status"}-->
+        <input type="hidden" name="employment_status[]" value="<!--{$status}-->" />
+        <!--{/foreach}-->
+        <input type="hidden" name="category_id" value="<!--{$arrSearchData.category_id|h}-->" />
+        <input type="hidden" name="name" value="<!--{$arrSearchData.name|h}-->" />
+        <input type="hidden" name="date" value="<!--{$date|h}-->" />
         <!--{* ▲検索条件 *}-->
         <!--{* ▼ページナビ関連 *}-->
         <input type="hidden" name="orderby" value="<!--{$orderby|h}-->" />
         <input type="hidden" name="disp_number" value="<!--{$disp_number|h}-->" />
         <input type="hidden" name="pageno" value="<!--{$tpl_pageno|h}-->" />
-        <input type="hidden" name="prevPage" value="<!--{$prevPage|h}-->" />
         <!--{* ▲ページナビ関連 *}-->
+        <!--{* ▼注文関連 *}-->
+        <input type="hidden" name="product_id" value="" />
+        <input type="hidden" name="classcategory_id1" value="" />
+        <input type="hidden" name="classcategory_id2" value="" />
+        <input type="hidden" name="product_class_id" value="" />
+        <input type="hidden" name="quantity" value="" />
+        <!--{* ▲注文関連 *}-->
         <input type="hidden" name="rnd" value="<!--{$tpl_rnd|h}-->" />
     </form>
 
     <!--★タイトル★-->
-    <h2 class="title"><!--{if $target > 0}-->Việc làm tại&nbsp;<!--{$arrTarget[$target]}--><!--{else}-->Thông tin việc làm<!--{/if}--></h2>
+    <h2 class="title"><!--{$tpl_subtitle|h}--></h2>
+
+    <!--▼検索条件-->
+    <!--{if $tpl_subtitle == "検索結果"}-->
+    <ul class="pagecond_area">
+        <li><strong>地域：</strong><!--{$arrSearch.work_location_flg|h}--></li>
+        <li><strong>雇用形態：</strong><!--{$arrSearch.employment_status|h}--></li>
+        <li><strong>仕事内容：</strong><!--{$arrSearch.category|h}--></li>
+        <li><strong>フリーワード：</strong><!--{$arrSearch.name|h}--></li>
+    </ul>
+    <!--{/if}-->
+    <!--▲検索条件-->
 
     <!--▼ページナビ(本文)-->
     <!--{capture name=page_navi_body}-->
-        <div class="pagenumber_area clearfix">
-            <div class="change">
-                Sắp xếp theo：
-                <!--{if $orderby != 'salary'}-->
-                    <a href="javascript:fnChangeOrderby('salary');">Mức lương</a>
-                <!--{else}-->
-                    <span class="attention">Mức lương</span>
-                <!--{/if}-->&nbsp;/&nbsp;
-                <!--{if $orderby != "date"}-->
-                        <a href="javascript:fnChangeOrderby('date');">Ngày đăng</a>
-                <!--{else}-->
-                    <span class="attention">Ngày đăng</span>
-                <!--{/if}-->&nbsp; &nbsp; &nbsp;
-                Hiển thị：
-                <select name="disp_number" onchange="javascript:fnChangeDispNumber(this.value);">
-                    <!--{foreach from=$arrPRODUCTLISTMAX item="dispnum" key="num"}-->
-                        <!--{if $num == $disp_number}-->
-                            <option value="<!--{$num}-->" selected="selected" ><!--{$dispnum}--></option>
-                        <!--{else}-->
-                            <option value="<!--{$num}-->" ><!--{$dispnum}--></option>
-                        <!--{/if}-->
-                    <!--{/foreach}-->
-                </select>
-            </div>
-            <div class="navi"><!--{$tpl_strnavi}--></div>
-        </div>
+    <div class="search_list_navi_sort1">
+        <p>並び替え : 
+            <!--{if $orderby != "date"}--><a href="javascript:fnChangeOrderby('date');">新着順</a>
+            <!--{else}--><strong>新着順</strong>
+            <!--{/if}--></p>
+    </div>
+    <div class="search_list_navi">
+        <ul class="search_list_navi"><!--{$tpl_strnavi}--></ul>
+    </div>
+    <div class="search_list_navi_sort2">
+        <select name="disp_number" onchange="javascript:fnChangeDispNumber(this.value);">
+            <!--{foreach from=$arrPRODUCTLISTMAX item="dispnum" key="num"}-->
+            <!--{if $num == $disp_number}-->
+            <option value="<!--{$num}-->" selected="selected" >表示件数 <!--{$dispnum}--></option>
+            <!--{else}-->
+            <option value="<!--{$num}-->" >表示件数 <!--{$dispnum}--></option>
+            <!--{/if}-->
+            <!--{/foreach}-->
+        </select>
+    </div>
+    <div class="clearfix"></div>
     <!--{/capture}-->
     <!--▲ページナビ(本文)-->
 
-    <!--{foreach from=$arrProducts item=arrProduct name=arrProducts}-->
+
+    <div class="list_wrap_c clearfix">    
+
+        <!--{foreach from=$arrProducts item=arrProduct name=arrProducts}-->
 
         <!--{if $smarty.foreach.arrProducts.first}-->
-            <!--▼件数-->
-            <div>
-                <span class="attention"><!--{$tpl_linemax}--> </span>công việc.
-            </div>
-            <!--▲件数-->
+        <!--▼ページナビ(上部)-->
+        <form name="page_navi_top" id="page_navi_top" action="?">
+            <input type="hidden" name="<!--{$smarty.const.TRANSACTION_ID_NAME}-->" value="<!--{$transactionid}-->" />
+            <!--{if $tpl_linemax > 0}--><!--{$smarty.capture.page_navi_body|smarty:nodefaults}--><!--{/if}-->
+        </form>
+        <!--▲ページナビ(上部)-->
 
-            <!--▼ページナビ(上部)-->
-            <form name="page_navi_top" id="page_navi_top" action="?">
-                <input type="hidden" name="<!--{$smarty.const.TRANSACTION_ID_NAME}-->" value="<!--{$transactionid}-->" />
-                <!--{if $tpl_linemax > 0}--><!--{$smarty.capture.page_navi_body|smarty:nodefaults}--><!--{/if}-->
-            </form>
-            <!--▲ページナビ(上部)-->
-        <!--{/if}-->
+        <!--▼件数-->
+        <div>
+            <span class="number"><!--{$tpl_linemax}-->件</span>の条件に適合したお仕事がございます。
+        </div>
+        <!--▲件数-->
+        <!--{/if}-->   
 
         <!--{assign var=id value=$arrProduct.product_id}-->
         <!--{assign var=arrErr value=$arrProduct.arrErr}-->
-        <!--▼仕事-->
-        <form name="product_form<!--{$id|h}-->" action="?" class="list_area_form">
-            <input type="hidden" name="<!--{$smarty.const.TRANSACTION_ID_NAME}-->" value="<!--{$transactionid}-->" />
-            <input type="hidden" name="product_id" value="<!--{$id|h}-->" />
-            <input type="hidden" name="product_class_id" id="product_class_id<!--{$id|h}-->" value="<!--{$tpl_product_class_id[$id]}-->" />
-            <div class="list_area clearfix">
-                <a name="product<!--{$id|h}-->"></a>
-                <!--★仕事名★-->
-                <h3>
-                    <a target="_blank" href="<!--{$smarty.const.P_DETAIL_URLPATH}--><!--{$arrProduct.product_id|u}-->"><!--{$arrProduct.name_vn|h}--></a>
-                </h3>
+        <!--▼商品-->
 
-                <div class="table">
-                    <div class="table_cell">
-                        <!--{if count($productStatus[$id]) > 0}-->
-                        <!--▼仕事ステータス-->
-                            <p class="product_status">
-                            <!--{foreach from=$productStatus[$id] item=status}-->
-                                <span><!--{$arrSTATUS[$status]}--></span>
-                            <!--{/foreach}-->
-                            </p>
-                        <!--▲仕事ステータス-->
-                        <!--{/if}-->
-                        <p><b>Loại công việc： </b><!--{$arrEmploymentStatus[$arrProduct.employment_status]|h}--></p>
-                        <p><b>Lương：</b><!--{$arrProduct.salary_full|h}--></p>
-                        <p><b>Địa điểm làm việc： </b><!--{$arrRegion[$arrProduct.region]}--> <!--{$arrCity[$arrProduct.city]}--> <!--{$arrProduct.work_location_vn}--></p>
-                    </div>
-                    <div class="table_cell">
+        <div class="list_wrap clearfix">
+            <form name="product_form102" action="?" onsubmit="return false;">
+                <input type="hidden" name="transactionid" value="6bd40b3b356206ff42bd045944e536807c010391" />
+                <div class="list_area clearfix">
+                    <a name="product102"></a>
+                    <h3>
+                        <a href="<!--{$smarty.const.P_DETAIL_URLPATH}--><!--{$arrProduct.product_id|u}-->"><!--{$arrProduct.name|h}--></a>
+                    </h3>
+                    <div class="list_main">
                         <div class="listphoto">
-                            <a target="_blank" href="<!--{$smarty.const.P_DETAIL_URLPATH}--><!--{$id|u}-->">
-                                <img src="<!--{$smarty.const.IMAGE_SAVE_URLPATH}--><!--{$arrProduct.main_large_image|sfNoImageMainList|h}-->" alt="<!--{$arrProduct.name_vn|h}-->" class="picture" /></a>
+                            <!--★画像★-->
+                            <a href="<!--{$smarty.const.P_DETAIL_URLPATH}--><!--{$arrProduct.product_id|u}-->">
+                                <img src="<!--{$smarty.const.IMAGE_SAVE_URLPATH}-->/<!--{$arrProduct.main_list_image|h}-->" alt="<!--{$arrProduct.name|h}-->" class="picture" width="250" height="175" /></a>
                         </div>
+
+                        <div class="listrightbloc">
+
+                            <!--★商品名★-->
+                            <!--★コメント★-->
+                            <div class="listcomment">
+                                <p class="company"><em><!--{$arrProduct.sub_comment1|nl2br_html}--><br/ ></em></p>
+                                <p><!--{$arrProduct.sub_comment8|nl2br_html}--></p>
+                            </div>
+                        </div>
+
+                        <div class="listdata1">
+                            <dl>
+                                <dt><span class="inlineblock"></span><span>地域</span></dt>
+                                <dd><span class="inlineblock"></span><span><!--{$arrProduct.comment19}--></span></dd>
+                                <dt><span class="inlineblock"></span><span>交通<br/>アクセス</span></dt>
+                                <dd><span class="inlineblock"></span><span><!--{$arrProduct.sub_comment2|nl2br_html}--></span></dd>
+                                <dt><span class="inlineblock"></span><span>給与</span></dt>
+                                <dd><span class="inlineblock"></span><span><!--{$arrProduct.comment16}--><!--{strip}-->
+                                        <!--{if $arrProduct.price02_min_inctax == $arrProduct.price02_max_inctax}-->
+                                        <!--{$arrProduct.price02_min_inctax}-->
+                                        <!--{else}-->
+                                        <!--{$arrProduct.price02_min_inctax}-->～<!--{$arrProduct.price02_max_inctax}-->
+                                        <!--{/if}--><!--{/strip}-->円</span></dd>
+                                <dt><span class="inlineblock"></span><span>勤務時間等</span></dt>
+                                <dd><span class="inlineblock"></span><span><!--{$arrProduct.sub_comment3|nl2br_html}--><br/ ><!--{$arrProduct.sub_comment4|nl2br_html}--></span></dd>
+                            </dl>
+                        </div>
+
+                        <div class="listpoint">
+                            <!--▼アピール各種-->
+                            <ul>  
+                                <!--▼商品ステータス-->
+                                <!--{if count($productStatus[$id]) > 0}-->
+                                <!--{foreach from=$productStatus[$id] item=status}-->
+                                <li>
+                                    <img src="<!--{$TPL_URLPATH}--><!--{$arrSTATUS_IMAGE[$status]}-->s.gif" width="80" height="17" alt="<!--{$arrSTATUS[$status]}-->"/>
+                                </li>
+                                <!--{/foreach}-->
+                                <!--{/if}-->
+                                <!--▲商品ステータス-->
+
+                                <!--▼雇用形態-->
+                                <!--{if count($arrProduct.employment_status) > 0}-->
+                                <!--{foreach from=$arrProduct.employment_status item=status}-->
+                                <li>
+                                    <img src="<!--{$TPL_URLPATH}--><!--{$arrEMPSTATUS_IMAGE[$status]}-->s.gif" width="80" height="17" alt="<!--{$arrEMPSTATUS[$status]}-->"/>
+                                </li>
+                                <!--{/foreach}-->
+                                <!--{/if}-->
+                                <!--▲雇用形態-->
+
+                                <!--▼アピールポイント-->
+                                <!--{if count($arrProduct.appeal_point) > 0}-->
+                                <!--{foreach from=$arrProduct.appeal_point item=status}-->
+                                <li>
+                                    <img src="<!--{$TPL_URLPATH}--><!--{$arrAPPEALPOINT_IMAGE[$status]}-->s.gif" width="80" height="17" alt="<!--{$arrAPPEALPOINT[$status]}-->"/>
+                                </li>
+                                <!--{/foreach}-->
+                                <!--{/if}-->
+                                <!--▼アピールポイント-->
+                            </ul>
+                        </div>
+
+
+                    </div>
+                    <div class="list_bottom">
+                        <ul class="list_button_tab">
+                            <!--{if in_array($id, $smarty.session.keep_product_list)}-->
+                            <li class="list_button_keep"><button class="list_button keep_off" type="button" onClick=""><span>キープ済のお仕事です</span></button></li>
+                            <!--{else}-->
+                            <li class="list_button_keep"><button class="list_button keep_on" type="button" onClick="javascript:fnModeSubmit('cart', 'product_id', '<!--{$id}-->');"><span>キープしておく</span></button></li>
+                            <!--{/if}-->
+
+                            <!--{if in_array($id, $arrOrderedProductId)}-->
+                            <li class="list_button_entry"><button class="list_button ordered" type="button" value="応募画面へ"><span>応募済のお仕事です</span></button></li>
+                            <!--{else}-->
+                            <li class="list_button_entry"><button class="list_button" type="button" onClick="javascript:fnModeSubmit('cart_to_shopping', 'product_class_id', '<!--{$tpl_product_class_id[$id]}-->');" value="応募画面へ"><span>この仕事に応募する</span></button></li>
+                            <!--{/if}-->
+
+                            <li class="list_button_more"><button class="list_button" type="button" onclick="location.href = '<!--{$smarty.const.P_DETAIL_URLPATH}--><!--{$arrProduct.product_id|u}-->'"value="詳細へ"><span>詳細をもっと見る</span></button></li>
+                        </ul>
+                        <!-- 
+                        <ul class="list_tab">
+                            <li class="newline"><a href="#">Keep this</a></li>
+                            <li><a href="#">Entry this</a></li>
+                            <li><a href="#">More info</a></li>
+                        </ul>
+                        -->
                     </div>
                 </div>
-                        
-                <p class="skill"><b>Yêu cầu： </b><!--{$arrProduct.skill_vn|h|nl2br}--><br />　<!--{$arrProduct.qualification_vn|h|nl2br}--></p>
-
-                <ul class="list_button">
-                    <!--{if in_array($id, $arrCheckedItems)}-->
-                    <li><a href="#" onclick="return false;">Bỏ lưu</a></li>
-                    <!--{else}-->
-                    <li><a href="#" onclick="fnInCart(this, 'cart'); return false;">Lưu công việc</a></li>
-                    <!--{/if}-->
-                    <li><a target="_blank" href="<!--{$smarty.const.P_DETAIL_URLPATH}--><!--{$id|u}-->">Xem chi tiết</a</li>
-                </ul>
-            </div>
-        </form>
-        <!--▲仕事-->
+            </form>
+        </div>
+        <!--▲商品-->
 
         <!--{if $smarty.foreach.arrProducts.last}-->
-            <!--▼ページナビ(下部)-->
-            <form name="page_navi_bottom" id="page_navi_bottom" action="?">
-                <input type="hidden" name="<!--{$smarty.const.TRANSACTION_ID_NAME}-->" value="<!--{$transactionid}-->" />
-                <!--{if $tpl_linemax > 0}--><!--{$smarty.capture.page_navi_body|smarty:nodefaults}--><!--{/if}-->
-            </form>
-            <!--▲ページナビ(下部)-->
+        <!--▼ページナビ(下部)-->
+        <form name="page_navi_top" id="page_navi_top" action="?">
+            <input type="hidden" name="<!--{$smarty.const.TRANSACTION_ID_NAME}-->" value="<!--{$transactionid}-->" />
+            <!--{if $tpl_linemax > 0}--><!--{$smarty.capture.page_navi_body|smarty:nodefaults}--><!--{/if}-->
+        </form>
+        <!--▲ページナビ(下部)-->
         <!--{/if}-->
 
-    <!--{foreachelse}-->
+        <!--{foreachelse}-->
         <!--{include file="frontparts/search_zero.tpl"}-->
-    <!--{/foreach}-->
+        <!--{/foreach}-->
 
+
+        <!--▼TIPS-->
+        <div class="list_wrap_full">
+            <div class="list_area_tips clearfix">
+                <h3>TIPS!!</h3>
+                <p><em>気になる求人はキープ機能で保存できます</em></p>
+                <p>キープ保存すると、条件の比較や、まとめて一括応募が簡単にできます。<br />
+                    気になるお仕事を探し直す前に、<br />
+                    簡単１クリックのキープ機能をお使い下さい！</p>
+            </div>
+        </div>
+        <!--▲TIPS-->
+
+    </div>
+
+    <div class="info_research">
+        <h3>違う条件から再検索する人におススメです。</h3>
+        <p>ピッタリ条件で 条件指定検索！ の画像リンク</p>
+    </div>  
 </div>
+
+

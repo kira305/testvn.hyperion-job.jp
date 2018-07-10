@@ -2,7 +2,7 @@
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -21,6 +21,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// {{{ requires
 require_once CLASS_EX_REALDIR . 'page_extends/mypage/LC_Page_AbstractMypage_Ex.php';
 
 /**
@@ -28,19 +29,21 @@ require_once CLASS_EX_REALDIR . 'page_extends/mypage/LC_Page_AbstractMypage_Ex.p
  *
  * @package Page
  * @author LOCKON CO.,LTD.
- * @version $Id$
+ * @version $Id: LC_Page_Mypage_ChangeComplete.php 21867 2012-05-30 07:37:01Z nakanishi $
  */
-class LC_Page_Mypage_ChangeComplete extends LC_Page_AbstractMypage_Ex
-{
+class LC_Page_Mypage_ChangeComplete extends LC_Page_AbstractMypage_Ex {
+
+    // }}}
+    // {{{ functions
+
     /**
      * Page を初期化する.
      *
      * @return void
      */
-    public function init()
-    {
+    function init() {
         parent::init();
-        $this->tpl_subtitle = '会員登録内容編集(完了ページ)';
+        $this->tpl_subtitle = '会員内容変更（完了ページ）';
         $this->tpl_mypageno = 'change';
     }
 
@@ -49,8 +52,7 @@ class LC_Page_Mypage_ChangeComplete extends LC_Page_AbstractMypage_Ex
      *
      * @return void
      */
-    public function process()
-    {
+    function process() {
         parent::process();
     }
 
@@ -59,7 +61,17 @@ class LC_Page_Mypage_ChangeComplete extends LC_Page_AbstractMypage_Ex
      *
      * @return void
      */
-    public function action()
-    {
+    function action() {
+
+
+    }
+
+    /**
+     * デストラクタ.
+     *
+     * @return void
+     */
+    function destroy() {
+        parent::destroy();
     }
 }

@@ -1,9 +1,8 @@
 <?php
-
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -35,62 +34,56 @@
  */
 class LC_Page {
 
+    // {{{ properties
+
     /** メインテンプレート */
-    public $tpl_mainpage;
+    var $tpl_mainpage;
 
     /** テンプレートのカラム数 */
-    public $tpl_column_num;
+    var $tpl_column_num;
 
     /** メインナンバー */
-    public $tpl_mainno;
+    var $tpl_mainno;
 
     /** CSS のパス */
-    public $tpl_css;
+    var $tpl_css;
 
     /** JavaScript */
-    public $tpl_javascript;
+    var $tpl_javascript;
 
     /** タイトル */
-    public $tpl_title;
+    var $tpl_title;
+
+    /** カテゴリ */
+    var $tpl_page_category;
 
     /** ログインメールアドレス */
-    public $tpl_login_email;
+    var $tpl_login_email;
 
     /** HTML ロード後に実行する JavaScript コード */
-    public $tpl_onload;
+    var $tpl_onload;
 
     /** トランザクションID */
-    public $transactionid;
+    var $transactionid;
 
     /** メインテンプレート名 */
-    public $template = SITE_FRAME;
+    var $template = SITE_FRAME;
 
     /** 店舗基本情報 */
-    public $arrSiteInfo;
+    var $arrSiteInfo;
 
     /** プラグインを実行フラグ */
-    public $plugin_activate_flg = PLUGIN_ACTIVATE_FLAG;
+    var $plugin_activate_flg = PLUGIN_ACTIVATE_FLAG;
 
-    /** POST に限定する mode */
-    public $arrLimitPostMode = array();
-
-    /** ページレイアウトを読み込むか */
-    public $skip_load_page_layout = false;
-
-    /** 2.12.x 以前のJavaScript関数を読み込むかどうか */
-    public $load_legacy_js = false;
-    public $arrForm;
-    public $arrErr;
-    
-    public $applyProductId = 0;
-    public $applyProductEmploymentStatus = 0;
+    // }}}
+    // {{{ functions
 
     /**
      * Page を初期化する.
      *
      * @return void
      */
-    public function init() {
+    function init() {
         // 開始時刻を設定する。
         $this->timeStart = microtime(true);
 
@@ -99,11 +92,10 @@ class LC_Page {
         // ディスプレイクラス生成
         $this->objDisplay = new SC_Display_Ex();
 
-        if (!$this->skip_load_page_layout) {
-            $layout = new SC_Helper_PageLayout_Ex();
-            $layout->sfGetPageLayout($this, false, $_SERVER['SCRIPT_NAME'], $this->objDisplay->detectDevice());
-        }
-
+        $layout = new SC_Helper_PageLayout_Ex();
+        $layout->sfGetPageLayout($this, false, $_SERVER['SCRIPT_NAME'],
+                                 $this->objDisplay->detectDevice());
+        
         // スーパーフックポイントを実行.
         $objPlugin = SC_Helper_Plugin_Ex::getSingletonInstance($this->plugin_activate_flg);
         $objPlugin->doAction('LC_Page_preProcess', array($this));
@@ -114,24 +106,13 @@ class LC_Page {
         // トランザクショントークンの検証と生成
         $this->doValidToken();
         $this->setTokenTo();
-
+        
         // ローカルフックポイントを実行.
         $this->doLocalHookpointBefore($objPlugin);
-        
-        
-        
-        
-        $objQuery = & SC_Query_Ex::getSingletonInstance();
-        $objCartSess = new SC_CartSession_Ex();
-        $cartItems = $objCartSess->getAllCartList();
-        if (count($cartItems) > 0) {
-            $cartKeys = $objCartSess->getKeys();
-            $this->applyProductId = $cartItems[$cartKeys[0]][0]['productsClass']['product_id'];
-            $arrProduct = $objQuery->select('employment_status', 'dtb_products', 'product_id = ?', array($this->applyProductId));
-            $this->applyProductEmploymentStatus = $arrProduct[0]['employment_status'];
-        }
-        
-        $objQuery->update('dtb_products', array('status'=>2), 'end_date IS NOT NULL AND status = 1 AND end_date <= CURDATE()');
+
+		$objQuery =& SC_Query_Ex::getSingletonInstance();
+		$arrval = array('status'=>2);
+        $objQuery->update('dtb_products', $arrval, 'end_date <= ?', array(date('Y-m-d')));
     }
 
     /**
@@ -139,9 +120,28 @@ class LC_Page {
      *
      * @return void
      */
-    public function process() {
-        // POST に限定された mode か検証する。
-        $this->checkLimitPostMode();
+    function process() {
+        $objCustomer = new SC_Customer_Ex();
+        // クッキー管理クラス
+        $objCookie = new SC_Cookie_Ex(COOKIE_EXPIRE);
+
+        // ログイン判定
+        if ($objCustomer->isLoginSuccess()) {
+            $this->tpl_login = true;
+            $this->tpl_user_point = $objCustomer->getValue('point');
+            $this->tpl_name1 = $objCustomer->getValue('name01');
+            $this->tpl_name2 = $objCustomer->getValue('name02');
+        } else {
+            // クッキー判定
+            $this->tpl_login_email = $objCookie->getCookie('login_email');
+            if ($this->tpl_login_email != '') {
+                $this->tpl_login_memory = '1';
+            }
+            // POSTされてきたIDがある場合は優先する。
+            if (isset($_POST['login_email']) && $_POST['login_email'] != '') {
+                $this->tpl_login_email = $_POST['login_email'];
+            }
+        }
     }
 
     /**
@@ -149,7 +149,7 @@ class LC_Page {
      *
      * @return void
      */
-    public function sendResponse() {
+    function sendResponse() {
         $objPlugin = SC_Helper_Plugin_Ex::getSingletonInstance($this->plugin_activate_flg);
         // ローカルフックポイントを実行.
         $this->doLocalHookpointAfter($objPlugin);
@@ -163,22 +163,20 @@ class LC_Page {
         // ページクラス名をテンプレートに渡す
         $arrBacktrace = debug_backtrace();
         if (strlen($this->tpl_page_class_name) === 0) {
-            $this->tpl_page_class_name = preg_replace('/_Ex$/', '', $arrBacktrace[1]['class']);
+            $this->tpl_page_class_name = $arrBacktrace[1]['class'];
+            $this->tpl_page_class_name = preg_replace('/_Ex$/', '', $this->tpl_page_class_name);
         }
 
         $this->objDisplay->prepare($this);
-        $this->objDisplay->addHeader('Vary', 'User-Agent');
         $this->objDisplay->response->write();
     }
-
+    
     /**
      * Page のレスポンス送信(ダウンロード).
      *
-     * @param string $file_name
-     * @param string $data
      * @return void
      */
-    public function sendResponseCSV($file_name, $data) {
+    function sendResponseCSV($file_name, $data) {
         $this->objDisplay->prepare($this);
         $this->objDisplay->addHeader('Content-disposition', "attachment; filename=${file_name}");
         $this->objDisplay->addHeader('Content-type', "application/octet-stream; name=${file_name}");
@@ -191,31 +189,30 @@ class LC_Page {
     }
 
     /**
-     * デストラクタ
+     * デストラクタ.
      *
-     * ・ブロックの基底クラス (LC_Page_FrontParts_Bloc) では、継承していない。
      * @return void
      */
-    public function __destruct() {
+    function destroy() {
         // 一定時間以上かかったページの場合、ログ出力する。
         // エラー画面の表示では $this->timeStart が出力されない
         if (defined('PAGE_DISPLAY_TIME_LOG_MODE') && PAGE_DISPLAY_TIME_LOG_MODE == true && isset($this->timeStart)) {
             $timeEnd = microtime(true);
             $timeExecTime = $timeEnd - $this->timeStart;
-            if (defined('PAGE_DISPLAY_TIME_LOG_MIN_EXEC_TIME') && $timeExecTime >= (float) PAGE_DISPLAY_TIME_LOG_MIN_EXEC_TIME) {
+            if (defined('PAGE_DISPLAY_TIME_LOG_MIN_EXEC_TIME') && $timeExecTime >= (float)PAGE_DISPLAY_TIME_LOG_MIN_EXEC_TIME) {
                 $logMsg = sprintf('PAGE_DISPLAY_TIME_LOG [%.2fsec]', $timeExecTime);
                 GC_Utils_Ex::gfPrintLog($logMsg);
             }
         }
     }
-
+    
     /**
      * ローカルフックポイントを生成し、実行します.
-     *
-     * @param  SC_Helper_Plugin_Ex $objPlugin
+     * 
+     * @param SC_Helper_Plugin_Ex $objPlugin 
      * @return void
      */
-    public function doLocalHookpointBefore(SC_Helper_Plugin_Ex $objPlugin) {
+    function doLocalHookpointBefore(SC_Helper_Plugin_Ex $objPlugin){
         // ローカルフックポイントを実行
         $parent_class_name = get_parent_class($this);
         if ($parent_class_name != 'LC_Page') {
@@ -226,14 +223,14 @@ class LC_Page {
             $objPlugin->doAction($class_name . '_action_before', array($this));
         }
     }
-
+    
     /**
      * ローカルフックポイントを生成し、実行します.
-     *
-     * @param  SC_Helper_Plugin_Ex $objPlugin
+     * 
+     * @param SC_Helper_Plugin_Ex $objPlugin 
      * @return void
      */
-    public function doLocalHookpointAfter(SC_Helper_Plugin_Ex $objPlugin) {
+    function doLocalHookpointAfter(SC_Helper_Plugin_Ex $objPlugin){
         // ローカルフックポイントを実行
         $parent_class_name = get_parent_class($this);
         if ($parent_class_name != 'LC_Page') {
@@ -244,12 +241,12 @@ class LC_Page {
             $objPlugin->doAction($class_name . '_action_after', array($this));
         }
     }
-
+    
     /**
      * テンプレート取得
      *
      */
-    public function getTemplate() {
+    function getTemplate() {
         return $this->template;
     }
 
@@ -257,7 +254,7 @@ class LC_Page {
      * テンプレート設定(ポップアップなどの場合)
      *
      */
-    public function setTemplate($template) {
+    function setTemplate($template) {
         $this->template = $template;
     }
 
@@ -273,15 +270,15 @@ class LC_Page {
      * の配列を $param へ渡す.
      *
      * @access protected
-     * @param string $path   結果を取得するためのパス
-     * @param array  $param  URL に付与するパラメーターの配列
-     * @param mixed  $useSSL 結果に HTTPS_URL を使用する場合 true,
+     * @param string $path 結果を取得するためのパス
+     * @param array $param URL に付与するパラメーターの配列
+     * @param mixed $useSSL 結果に HTTPS_URL を使用する場合 true,
      *                         HTTP_URL を使用する場合 false,
      *                         デフォルト 'escape' 現在のスキーマを使用
      * @return string $path の存在する http(s):// から始まる絶対パス
      * @see Net_URL
      */
-    public function getLocation($path, $param = array(), $useSSL = 'escape') {
+    function getLocation($path, $param = array(), $useSSL = 'escape') {
         $rootPath = $this->getRootPath($path);
 
         // スキーマを定義
@@ -311,17 +308,10 @@ class LC_Page {
     /**
      * EC-CUBE のWEBルート(/html/)を / としたパスを返す
      *
-     * @param  string $path 結果を取得するためのパス
-     * @return string EC-CUBE のWEBルート(/html/)からのパス。
+     * @param string $path 結果を取得するためのパス
+     * @return string EC-CUBE のWEBルート(/html/)を / としたパス
      */
-    public function getRootPath($path) {
-        // realpath 関数は、QUERY_STRING を扱えないため、退避する。
-        $query_string = '';
-        if (preg_match('/^(.+)\\?(.+)$/', $path, $arrMatch)) {
-            $path = $arrMatch[1];
-            $query_string = $arrMatch[2];
-        }
-
+    function getRootPath($path) {
         // Windowsの場合は, ディレクトリの区切り文字を\から/に変換する
         $path = str_replace('\\', '/', $path);
         $htmlPath = str_replace('\\', '/', HTML_REALDIR);
@@ -334,12 +324,9 @@ class LC_Page {
         // $path が / で始まっている場合
         if (substr($path, 0, 1) == '/') {
             $realPath = realpath($htmlPath . substr_replace($path, '', 0, strlen(ROOT_URLPATH)));
-            // 相対パスの場合
+        // 相対パスの場合
         } else {
             $realPath = realpath($path);
-        }
-        if ($realPath === false) {
-            trigger_error('realpath でエラー発生。', E_USER_ERROR);
         }
         $realPath = str_replace('\\', '/', $realPath);
 
@@ -349,15 +336,8 @@ class LC_Page {
         }
 
         // HTML_REALDIR を削除した文字列を取得.
-        if (substr($realPath, 0, strlen($htmlPath)) !== $htmlPath) {
-            trigger_error('不整合', E_USER_ERROR);
-        }
-        $rootPath = substr($realPath, strlen($htmlPath));
-
-        // QUERY_STRING を復元する。
-        if (strlen($query_string) >= 1) {
-            $rootPath .= '?' . $query_string;
-        }
+        $rootPath = str_replace($htmlPath, '', $realPath);
+        $rootPath = ltrim($rootPath, '/');
 
         return $rootPath;
     }
@@ -369,7 +349,7 @@ class LC_Page {
      * @return void
      * @deprecated 決済モジュール互換のため
      */
-    public function allowClientCache() {
+    function allowClientCache() {
         $this->httpCacheControl('private');
     }
 
@@ -377,10 +357,10 @@ class LC_Page {
      * クライアント・プロキシのキャッシュを制御する.
      *
      * @access protected
-     * @param  string $mode (nocache/private)
+     * @param string $mode (nocache/private)
      * @return void
      */
-    public function httpCacheControl($mode = '') {
+    function httpCacheControl($mode = '') {
         switch ($mode) {
             case 'nocache':
                 header('Pragma: no-cache');
@@ -405,22 +385,24 @@ class LC_Page {
     /**
      * リクエストパラメーター 'mode' を取得する.
      *
-     * 1. $_REQUEST['mode'] の値を取得する.
-     * 2. 存在しない場合は null を返す.
+     * 1. $_GET['mode'] の値を取得する.
+     * 2. 1 が存在しない場合は $_POST['mode'] の値を取得する.
+     * 3. どちらも存在しない場合は null を返す.
      *
      * mode に, 半角英数字とアンダーバー(_) 以外の文字列が検出された場合は null を
      * 返す.
      *
      * @access protected
-     * @return string|null $_REQUEST['mode'] の文字列
+     * @return string $_GET['mode'] 又は $_POST['mode'] の文字列
      */
-    public function getMode() {
+    function getMode() {
         $pattern = '/^[a-zA-Z0-9_]+$/';
         $mode = null;
-        if (isset($_REQUEST['mode']) && preg_match($pattern, $_REQUEST['mode'])) {
-            $mode = $_REQUEST['mode'];
+        if (isset($_GET['mode']) && preg_match($pattern, $_GET['mode'])) {
+            $mode =  $_GET['mode'];
+        } elseif (isset($_POST['mode']) && preg_match($pattern, $_POST['mode'])) {
+            $mode = $_POST['mode'];
         }
-
         return $mode;
     }
 
@@ -436,27 +418,29 @@ class LC_Page {
      * オーバーライドし, 個別に設定を行うこと.
      *
      * @access protected
-     * @param  boolean $is_admin 管理画面でエラー表示をする場合 true
+     * @param boolean $is_admin 管理画面でエラー表示をする場合 true
      * @return void
      */
-    public function doValidToken($is_admin = false) {
-        if ($is_admin) {
-            $mode = $this->getMode();
-            if ($_SERVER['REQUEST_METHOD'] == 'POST' || !SC_Utils::isBlank($mode)) {
-                if (!SC_Helper_Session_Ex::isValidToken(false)) {
-                    SC_Utils_Ex::sfDispError(INVALID_MOVE_ERRORR);
-                    SC_Response_Ex::actionExit();
-                }
-            }
-        } else {
-            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                if (!SC_Helper_Session_Ex::isValidToken(false)) {
-                    SC_Utils_Ex::sfDispSiteError(PAGE_ERROR, '', true);
-                    SC_Response_Ex::actionExit();
-                }
-            }
-        }
-    }
+  
+	function doValidToken($is_admin = false)
+	{
+		if ($is_admin) {
+			$mode = $this->getMode();
+			if ($_SERVER['REQUEST_METHOD'] == 'POST' || !SC_Utils::isBlank($mode)) {
+				if (!SC_Helper_Session_Ex::isValidToken(false)) {
+					SC_Utils_Ex::sfDispError(INVALID_MOVE_ERRORR);
+					SC_Response_Ex::actionExit();
+				}
+			}
+		} else {
+			if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+				if (!SC_Helper_Session_Ex::isValidToken(false)) {
+					SC_Utils_Ex::sfDispSiteError(PAGE_ERROR, '', true);
+					SC_Response_Ex::actionExit();
+				}
+			}
+		}
+	}
 
     /**
      * トランザクショントークンを取得し, 設定する.
@@ -464,7 +448,7 @@ class LC_Page {
      * @access protected
      * @return void
      */
-    public function setTokenTo() {
+    function setTokenTo() {
         $this->transactionid = SC_Helper_Session_Ex::getToken();
     }
 
@@ -473,7 +457,7 @@ class LC_Page {
      *
      * @deprecated 2.12.0 GC_Utils_Ex::gfPrintLog を使用すること
      */
-    public function log($mess, $log_level) {
+    function log($mess, $log_level) {
         trigger_error('前方互換用メソッドが使用されました。', E_USER_WARNING);
         // ログレベル=Debugの場合は、DEBUG_MODEがtrueの場合のみログ出力する
         if ($log_level === 'Debug' && DEBUG_MODE === false) {
@@ -490,24 +474,10 @@ class LC_Page {
      * デバック用途のみに使用すること.
      *
      * @access protected
-     * @param  mixed $val デバックする要素
+     * @param mixed $val デバックする要素
      * @return void
      */
-    public function p($val) {
+    function p($val) {
         SC_Utils_Ex::sfPrintR($val);
     }
-
-    /**
-     * POST に限定された mode か検証する。
-     *
-     * POST 以外で、POST に限定された mode を実行しようとした場合、落とす。
-     * @return void
-     */
-    public function checkLimitPostMode() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST' && in_array($mode = $this->getMode(), $this->arrLimitPostMode)) {
-            $msg = "REQUEST_METHOD=[{$_SERVER['REQUEST_METHOD']}]では実行不能な mode=[$mode] が指定されました。";
-            trigger_error($msg, E_USER_ERROR);
-        }
-    }
-
 }

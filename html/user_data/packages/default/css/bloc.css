@@ -19,109 +19,182 @@
 -検索
 -カレンダー
 -おすすめ商品
-    * 商品詳細のオススメ商品   [whobought_area]
-*/
+    *メインカラム用 1カラム時 [one_maincolumn]
+    *メインカラム用 2カラム時 [two_maincolumn_left]
+                              [two_maincolumn_right]
+    *メインカラム用 3カラム時 [three_maincolumn]
+    *サイドカラム用           [side_column]
+    *商品詳細のオススメ商品   [whobought_area]
+ */
 
 
 /* ==============================================
 ブロック共通
-    * #container から指定することで、ヘッダー・フッターには適用していない。
 /* ============================================= */
+/*#container .block_body {
+    background-color: #f0f;
+}*/
 .side_column {
+    margin:15px 0 0 0;
     overflow-x: hidden; /* IE6 表示乱れ防止 */
 }
+.side_column .block_outer {
+    margin:10px 0;
+}
 .side_column .block_body,
-#main_column .block_body {
-    border: solid 1px #ccc;
+.main_column .block_body {
+    /*border: solid 1px #ccc;*/
+    padding:0 15px;
     border-top: none;
+}
+.main_column .block_body_b {
+    border: solid 12px #ffFF00; /* 太枠用です */
 }
 .side_column .block_body .box {
     border: solid 1px #ccc;
     width: 145px;
 }
 
-/* 外枠
------------------------------------------------ */
-#container .block_outer {
-    padding: 0 0 10px; /* #container の背景色を欠けさせないため敢えて padding */
+/*.main_column .block_outer {
+    margin: 0px;
+    padding: 20px 0px 35px 0px;
+    background-color: #E6E3E0;
+    opacity:0.7;
+    width: 100%;
+    border-left: solid 15px #30303A;
 }
-#container #main_column .block_outer {
-    padding: 0 0 40px;
+
+.main_column .block_outer:hover {
+    background-color: #F3F3FA;
+    opacity:1;
+    border-left: solid 25px #F60;
+}*/
+
+.main_column .block_outer::before,
+.main_column .block_outer::after {
+	position: absolute;
+	z-index: -1;
+	display: block;
+	content: '';
 }
-#container .side_column .block_outer {
-    padding: 0 0 20px;
+
+.main_column .block_outer,
+.main_column .block_outer::before,
+.main_column .block_outer::after {
+	-webkit-transition: all .4s;
+	transition: all .4s;
+}
+
+
+.undercolumn .block_outer {
+    margin: 0px;
+    padding: 20px 0px 35px 0px;
+    background-color: #E6E3E0;
+    opacity:0.7;
+    width: 100%;
+    border-left: solid 15px #30303A;
+}
+
+.undercolumn .block_outer:hover {
+    background-color: #F3F3FA;
+    opacity:1;
+    border-left: solid 25px #F60;
+}
+
+.undercolumn .block_outer::before,
+.undercolumn .block_outer::after {
+	position: absolute;
+	z-index: -1;
+	display: block;
+	content: '';
+}
+
+.undercolumn .block_outer,
+.undercolumn .block_outer::before,
+.undercolumn .block_outer::after {
+	-webkit-transition: all .4s;
+	transition: all .4s;
 }
 
 /* リスト
 ----------------------------------------------- */
-/* ログイン */
-#login_area dl.formlist {
-    margin-bottom: 8px;
-}
-#login_area dl.formlist dd {
-    margin-bottom: 5px;
-}
-#login_area dl.formlist dt {
-    margin-bottom: 3px;
-    padding-left: 15px;
-    background: url("../img/icon/ico_arrow_03.gif") no-repeat left;
-    font-size: 90%;
-}
-#login_area dl.formlist span {
-    vertical-align: top;
+/* ログイン 検索条件 */
+#container .block_outer .block_body dl.formlist {
+    margin: 50px;
+    margin-bottom: 15px;
+    width: 100%;
+    text-align: center;
+    background-color: #EEE;
 }
 
-/* 検索条件 */
-#search_area dl{
+.top_login dl.formlist {
+    margin: 15px auto;
+    margin-bottom: 15px;
+    width: 500px;
+    text-align: center;
+}
+
+#container .block_outer .block_body dl.formlist dd {
+    margin-bottom: 15px;
+    float:left;
+    height: 80px;
+}
+
+.top_login dl.formlist dd {
+    margin: 5px auto 10px auto;
+    width: 100%;
+    text-align: center;
+}
+
+#container .block_outer .block_body dl.formlist dt {
+    /*margin-bottom: 3px;*/
+    background: url("../img/icon/ico_arrow_03.gif") no-repeat left;
+    font-size: 0.6em;
+    float:left;
+    width: 100px;
+    height: 80px;
     margin-bottom: 15px;
 }
-#search_area dt,
-#search_area dd{
-    display: inline-block;
-    margin-bottom: 0;
+
+.top_login dl.formlist dt {
+    margin: 1em auto 0px auto;
+    padding-bottom: 0.1em;
+    width: 500px;
+    text-align: left;
+    color: #AAA;
+    font-size: 0.9em;  
 }
-#search_area dt{
-    width: 20%;
-    border-right: 1px solid #CCC;
-    vertical-align: top;
-    line-height: 20px;
-}
-#search_area dd{
-    width: 75%;
-    padding-left: 15px;
-}
-#search_area dd label{
-    display: inline-block;
-    margin-right: 10px;
-}
-#search_area #show_more_condition{
-    color: #FF8B14;
+
+
+#container .block_outer .block_body dl.formlist span {
+    vertical-align: center;
 }
 
 
 /* タイトル
 ----------------------------------------------- */
-/* タイトルの背景 白 */
-#login_area h2,
-#search_area h2,
-#calender_area h2,
-#cart_area h2,
-#cart h2,
-#recommend_area h2,
-#news_area h2,
-#category_area h2,
-#concierge_list_area h2{
-    padding: 5px 0 8px 10px;
-    border-style: solid;
-    border-color: #FF4535 #ccc #ccc;
-    border-width: 1px 1px 0;
-    background: url('../img/background/bg_tit_bloc_01.jpg') repeat-x left bottom;
-    font-size: 18px;
-    line-height: 200%;
+/* タイトルの背景 オレンジ 吹き出しつき */
+#news_area h2, {
+    width:650px;
+    margin-bottom:4px;
+    padding: 9px 5px 20px 15px;
+    background: url('../img/background/bg_btn_bloc_02.gif') 0 0 no-repeat;
 }
-#leftcolumn h2{
-    font-size: 16px;
+
+/* ==============================================
+▼ヘッダー上、フッター下のブロックエリア
+=============================================== */
+div#topcolumn {
+    margin: 0px;
+    clear: both;
+    background: url("../img/top_menu_background.gif") 0 0 repeat-x;
+    border-bottom: 1px solid #FFF;
 }
+div#bottomcolumn {
+    margin: 0px;
+    clear: both;
+}
+
 
 /* ***********************************************
 ▼各機能ブロックの指定
@@ -130,32 +203,94 @@
 /* ===============================================
 ▼新着情報
 =============================================== */
+/*.main_column .block_news {
+    margin-bottom: 20px;
+        width: 470px;
+        float: left;
+}*/
+
+#news_area .block_body {
+    padding:0 0 0 5px;
+    margin-bottom:25px;
+}
+#news_area h2 { position: relative; }
+#news_area span.blocktitle {
+    position: absolute;
+    left:240px;
+}
+#news_area span.rss {
+    position: absolute;
+    right: 10px;
+    top: 4px;
+}
+#news_area span.rss a {
+    display:block;
+    width:63px;
+    height:25px;
+    text-indent:-9999px;
+    background: url('../img/button/btn_rss.gif') 0 0 no-repeat;
+}
+#news_area span.rss a:hover { background-position:0 -25px;}
+
+#news_area span.newsyear {
+    position: absolute;
+    left: 170px;
+    top: 7px;
+    font-size: 16px;
+    color: #fff;
+}
+
 #news_area .news_contents {
-    padding: 10px;
-    max-height: 260px;
-    height: auto !important; /* hack? */
-    height: 260px; /* hack? */
+    max-height: 300px;
+    height: auto !important;
+    height: 300px;
     overflow: auto;
     overflow-y: scroll;
 }
-#news_area dl.newslist {
-    background: url("../img/background/line_dot_01.gif") repeat-x bottom;
+#news_area li.newslist {
+    width:630px;
+    padding:4px 5px 3px;
+    border-bottom:solid 1px #e7e7e7;
 }
-#news_area dl.newslist:last-child { /* IE9 未満では無効 (影響度合いが低いので黙殺) */
-    background: none;
+#news_area li.newslist:hover { background:#f7f7f7; }
+#news_area li.newslist:after {
+    display: block;
+    clear: both;
+    height: 0px;
+    line-height: 0px;
+    visibility: hidden;
+    content: ".";
 }
-#news_area dl.newslist dt {
-    margin-bottom: 5px;
+#news_area li.newslist {
+    display: block; /* for IE8 */
+    vertical-align: middle;
 }
-#news_area dl.newslist dd {
-    margin-bottom: 10px;
-    padding-bottom: 10px;
+#news_area li.newslist .status_icon,
+#news_area li.newslist .date,
+#news_area li.newslist .area {
+    float:left;
+    display: table;
+    text-align:center;
+    vertical-align: middle;
+    line-height:24px;
 }
-
+#news_area li.newslist .status_icon { width:80px; }
+#news_area li.newslist .status_icon img{vertical-align: middle;}
+#news_area li.newslist .date { width:90px; }
+#news_area li.newslist .area { width:100px; }
+#news_area li.newslist .txt {
+    display: table;
+    vertical-align: middle;
+    line-height:1.8em;
+}
+#news_area li.newslist .status_icon li {margin-bottom:3px;}
 
 /* ===============================================
 ▼現在のカゴの中
 =============================================== */
+#cart_area .block_body {
+    background-color: #fffaf0;
+}
 #cart_area .information {
     padding: 10px;
 }
@@ -170,7 +305,7 @@
 }
 #cart_area .btn {
     padding: 10px 0;
-    background: url("../img/background/line_dot_01.gif") repeat-x top #f7f7e6;
+    background: url("../img/background/line_dot_01.gif") repeat-x top;
     text-align: center;
 }
 
@@ -178,6 +313,10 @@
 /* ===============================================
 ▼カテゴリ
 =============================================== */
+#category_area .block_body {
+    background-color: #fffaf0;
+}
+
 #category_area li {
     padding-left: 5px;
 }
@@ -187,12 +326,6 @@
 #category_area li.level1 p {
     padding-left: 20px;
     margin: 7px 3px;
-}
-#category_area li.level1:first-of-type {
-    padding-top: 7px;
-}
-#category_area li.level1:first-of-type p {
-    margin-top: 0;
 }
 #category_area li.level1 p {
     background: url("../img/icon/ico_arrow_01.gif") 2px 3px no-repeat;
@@ -215,64 +348,17 @@ a.onlink:hover {
     color: #f00;
 }
 
-#category_area .block_body{
-    padding: 10px 0;
-}
-#category_area h3{
-    color: #44abb9;
-    margin: 0px 0 5px 5px;
-    font-size: 15px;
-}
-#category_area .filter_area{
-    margin-bottom: 20px;
-    border-top: 1px solid #EEE;
-    max-height: 125px;
-    overflow: hidden;
-}
-#category_area .more{
-    float: right;
-    margin-right: 5px;
-    cursor: pointer;
-    display: inline-block;
-    width: 23px;
-    border: 1px solid #EEE;
-    text-align: center;
-}
-#category_area .filter_area.noListFilter{
-    border-bottom: 1px solid #EEE;
-}
-#category_area .filter_area label{
-    display: block;
-    border-bottom: 1px solid #EEE;
-    font-size: 13px;
-    padding: 2px 4px;
-}
-#category_area .filter_area.noListFilter label{
-    display: inline-block;
-    border: none;
-}
-#category_area .filter_area div{
-    margin-left: 15px;
-}
-#category_area .filter_area#filter_salary label{
-    display: inline-block;
-    border: none;
-}
-#category_area textarea{
-    margin: 5px;
-    border: 1px solid #DDD;
-    height: 60px;
-}
-
 
 /* ===============================================
 ▼ガイドリンク
 =============================================== */
 #guide_area {
+    margin-top: 1em;
     border: none;
 }
 #guide_area li {
     margin-bottom: 5px;
+    letter-spacing: -0.05em;
 }
 ul.button_like li {
     margin: 0;
@@ -297,7 +383,8 @@ ul.button_like li a {
 ※ヘッダー用はbloc_alpha.css内に記述
 =============================================== */
 #container div#login_area .block_body {
-    padding: 10px;
+    padding: auto 10px;
+    text-align: center;
 }
 
 #container div#login_area .block_body p {
@@ -309,21 +396,20 @@ ul.button_like li a {
 }
 #container .login_area dl.formlist {
     margin-bottom: 8px;
-    width: 500px;
 }
 #container .login_area dl.formlist dt {
     margin-bottom: 3px;
     padding-left: 15px;
     color: #333;
     background: url("../img/icon/ico_arrow_03.gif") no-repeat left;
-    width: 120px;
+    width: 90px;
     float: left;
     font-size: 90%;
 }
 #container .login_area dl.formlist dd {
     margin-bottom: 5px;
     float: right;
-    width: 350px;
+    width: 300px;
     vertical-align: bottom;
     text-align: left;
 }
@@ -333,58 +419,72 @@ ul.button_like li a {
 }
 
 
-/* ===============================================
-▼検索
-=============================================== */
-#container div#search_area .block_body {
-    padding: 10px;
-}
-#container div#search_area .block_body .btn {
-    text-align: center;
-}
-#search_area .formlist{
-    margin-bottom: 8px;
-}
-
-
+    
 /* ===============================================
 ▼カレンダー
 =============================================== */
+/*.main_column .block_calendar {
+    margin-bottom: 20px;
+        width: 190px;
+        float: right;
+}*/
+
 #calender_area {
     background-color: transparent;
     border: none;
+    margin-top: 1em;
+}
+#calender_area h3{
+    background-color: #ffc000;
+    line-height: 35px;
+    font-size: 1em;
+    padding: 0 10px;
+}
+#calender_area h3 img{
+    vertical-align: middle;
 }
 #calender_area .block_body {
     padding: 10px 0;
-    background-color: #f1f9fc;
+    background-color: white;
 }
 #calender_area table {
     background: #fff;
     border: none;
-    width: 150px;
+    width: 220px;
     margin: 0 auto 5px;
-    font-size: 90%;
 }
 #calender_area table td {
-    padding: 1px 3px;
-    border-top: 1px solid #ccc;
-    border-right: none;
-    text-align: center;
+    padding: 0;
+    border: 1px solid #ccc;
+    text-align: left;
+    font-size: 0.8em;
 }
-#calender_area th {
+#calender_area table td span.days{
+    text-align: left;
+    margin: 0;
+    padding: 1px;
+    color: black;
+    font: 11px tahoma;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    display:block;
+    width: 20px;
+}
+#calender_area table td p{
+    text-align: center;
+    margin-top: 4px;
+}
+#calender_area table th {
     padding: 1px 3px;
     background: #fff;
-    border: none;
+    border: 1px solid #ccc;
     text-align: center;
+    height: 25px;
 }
 #calender_area table .month {
     margin-bottom: 5px;
     padding-left: 12px;
     background: url("../img/icon/ico_arrow_04.gif") no-repeat left;
-    font-size: 120%;
-}
-#calender_area .off {
-    color: #f00;
 }
 #calender_area .today {
     background-color: #FFF99D;
@@ -401,7 +501,9 @@ ul.button_like li a {
 =============================================== */
 /*
    tplファイルのマークアップが同じ項目
-   メインカラム用
+   メインカラム用 2カラム時 [two_maincolumn_left]
+                            [two_maincolumn_right]
+   メインカラム用 3カラム時 [three_maincolumn]
    サイドカラム用           [side_column]
    商品詳細のオススメ商品   [whobought_area]
 =============================================== */
@@ -409,9 +511,11 @@ ul.button_like li a {
 ----------------------------------------------- */
 #recommend_area .block_body,
 #whobought_area .product_item {
-    padding: 10px 0 10px;
-    border: none;
-    background: url("../img/background/line_dot_01.gif") repeat-x bottom;
+    margin: 0px auto;
+    padding: 10px;
+    border: 1px solid #CCC;
+    width: 920px;
+    margin-bottom: 1em;
 }
 
 #recommend_area .block_body p,
@@ -431,15 +535,31 @@ ul.button_like li a {
 }
 
 /* サイドカラム用 */
+.side_column #recommend_area .block_body {
+    padding: 10px;
+    background: #EAEAEA;
+}
 .side_column #recommend_area .product_item {
     margin-bottom: 10px;
+    padding: 5px;
+    background: #FFF;
+    border: 1px solid #ccc;
+    border-radius: 6px; /* CSS3 */
+    -moz-border-radius: 6px; /* for Firefox */
+    -webkit-border-radius: 6px; /* for Safari and chrome */
+    behavior: url(border-radius.htc);//for IE
 }
-
-
+.side_column .banner_area li {
+    margin-bottom:10px;
+}
+.side_column .banner_area li.mb00 {margin-bottom:0px;}
+.side_column .mobile_banner {
+    margin-bottom:15px;
+}
 /* 画像
 ----------------------------------------------- */
 /* メインカラム用 */
-#main_column #recommend_area .block_body .productImage,
+.main_column #recommend_area .block_body .productImage,
 #whobought_area .product_item .productImage {
     margin-bottom: 10px;
     float: left;
@@ -447,209 +567,230 @@ ul.button_like li a {
 }
 /* サイドカラム用 */
 .side_column #recommend_area .block_body .productImage {
-    float: none;
+    float: left;
     text-align: center;
-    width: auto;
+    width: 60px;
 }
 
 
 /* 左右の振り分け
 ----------------------------------------------- */
-#main_column #recommend_area .product_item,
+.main_column #recommend_area .product_item,
 #whobought_area .product_item {
     float: left;
-    width: 47.5%;
-    padding-left: 1%;
-    padding-right: 1%;
+    width: 50%;
+    padding-left: 0px;
+    padding-right: 0px;
+background:#00FFff;
 }
 
 
 /* 商品説明テキスト
 ----------------------------------------------- */
 /* メインカラム用 1カラム時*/
-#main_column.colnum1 #recommend_area .block_body .productContents {
+#one_maincolumn #recommend_area .block_body .productContents {
     float: right;
     width: 74%;
+}
+.side_column #recommend_area .block_body .productContents {
+    font-size: 90%;
+    font-family: meiryo;
+}
+.side_column #recommend_area .block_body .productContents .sale_price {
+    color: red;
+    font-size: 110%;
 }
 
 /* メインカラム用 2カラム時*/
-#main_column.colnum2 #recommend_area .block_body .productContents,
-#main_column.colnum2 #whobought_area .productContents {
+#two_maincolumn_right #recommend_area .block_body .productContents,
+#two_maincolumn_left #recommend_area .block_body .productContents,
+#two_maincolumn_right #whobought_area .productContents,
+#two_maincolumn_left #whobought_area .productContents {
     float: right;
-    width: 74%;
+    width: 70%; /* 元は74% */
 }
 
 /* メインカラム用 3カラム時*/
-#main_column.colnum3 #recommend_area .block_body .productContents,
-#main_column.colnum3 #whobought_area .productContents {
+#three_maincolumn #recommend_area .block_body .productContents,
+#three_maincolumn #whobought_area .productContents {
     float: right;
     width: 67%;
 }
 
 /* サイドカラム用 */
 .side_column #recommend_area .block_body .productContents {
-    clear: both;
+    float: right;
+    width: 65%;
+}
+.side_column #recommend_area .block_body .comment {
+    font-family: meiryo;
+    float: left;
+    display:inline-block;
+    width:100%;
+    white-space: nowrap;
+    overflow:hidden !important;
+    text-overflow: ellipsis;
+    line-height: 15px;
+    height: 32px;
 }
 
-/* ===============================================
-▼新着商品
-=============================================== */
-#newproduct_area .table_cell{
-    width: 50%;
-    vertical-align: top;
-}
-#newproduct_area > .table > .table_cell:first-of-type{
-    padding-right: 5px;
-}
-#newproduct_area > .table > .table_cell:last-of-type{
-    padding-left: 5px;
-}
-#newproduct_area a.bttn{
-    display: block;
-    text-align: center;
-    margin-bottom: 10px;
-    line-height: 40px;
-    font-size: 16px;
-}
-.newproduct_block_title{
-    border-top: 1px solid #CCC;
-    border-bottom: 1px solid #CCC;
-    margin-bottom: 1px;
-    background: #F2F2F2;
-    line-height: 40px;
-    text-align: center;
-    font-size: 16px;
-    font-weight: bold;
-}
-.newproduct_block{
-    border: 1px solid #CCC;
-    border-radius: 5px;
-}
-.newproduct_block a{
-    display: block;
-    padding: 5px;
-    border-bottom: 1px solid #CCC;
-}
-.newproduct_block a:last-of-type{
-    border: none;
-}
-.newproduct_block a:hover{
-    color: #666;
-    background-color: #F2F2F2;
-}
-.newproduct_list .table_cell:first-of-type{
-    /*width: 25% !important;*/
-    padding-right: 5px;
-}
-.newproduct_list .table_cell:first-of-type .trunc20{
-    color: #44abb9;
-}
-.newproduct_list .trunc20,
-.newproduct_list .trunc40{
+.side_column #recommend_area .block_body .wrapper{
+    font-family: meiryo;
     width: 100%;
-    height: 20px;
-}
-.newproduct_list .trunc40{
-    height: 40px;
-}
-.newproduct_list .name{
-    color: #FF8B14;
-    font-size: 110%;
-}
-
-/* ===============================================
-▼コンシェルジュ紹介
-=============================================== */
-#concierge_list_area a{
-    display: block;
-}
-.concierge_list_block{
-    width: 24%;
-    margin-right: 1.333333%;
+    height: 38px;
     float: left;
-    margin-top: 10px;
-    border-radius: 10px;
+    margin-top: 6px;
 }
-.concierge_list_block a{
-    display: block;
-    border: 1px solid #CCC;
-    text-align: center;
-    padding: 10px 0;
-    /*background: url("../img/background/bg_diagnol_strip.png") repeat;*/
-    border-radius: 10px;
+.side_column #recommend_area .block_body ul.status_icon {
+    margin-bottom: 6px;
 }
-#concierge_list_area .concierge_list_block:nth-of-type(4n) {
-    margin-right: 0;
-}
-.concierge_list_block a:hover{
-    border-color: #FF4535;
-}
-.concierge_list_block img{
-    height: 100px;
-}
-.concierge_list_block .name{
-    font-weight: bold;
-    margin: 5px 0;
-    color: #000;
+.side_column #recommend_area .block_body ul.status_icon li {
+    float: left;
 }
 
 /* ===============================================
-▼コンシェルジュ
+▼コーディネータに質問
 =============================================== */
-#concierge_detail_area .table_cell{
+#coordinator_area,
+#coordinator_area h2, 
+#coordinator_area .block_body{
+    -webkit-border-radius: 3px;/* webkit */
+    -moz-border-radius: 3px;/* fx */
+    border-radius:3px;
+}
+#coordinator_area {
+    padding:6px;
+    background:#f39c47;	
+    box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+#coordinator_area .block_body {
+    padding: 8px 8px 1px 8px;
+    background-color: #FFF;
+}
+#coordinator_area h2 {
+    padding:8px 10px 14px;
+    background:#f39c47;
+}
+#coordinator_area .sub_block {
+    padding: 4px;
+    margin-bottom:10px;
+}
+#coordinator_area .sub_block .info {
+    display: table;
+    margin-bottom:1em;
+}
+#coordinator_area .sub_block .info .image {
+    width:105px;
+    height:120px;
+    margin-right:5px;
+}
+#coordinator_area .sub_block .name {
+    margin:1em 0;
+    font-size: 10pt;
+}
+#coordinator_area .sub_block .name,
+#coordinator_area .sub_block .info_title,
+#coordinator_area .sub_block .info_title_msg {
+    display:block;
+    font-weight: bold;
+}
+#coordinator_area .sub_block .message {
+    font-weight: normal;
+    font-size: 100%;
+}
+#coordinator_area .sub_block .right_info {
+    display: table-cell;
+    padding-left: 4px;
     vertical-align: top;
-    line-height: 150%;
 }
-#concierge_detail_area .table_cell:first-of-type{
-    width: 60%;
-    padding-right: 20px;
-    border-right: 1px solid #CCC;
+#coordinator_area .sub_block .info_title_msg {
+    margin-bottom:0.5em;
+    padding:3px 5px;
+    background-color: #f7f3e4;
 }
-#concierge_detail > div{
-    line-height: 200%;
+#coordinator_area .contact_link {
+    padding:5px 0;
+    border-top:solid 1px #e7e7e7;
+    font-size:10px;
 }
-#concierge_detail img:first-of-type{
-    float: left;
-    margin-right: 20px;
-    height: 150px;
-    margin-bottom: 20px;
+#coordinator_area .contact_link a {
+    padding-left: 12px;
+    background: url(../img/icon/icon_arrow_01.gif) left center no-repeat; 
 }
-#concierge_detail img[alt=phone],
-#concierge_detail img[alt=mail]{
+#coordinator_area .contact_link a:hover {
+    background: url(../img/icon/icon_arrow_01_on.gif) left center no-repeat; 
+}
+
+/* ===============================================
+▼HYPERION@JOBって何？
+=============================================== */
+
+div#about_hyperion-job .block_body {
+    margin: 0 auto 1em;
+    padding-bottom: 0;
+    width: 940px;
+    display: table;
+    font-family: "ヒラギノ角ゴ ProN","Hiragino Kaku Gothic ProN","Hiragino Kaku Gothic ProN","メイリオ",sans-serif;
+}
+
+div#about_hyperion-job .block_body div{
+    display: table-cell;
     vertical-align: middle;
-    width: 20px;
 }
-.concierge_title{
-    font-size: 18px;
-    color: #FF4535;
-}
-.concierge_name{
-    font-size: 20px;
+
+div#about_hyperion-job .block_body div.title{
+    width: 40%;
+    font-size: 1.8em;
     font-weight: bold;
-    margin: 5px 0;
-}
-.concierge_career{
-    clear: both;
-}
-#concierge_detail_area .table_cell:last-of-type{
-    padding-left: 20px;
-}
-#concierge_detail_area .table_cell:last-of-type > p{
     text-align: center;
-    margin-bottom: 20px;
-    clear: both;
-    border-top: 1px solid #CCC;
-    border-bottom: 1px solid #CCC;
-    background: #F2F2F2;
-    line-height: 200%;
 }
-#concierge_detail_area .table_cell:last-of-type a{
-    display: inline-block;
-    width: 50%;
-    float: left;
+
+div#about_hyperion-job .block_body div.content{
+    width: 60%;
+    letter-spacing: 1px;
+    text-align: left;
+}
+
+/* ===============================================
+▼キープしたお仕事
+=============================================== */
+#keep_list_area{
+    border: 1px solid #57B3C0;
+    background-color: white;
+    margin-bottom: 1em;
+}
+#keep_list_area h3{
+    background-color: #57B3C0;
+    line-height: 27px;
+    padding: 5px;
+    color: white;
+}
+#keep_list_area h3 img{
+    vertical-align: top;
+    margin-right: 4px;
+}
+#keep_list_area .block_body{
+    padding: 0;
+}
+#keep_list_area .information {
+    padding: 10px;
+}
+#keep_list_area .btn {
+    padding: 10px 0;
+    background: url("../img/background/line_dot_01.gif") repeat-x top #f7f7e6;
     text-align: center;
-    margin-bottom: 10px;
 }
-#concierge_detail_area .table_cell:last-of-type img{
-    height: 100px;
+#keep_list_area .btn a{
+    display: block;
+    border-radius: 6px;
+    height: 2.5em;
+    color:#FFF;
+    background-color: #44abb9;
+    line-height: 2.5em;
+    width: 180px;
+    margin: 0 auto;
+}
+#keep_list_area .btn a:hover{
+    background-color: #53D2DD;
+    text-decoration: none;
 }

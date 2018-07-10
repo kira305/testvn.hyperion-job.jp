@@ -1,8 +1,9 @@
 <?php
+
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -21,6 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// {{{ requires
 require_once CLASS_EX_REALDIR . 'page_extends/LC_Page_Ex.php';
 
 /**
@@ -28,18 +30,18 @@ require_once CLASS_EX_REALDIR . 'page_extends/LC_Page_Ex.php';
  *
  * @package Page
  * @author LOCKON CO.,LTD.
- * @version $Id$
+ * @version $Id: LC_Page_ResizeImage.php 21880 2012-06-01 13:31:17Z shutta $
  */
-class LC_Page_ResizeImage extends LC_Page_Ex
-{
+class LC_Page_ResizeImage extends LC_Page_Ex {
+    // }}}
+    // {{{ functions
+
     /**
      * Page を初期化する.
      *
      * @return void
      */
-    public function init()
-    {
-        $this->skip_load_page_layout = true;
+    function init() {
         parent::init();
     }
 
@@ -48,8 +50,7 @@ class LC_Page_ResizeImage extends LC_Page_Ex
      *
      * @return void
      */
-    public function process()
-    {
+    function process() {
         parent::process();
         $this->action();
     }
@@ -59,40 +60,39 @@ class LC_Page_ResizeImage extends LC_Page_Ex
      *
      * @return void
      */
-    public function action()
-    {
+    function action() {
         $objFormParam = new SC_FormParam_Ex();
         $this->lfInitParam($objFormParam);
         $objFormParam->setParam($_GET);
-        $arrErr = $objFormParam->checkError();
-        if (SC_Utils_Ex::isBlank($arrErr)) {
+        $arrForm = $objFormParam->getHashArray();
 
-            $arrForm  = $objFormParam->getHashArray();
+        $file = NO_IMAGE_REALFILE;
 
-            // TODO: ファイル名を直接指定するような処理は避けるべき
-            // NO_IMAGE_REALFILE以外のファイル名が直接渡された場合、ファイル名のチェックを行う
-            if (strlen($arrForm['image']) >= 1 && $arrForm['image'] !== NO_IMAGE_REALFILE ) {
-                if (!$this->lfCheckFileName($arrForm['image'])) {
-                    GC_Utils_Ex::gfPrintLog('invalid access :resize_image.php image=' . $arrForm['image']);
-                }
-                $file = SC_Utils_Ex::getSaveImagePath($arrForm['image']);
-            } else {
-                // 商品画像を取得する
-                $file = $this->lfGetProductImage($arrForm);
+        // NO_IMAGE_REALFILE以外のファイル名が渡された場合、ファイル名のチェックを行う
+        if (strlen($arrForm['image']) >= 1 && $arrForm['image'] !== NO_IMAGE_REALFILE) {
+
+            // ファイル名が正しく、ファイルが存在する場合だけ、$fileを設定
+            if (!$this->lfCheckFileName()) {
+                GC_Utils_Ex::gfPrintLog('invalid access :resize_image.php image=' . $arrForm['image']);
+            } elseif (file_exists(IMAGE_SAVE_REALDIR . $arrForm['image'])) {
+                $file = IMAGE_SAVE_REALDIR . $arrForm['image'];
             }
-
-            // リサイズ画像の出力
-            $this->lfOutputImage($file, $arrForm['width'], $arrForm['height']);
         }
+
+        // リサイズ画像の出力
+        $this->lfOutputImage($file, $arrForm['width'], $arrForm['height']);
     }
 
     /**
-     * @param SC_FormParam_Ex $objFormParam
+     * デストラクタ.
+     *
+     * @return void
      */
-    public function lfInitParam(&$objFormParam)
-    {
-        $objFormParam->addParam('商品ID', 'product_id', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('商品イメージキー', 'image_key', STEXT_LEN, '', array('GRAPH_CHECK', 'MAX_LENGTH_CHECK'));
+    function destroy() {
+        parent::destroy();
+    }
+
+    function lfInitParam(&$objFormParam) {
         $objFormParam->addParam('画像ファイル名', 'image', STEXT_LEN, 'a', array('MAX_LENGTH_CHECK'));
         $objFormParam->addParam('画像の幅', 'width', STEXT_LEN, 'n', array('NUM_CHECK'));
         $objFormParam->addParam('画像の高さ', 'height', STEXT_LEN, 'n', array('NUM_CHECK'));
@@ -101,14 +101,13 @@ class LC_Page_ResizeImage extends LC_Page_Ex
     /**
      * ファイル名の形式をチェック.
      *
-     * @deprecated 2.13.0 商品IDを渡す事を推奨
-     * @param $image
      * @return boolean 正常な形式:true 不正な形式:false
      */
-    public function lfCheckFileName($image)
-    {
-        $file    = trim($image);
-        if (!preg_match("/^[[:alnum:]_\.-]+$/i", $file)) {
+    function lfCheckFileName() {
+        //$pattern = '|^[0-9]+_[0-9a-z]+\.[a-z]{3}$|';
+        $pattern = '|\./|';
+        $file = trim($_GET['image']);
+        if (preg_match_all($pattern, $file, $matches)) {
             return false;
         } else {
             return true;
@@ -116,42 +115,17 @@ class LC_Page_ResizeImage extends LC_Page_Ex
     }
 
     /**
-     * 商品画像のパスを取得する
-     *
-     * @param $arrForm
-     * @return string 指定された商品画像のパス
-     */
-    public function lfGetProductImage($arrForm)
-    {
-        $objQuery = SC_Query_Ex::getSingletonInstance();
-        $table = 'dtb_products';
-        $col = $arrForm['image_key'];
-        $product_id = $arrForm['product_id'];
-        //指定されたカラムが存在する場合にのみ商品テーブルからファイル名を取得
-        if (SC_Helper_DB_Ex::sfColumnExists($table, $col, '', '', false)) {
-            $product_image = $objQuery->get($col, $table, 'product_id = ?', array($product_id));
-        } else {
-            GC_Utils_Ex::gfPrintLog('invalid access :resize_image.php image_key=' . $col);
-            $product_image = '';
-        }
-        // ファイル名が正しく、ファイルが存在する場合だけ、$fileを設定
-        $file = SC_Utils_Ex::getSaveImagePath($product_image);
-
-        return $file;
-    }
-
-    /**
      * 画像の出力
      *
-     * @param string  $file   画像ファイル名
-     * @param integer $width  画像の幅
+     * @param string $file 画像ファイル名
+     * @param integer $width 画像の幅
      * @param integer $height 画像の高さ
-     *
+     * 
      * @return void
      */
-    public function lfOutputImage($file, $width, $height)
-    {
+    function lfOutputImage($file, $width, $height) {
         $objThumb = new gdthumb();
         $objThumb->Main($file, $width, $height, '', true);
     }
+
 }

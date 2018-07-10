@@ -42,7 +42,7 @@
 // | Author: Lukas Smith <smith@pooteeweet.org>                           |
 // +----------------------------------------------------------------------+
 //
-// $Id: Date.php 327316 2012-08-27 15:17:02Z danielc $
+// $Id: Date.php,v 1.10 2006/03/01 12:15:32 lsmith Exp $
 //
 
 /**
@@ -70,7 +70,7 @@ class MDB2_Date
      * @return string current datetime in the MDB2 format
      * @access public
      */
-    public static function mdbNow()
+    function mdbNow()
     {
         return date('Y-m-d H:i:s');
     }
@@ -84,7 +84,7 @@ class MDB2_Date
      * @return string current date in the MDB2 format
      * @access public
      */
-    public static function mdbToday()
+    function mdbToday()
     {
         return date('Y-m-d');
     }
@@ -98,7 +98,7 @@ class MDB2_Date
      * @return string current time in the MDB2 format
      * @access public
      */
-    public static function mdbTime()
+    function mdbTime()
     {
         return date('H:i:s');
     }
@@ -119,7 +119,7 @@ class MDB2_Date
      * @return string a valid MDB2 timestamp
      * @access public
      */
-    public static function date2Mdbstamp($hour = null, $minute = null, $second = null,
+    function date2Mdbstamp($hour = null, $minute = null, $second = null,
         $month = null, $day = null, $year = null)
     {
         return MDB2_Date::unix2Mdbstamp(mktime($hour, $minute, $second, $month, $day, $year, -1));
@@ -136,7 +136,7 @@ class MDB2_Date
      * @return string a valid MDB2 timestamp
      * @access public
      */
-    public static function unix2Mdbstamp($unix_timestamp)
+    function unix2Mdbstamp($unix_timestamp)
     {
         return date('Y-m-d H:i:s', $unix_timestamp);
     }
@@ -152,7 +152,7 @@ class MDB2_Date
      *
      * @access public
      */
-    public static function mdbstamp2Unix($mdb_timestamp)
+    function mdbstamp2Unix($mdb_timestamp)
     {
         $arr = MDB2_Date::mdbstamp2Date($mdb_timestamp);
 
@@ -171,7 +171,7 @@ class MDB2_Date
      * @return array with the time split
      * @access public
      */
-    public static function mdbstamp2Date($mdb_timestamp)
+    function mdbstamp2Date($mdb_timestamp)
     {
         list($arr['year'], $arr['month'], $arr['day'], $arr['hour'], $arr['minute'], $arr['second']) =
             sscanf($mdb_timestamp, "%04u-%02u-%02u %02u:%02u:%02u");

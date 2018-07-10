@@ -18,7 +18,7 @@ define('USER_TEMPLATE_REALDIR', USER_REALDIR . USER_PACKAGE_DIR);
 /** テンプレートファイル一時保存先 */
 define('TEMPLATE_TEMP_REALDIR', HTML_REALDIR . "upload/temp_template/");
 /** ユーザー作成画面のデフォルトPHPファイル */
-define('USER_DEF_PHP_REALFILE', DATA_REALDIR . "__default.php");
+define('USER_DEF_PHP_REALFILE', USER_REALDIR . "__default.php");
 /** ダウンロードモジュール保存ディレクトリ */
 define('MODULE_DIR', "downloads/module/");
 /** ダウンロードモジュール保存ディレクトリ */
@@ -76,7 +76,7 @@ define('ORDER_STATUS_MAX', 50);
 /** フロントレビュー書き込み最大数 */
 define('REVIEW_REGIST_MAX', 5);
 /** デバッグモード(true：sfPrintRやDBのエラーメッセージ、ログレベルがDebugのログを出力する、false：出力しない) */
-define('DEBUG_MODE', false);
+define('DEBUG_MODE', true);
 /** ログを冗長とするか(true:利用する、false:利用しない) */
 define('USE_VERBOSE_LOG', DEBUG_MODE);
 /** 管理ユーザID(メンテナンス用表示されない。) */
@@ -92,9 +92,9 @@ define('SITE_FRAME', "site_frame.tpl");
 /** 認証文字列 */
 define('CERT_STRING', "7WDhcBTF");
 /** 生年月日登録開始年 */
-define('BIRTH_YEAR', 1975);
+define('BIRTH_YEAR', 1960);
 /** 本システムの稼働開始年 */
-define('RELEASE_YEAR', 2000);
+define('RELEASE_YEAR', 2005);
 /** クレジットカードの期限＋何年 */
 define('CREDIT_ADD_YEAR', 10);
 /** ポイントの計算ルール(1:四捨五入、2:切り捨て、3:切り上げ) */
@@ -114,27 +114,27 @@ define('FORGOT_MAIL', 0);
 /** 誕生日月ポイント */
 define('BIRTH_MONTH_POINT', 0);
 /** 拡大画像横 */
-define('LARGE_IMAGE_WIDTH', 500);
+define('LARGE_IMAGE_WIDTH', 400);
 /** 拡大画像縦 */
-define('LARGE_IMAGE_HEIGHT', 500);
+define('LARGE_IMAGE_HEIGHT', 300);
 /** 一覧画像横 */
-define('SMALL_IMAGE_WIDTH', 130);
+define('SMALL_IMAGE_WIDTH', 400);
 /** 一覧画像縦 */
-define('SMALL_IMAGE_HEIGHT', 130);
+define('SMALL_IMAGE_HEIGHT', 300);
 /** 通常画像横 */
-define('NORMAL_IMAGE_WIDTH', 260);
+define('NORMAL_IMAGE_WIDTH', 400);
 /** 通常画像縦 */
-define('NORMAL_IMAGE_HEIGHT', 260);
+define('NORMAL_IMAGE_HEIGHT', 300);
 /** 通常サブ画像横 */
-define('NORMAL_SUBIMAGE_WIDTH', 200);
+define('NORMAL_SUBIMAGE_WIDTH', 400);
 /** 通常サブ画像縦 */
-define('NORMAL_SUBIMAGE_HEIGHT', 200);
+define('NORMAL_SUBIMAGE_HEIGHT', 300);
 /** 拡大サブ画像横 */
-define('LARGE_SUBIMAGE_WIDTH', 500);
+define('LARGE_SUBIMAGE_WIDTH', 400);
 /** 拡大サブ画像縦 */
-define('LARGE_SUBIMAGE_HEIGHT', 500);
+define('LARGE_SUBIMAGE_HEIGHT', 300);
 /** 画像サイズ制限(KB) */
-define('IMAGE_SIZE', 1000);
+define('IMAGE_SIZE', 10000);
 /** CSVサイズ制限(KB) */
 define('CSV_SIZE', 2000);
 /** CSVアップロード1行あたりの最大文字数 */
@@ -158,11 +158,11 @@ define('ERR_COLOR', "#ffe8e8");
 /** 親カテゴリ表示文字 */
 define('CATEGORY_HEAD', ">");
 /** 生年月日初期選択年 */
-define('START_BIRTH_YEAR', 1975);
+define('START_BIRTH_YEAR', 1970);
 /** 価格名称 */
 define('NORMAL_PRICE_TITLE', "通常価格");
 /** 価格名称 */
-define('SALE_PRICE_TITLE', "販売価格");
+define('SALE_PRICE_TITLE', "給与");
 /** 標準ログファイル */
 define('LOG_REALFILE', DATA_REALDIR . "logs/site.log");
 /** 会員ログイン ログファイル */
@@ -175,8 +175,6 @@ define('DEBUG_LOG_REALFILE', "");
 define('ERROR_LOG_REALFILE', DATA_REALDIR . "logs/error.log");
 /** DBログファイル */
 define('DB_LOG_REALFILE', DATA_REALDIR . "logs/db.log");
-/** プラグインログファイル */
-define('PLUGIN_LOG_REALFILE', DATA_REALDIR . "logs/plugin.log");
 /** 画像一時保存 */
 define('IMAGE_TEMP_REALDIR', HTML_REALDIR . "upload/temp_image/");
 /** 画像保存先 */
@@ -218,7 +216,7 @@ define('SEARCH_PMAX', 10);
 /** ページ番号の最大表示数量 */
 define('NAVI_PMAX', 4);
 /** 商品サブ情報最大数 */
-define('PRODUCTSUB_MAX', 5);
+define('PRODUCTSUB_MAX', 11);
 /** お届け時間の最大表示数 */
 define('DELIVTIME_MAX', 16);
 /** 配送料金の最大表示数 */
@@ -241,7 +239,7 @@ define('ID_MAX_LEN', STEXT_LEN);
 /** 管理画面用：ID・パスワードの最小文字数 */
 define('ID_MIN_LEN', 4);
 /** 金額桁数 */
-define('PRICE_LEN', 12);
+define('PRICE_LEN', 8);
 /** 率桁数 */
 define('PERCENTAGE_LEN', 3);
 /** 在庫数、販売制限数 */
@@ -257,7 +255,7 @@ define('TEL_LEN', 12);
 /** フロント画面用：パスワードの最小文字数 */
 define('PASSWORD_MIN_LEN', 4);
 /** フロント画面用：パスワードの最大文字数 */
-define('PASSWORD_MAX_LEN', STEXT_LEN);
+define('PASSWORD_MAX_LEN', 12);
 /** 検査数値用桁数(INT) */
 define('INT_LEN', 9);
 /** クレジットカードの文字数 (*モジュールで使用) */
@@ -271,13 +269,13 @@ define('COOKIE_EXPIRE', 365);
 /** カテゴリ区切り文字 */
 define('SEPA_CATNAVI', " > ");
 /** 会員情報入力 */
-define('SHOPPING_URL', HTTPS_URL . "shopping/" . DIR_INDEX_PATH);
+define('SHOPPING_URL', HTTP_URL . "shopping/" . DIR_INDEX_PATH);
 /** 会員登録ページTOP */
-define('ENTRY_URL', HTTPS_URL . "entry/" . DIR_INDEX_PATH);
+define('ENTRY_URL', HTTP_URL . "entry/" . DIR_INDEX_PATH);
 /** サイトトップ */
-define('TOP_URL', HTTP_URL . DIR_INDEX_PATH);
+define('TOP_URLPATH', ROOT_URLPATH . DIR_INDEX_PATH);
 /** カートトップ */
-define('CART_URL', HTTP_URL . "cart/" . DIR_INDEX_PATH);
+define('CART_URLPATH', ROOT_URLPATH . "cart/" . DIR_INDEX_PATH);
 /** お届け先設定 */
 define('DELIV_URLPATH', ROOT_URLPATH . "shopping/deliv.php");
 /** 複数お届け先設定 */
@@ -299,7 +297,7 @@ define('ADMIN_NEWS_STARTYEAR', 2005);
 /** 再入会制限時間 (単位: 時間) */
 define('ENTRY_LIMIT_HOUR', 1);
 /** 関連商品表示数 */
-define('RECOMMEND_PRODUCT_MAX', 6);
+define('RECOMMEND_PRODUCT_MAX', 8);
 /** おすすめ商品表示数 */
 define('RECOMMEND_NUM', 8);
 /** お届け可能日以降のプルダウン表示最大日数 */
@@ -331,7 +329,7 @@ define('TEMPLATE_NAME', "default");
 /** モバイルテンプレート名 */
 define('MOBILE_TEMPLATE_NAME', "mobile");
 /** スマートフォンテンプレート名 */
-define('SMARTPHONE_TEMPLATE_NAME', "sphone");
+define('SMARTPHONE_TEMPLATE_NAME', 'pharmapremium');
 /** SMARTYテンプレート */
 define('SMARTY_TEMPLATES_REALDIR',  DATA_REALDIR . "Smarty/templates/");
 /** SMARTYテンプレート(PC) */
@@ -383,7 +381,7 @@ define('OSTORE_SSLURL', "https://www.ec-cube.net/");
 /** オーナーズストアログパス */
 define('OSTORE_LOG_REALFILE', DATA_REALDIR . "logs/ownersstore.log");
 /** お気に入り商品登録(有効:1 無効:0) */
-define('OPTION_FAVORITE_PRODUCT', 1);
+define('OPTION_FAVORITE_PRODUCT', 0);
 /** 画像リネーム設定 (商品画像のみ) (true:リネームする、false:リネームしない) */
 define('IMAGE_RENAME', true);
 /** (2.11用)プラグインディレクトリ(モジュールで使用) */
@@ -406,8 +404,8 @@ define('DOWNLOADS_TEMP_PLUGIN_INSTALL_DIR', DATA_REALDIR . "downloads/tmp/plugin
 define('PLUGIN_HTML_URLPATH', ROOT_URLPATH . "plugin/");
 /** 日数桁数 */
 define('DOWNLOAD_DAYS_LEN', 3);
-/** ダウンロードファイル登録可能拡張子(カンマ区切り) */
-define('DOWNLOAD_EXTENSION', "doc,docx,xls,xlsx,pdf");
+/** ダウンロードファイル登録可能拡張子(カンマ区切り)" */
+define('DOWNLOAD_EXTENSION', "zip,lzh,jpg,jpeg,gif,png,mp3,pdf,csv");
 /** ダウンロード販売ファイル用サイズ制限(KB) */
 define('DOWN_SIZE', 50000);
 /** 1:実商品 2:ダウンロード */
@@ -470,20 +468,4 @@ define('SMARTY_FORCE_COMPILE_MODE', false);
 define('LOGIN_RETRY_INTERVAL', 0);
 /** MYページ：ご注文状況表示フラグ */
 define('MYPAGE_ORDER_STATUS_DISP_FLAG', true);
-/** デフォルト国コード ISO_3166-1に準拠 */
-define('DEFAULT_COUNTRY_ID', 392);
-/** ホスト名を正規化するか (true:する false:しない) */
-define('USE_NORMALIZE_HOSTNAME', true);
-/** 各種フォームで国の指定を有効にする(true:有効 false:無効) */
-define('FORM_COUNTRY_ENABLE', false);
-/** 商品ごとの税率設定(軽減税率対応 有効:1 無効:0) */
-define('OPTION_PRODUCT_TAX_RULE', 0);
-/** 複数箇所の税率設定時における優先度設定。カンマ区切りスペース不可で記述。後に書いてあるキーに一致するほど優先される。デフォルト：'product_id,product_class_id,pref_id,country_id'（国＞地域（県）＞規格単位＞商品単位） */
-define('TAX_RULE_PRIORITY', "product_id,product_class_id,pref_id,country_id");
-/** 決済処理中ステータスのロールバックを行う時間の設定(秒) */
-define('PENDING_ORDER_CANCEL_TIME', 900);
-/** 決済処理中ステータスのロールバックをするか(true:する false:しない) */
-define('PENDING_ORDER_CANCEL_FLAG', true);
-/** API機能を有効にする(true:する false:しない) */
-define('API_ENABLE_FLAG', false);
 

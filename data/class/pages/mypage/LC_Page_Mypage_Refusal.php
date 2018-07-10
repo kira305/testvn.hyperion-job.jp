@@ -1,8 +1,9 @@
 <?php
+
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -21,6 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// {{{ requires
 require_once CLASS_EX_REALDIR . 'page_extends/mypage/LC_Page_AbstractMypage_Ex.php';
 
 /**
@@ -28,17 +30,18 @@ require_once CLASS_EX_REALDIR . 'page_extends/mypage/LC_Page_AbstractMypage_Ex.p
  *
  * @package Page
  * @author LOCKON CO.,LTD.
- * @version $Id$
+ * @version $Id: LC_Page_Mypage_Refusal.php 21867 2012-05-30 07:37:01Z nakanishi $
  */
-class LC_Page_Mypage_Refusal extends LC_Page_AbstractMypage_Ex
-{
+class LC_Page_Mypage_Refusal extends LC_Page_AbstractMypage_Ex {
+    // }}}
+    // {{{ functions
+
     /**
      * Page を初期化する.
      *
      * @return void
      */
-    public function init()
-    {
+    function init() {
         parent::init();
         $this->tpl_subtitle = '退会手続き(入力ページ)';
         $this->tpl_mypageno = 'refusal';
@@ -49,8 +52,7 @@ class LC_Page_Mypage_Refusal extends LC_Page_AbstractMypage_Ex
      *
      * @return void
      */
-    public function process()
-    {
+    function process() {
         parent::process();
     }
 
@@ -59,15 +61,15 @@ class LC_Page_Mypage_Refusal extends LC_Page_AbstractMypage_Ex
      *
      * @return void
      */
-    public function action()
-    {
+    function action() {
+
         switch ($this->getMode()) {
             case 'confirm':
                 // トークンを設定
                 $this->refusal_transactionid = $this->getRefusalToken();
 
-                $this->tpl_mainpage     = 'mypage/refusal_confirm.tpl';
-                $this->tpl_subtitle     = '退会手続き(確認ページ)';
+                $this->tpl_mainpage = 'mypage/refusal_confirm.tpl';
+                $this->tpl_subtitle = '退会手続き(確認ページ)';
                 break;
 
             case 'complete':
@@ -79,12 +81,10 @@ class LC_Page_Mypage_Refusal extends LC_Page_AbstractMypage_Ex
                 }
 
                 $objCustomer = new SC_Customer_Ex();
-                $this->lfSendRefusalMail($objCustomer->getValue('customer_id'));
                 $this->lfDeleteCustomer($objCustomer->getValue('customer_id'));
                 $objCustomer->EndSession();
 
                 SC_Response_Ex::sendRedirect('refusal_complete.php');
-                break;
 
             default:
                 if (SC_Display_Ex::detectDevice() == DEVICE_TYPE_MOBILE) {
@@ -92,7 +92,25 @@ class LC_Page_Mypage_Refusal extends LC_Page_AbstractMypage_Ex
                 }
                 break;
         }
+    }
 
+    /**
+     * デストラクタ.
+     *
+     * @return void
+     */
+    function destroy() {
+        parent::destroy();
+    }
+
+    /**
+     * 会員情報を削除する
+     *
+     * @access private
+     * @return void
+     */
+    public function lfDeleteCustomer($customer_id) {
+        return SC_Helper_Customer_Ex::delete($customer_id);
     }
 
     /**
@@ -125,66 +143,6 @@ class LC_Page_Mypage_Refusal extends LC_Page_AbstractMypage_Ex
      */
     function destroyRefusalToken() {
         unset($_SESSION['refusal_transactionid']);
-    }
-
-    /**
-     * 会員情報を削除する
-     *
-     * @access private
-     * @return boolean
-     */
-    public function lfDeleteCustomer($customer_id)
-    {
-        return SC_Helper_Customer_Ex::delete($customer_id);
-    }
-
-    /**
-     * 退会手続き完了メール送信する
-     *
-     * @access private
-     * @param integer $customer_id 会員ID
-     * @return void
-     */
-    public function lfSendRefusalMail($customer_id)
-    {
-        // 会員データの取得
-        if (SC_Utils_Ex::sfIsInt($customer_id)) {
-            $arrCustomerData = SC_Helper_Customer_Ex::sfGetCustomerDataFromId($customer_id);
-        }
-        if (SC_Utils_Ex::isBlank($arrCustomerData)) {
-            return false;
-        }
-
-        $CONF = SC_Helper_DB_Ex::sfGetBasisData();
-
-        $objMailText = new SC_SiteView_Ex();
-        $objMailText->setPage($this);
-        $objMailText->assign('CONF', $CONF);
-        $objMailText->assign('name01', $arrCustomerData['name01']);
-        $objMailText->assign('name02', $arrCustomerData['name02']);
-        $objMailText->assignobj($this);
-
-        $objHelperMail  = new SC_Helper_Mail_Ex();
-        $objHelperMail->setPage($this);
-
-        $subject        = $objHelperMail->sfMakeSubject('退会手続きのご完了', $objMailText);
-        $toCustomerMail = $objMailText->fetch('mail_templates/customer_refusal_mail.tpl');
-
-        $objMail = new SC_SendMail_Ex();
-        $objMail->setItem(
-            '',                     // 宛先
-            $subject,               // サブジェクト
-            $toCustomerMail,        // 本文
-            $CONF['email03'],       // 配送元アドレス
-            $CONF['shop_name'],     // 配送元 名前
-            $CONF['email03'],       // reply_to
-            $CONF['email04'],       // return_path
-            $CONF['email04'],       // Errors_to
-            $CONF['email01']        // Bcc
-        );
-        $objMail->setTo($arrCustomerData['email'], $arrCustomerData['name01'] . $arrCustomerData['name02'] .' 様');
-
-        $objMail->sendMail();
     }
 
 }

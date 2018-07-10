@@ -1,7 +1,7 @@
 <!--{*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -21,57 +21,72 @@
  *}-->
 
 <div id="undercolumn">
-    <h2 class="title">Liên hệ(Trang xác nhận)</h2>
-    <div id="undercolumn_contact">
-        <p>Bạn có đồng ý gửi nội dung như bên dưới hay không?<br />
-            Nếu đồng ý, vui lòng nhấn nút Gửi để tiếp tục</p>
-        <form name="form1" id="form1" method="post" action="?">
-            <input type="hidden" name="<!--{$smarty.const.TRANSACTION_ID_NAME}-->" value="<!--{$transactionid}-->" />
-            <input type="hidden" name="mode" value="complete" />
-            <!--{foreach key=key item=item from=$arrForm}-->
-                <!--{if $key ne 'mode'}-->
-                    <input type="hidden" name="<!--{$key}-->" value="<!--{$item.value|h}-->" />
-                <!--{/if}-->
-            <!--{/foreach}-->
-            <table summary="お問い合わせ内容確認">
-                <col width="30%" />
-                <col width="70%" />
-                <tr>
-                    <th>Họ tên</th>
-                    <td><!--{$arrForm.name01.value|h}-->　<!--{$arrForm.name02.value|h}--></td>
-                </tr>
-                <tr>
-                    <th>Họ tên (furigana)</th>
-                    <td><!--{$arrForm.kana01.value|h}-->　<!--{$arrForm.kana02.value|h}--></td>
-                </tr>
-                <tr>
-                    <th>Điện thoại</th>
-                    <td>
-                        <!--{if strlen($arrForm.tel01.value) > 0 && strlen($arrForm.tel02.value) > 0 && strlen($arrForm.tel03.value) > 0}-->
-                            <!--{$arrForm.tel01.value|h}-->-<!--{$arrForm.tel02.value|h}-->-<!--{$arrForm.tel03.value|h}-->
-                        <!--{/if}-->
-                    </td>
-                </tr>
-                <tr>
-                    <th>Email</th>
-                    <td><a href="mailto:<!--{$arrForm.email.value|escape:'hex'}-->"><!--{$arrForm.email.value|escape:'hexentity'}--></a></td>
-                </tr>
-                <tr>
-                    <th>Câu hỏi của bạn</th>
-                    <td><!--{$arrForm.contents.value|h|nl2br}--></td>
-                </tr>
-            </table>
-            <div class="btn_area">
-                <ul>
-                    <li>
-                        <a href="?" onclick="eccube.setModeAndSubmit('return', '', ''); return false;" class="bttn back">Quay lại</a>
-                    </li>
-                    <li>
-                        <input type="submit" value="Gửi" name="send" id="send" />
-                    </li>
-                </ul>
-            </div>
+        
+    <h2 class="contact">お問い合わせ <span>確認</span></h2>
 
+    <div id="undercolumn_contact">
+        
+        <div class="caption_text">
+        <ul>
+            <li>必要項目をご入力後、確認画面が表示されます。 内容に間違いがなければ、送信ボタンを押して下さい。</li>
+            <li>内容によっては回答をさしあげるのにお時間をいただくこともございます。</li>
+            <li>休業日は翌営業日以降の対応となりますのでご了承ください。</li>
+        </ul>
+        
+        <p><em>※求人情報サイト「ハイペリオンあっとジョブ」運営会社へのお問い合わせ窓口となっております。<br>
+            掲載されている求人の内容、面接等に関するお問い合わせについては、直接企業様へお問い合わせ下さい。</em></p>
+        </div>
+
+<!--  エントリーフォーム  -->
+			<div id="entry_form">
+                
+<p class="entry_form_navi">以下の内容でよろしいでしょうか？</p> 
+
+        <form name="form1" id="form1" method="post" action="?">
+        <input type="hidden" name="<!--{$smarty.const.TRANSACTION_ID_NAME}-->" value="<!--{$transactionid}-->" />
+        <input type="hidden" name="mode" value="complete" />
+        <!--{foreach key=key item=item from=$arrForm}-->
+            <!--{if $key ne 'mode'}-->
+                <input type="hidden" name="<!--{$key}-->" value="<!--{$item.value|h}-->" />
+            <!--{/if}-->
+        <!--{/foreach}-->
+
+<div class="list_wrap_list clearfix">
+
+    <div class="list_wrap list_wrap_entry clearfix">
+        
+                <dl id="contact_form">
+                <dt><span>必須</span> 氏名 (漢字)</dt>
+                <dd><p class="contact_confirm"><!--{$arrForm.name01.value|h}-->　<!--{$arrForm.name02.value|h}--></p></dd>
+                    
+                <dt><span>必須</span> 氏名 (カナ)</dt>
+                <dd><p class="contact_confirm"><!--{$arrForm.kana01.value|h}-->　<!--{$arrForm.kana02.value|h}--></p></dd>
+
+                <dt><span>必須</span> メールアドレス</dt>
+                <dd><p class="contact_confirm"><!--{$arrForm.email.value|escape:'hexentity'}--></p></dd>
+                </dl>
+        
+    <dl id="contact_form_text">
+        <dt>お問い合わせ内容 <span class="mini">（全角<!--{$smarty.const.MLTEXT_LEN}-->字以下）</span></dt>
+        <dd><p class="contact_confirm_br"><!--{$arrForm.contents.value|h|nl2br}--></p>
+        <p><span class="attention"><!--{$arrErr.contents}--></span></p>
+        <p>※求人に関するお問い合わせには、必ず「求人番号」をご記入くださいますようお願いいたします。</p></dd>
+    </dl>
+
+                <div class="clearfix"></div>  
+            </div>	
+                <div class="clearfix"></div>
+                <p class="entry_form_navi">上記内容に誤りがない事を確認して</p>
+    
+             <button class="icon-btn icon-btn-mail-back" type="submit" href="?" onclick="fnModeSubmit('return', '', ''); return false;" >
+                <span class="icon-btn-text">入力画面へ戻る</span>
+             </button>
+
+             <button class="icon-btn icon-btn-mail" type="submit" name="send" id="send" />
+                <span class="icon-btn-text">お問い合わせを送信</span>
+             </button>
         </form>
+        </div>
     </div>
+</div>
 </div>

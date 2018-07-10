@@ -2,7 +2,7 @@
 
 php_value mbstring.language Japanese
 php_flag mbstring.encoding_translation off
-php_value output_handler none
+php_value output_handler NULL
 php_flag magic_quotes_gpc off
 php_flag session.auto_start 0
 
@@ -14,7 +14,12 @@ php_value upload_max_filesize 5M
 #php_value post_max_size 8M
 php_flag register_globals off
 
+Options +FollowSymLinks
+RewriteEngine on
+RewriteCond %{HTTP_HOST} ^hyperion-web\.jp$
+RewriteRule ^(.*)$ http://www.xampp.hyperion-web.jp/$1 [R=301,L]
+
 #AuthType Basic
 #AuthName "Please enter your ID and password"
-#AuthUserFile /var/www/testvn.hyperion-job.jp/html/.htpasswd
+#AuthUserFile /var/www/test.hyperion-job.jp/html/.htpasswd
 #Require valid-user

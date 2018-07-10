@@ -51,7 +51,6 @@ OwnersStore.prototype = {
             $('body', 'html').css({height: 'auto', width: 'auto'});
             $('html').css('overflow', "");
         }
-
         return false;
     },
     // show loading page
@@ -121,7 +120,7 @@ OwnersStore.prototype = {
         $("#TB_window").css({marginLeft: '-' + parseInt((TB_WIDTH / 2),10) + 'px', width: TB_WIDTH + 'px'});
 
         // take away IE6
-        if (!(navigator.userAgent.toLowerCase().indexOf('msie 6') != -1)) {
+        if (!(jQuery.browser.msie && jQuery.browser.version < 7)) {
             $("#TB_window").css({marginTop: '-' + parseInt((TB_HEIGHT / 2),10) + 'px'});
         }
 

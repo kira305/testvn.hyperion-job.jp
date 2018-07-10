@@ -1,9 +1,8 @@
 <?php
-
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -22,6 +21,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// {{{ requires
 require_once CLASS_EX_REALDIR . 'page_extends/mypage/LC_Page_AbstractMypage_Ex.php';
 
 /**
@@ -29,29 +29,34 @@ require_once CLASS_EX_REALDIR . 'page_extends/mypage/LC_Page_AbstractMypage_Ex.p
  *
  * @package Page
  * @author LOCKON CO.,LTD.
- * @version $Id$
+ * @version $Id: LC_Page_Mypage.php 21951 2012-07-02 12:04:24Z pineray $
  */
-class LC_Page_Mypage extends LC_Page_AbstractMypage_Ex {
+class LC_Page_MyPage extends LC_Page_AbstractMypage_Ex {
+
+    // {{{ properties
 
     /** ページナンバー */
-    public $tpl_pageno;
+    var $tpl_pageno;
+
+    // }}}
+    // {{{ functions
 
     /**
      * Page を初期化する.
      *
      * @return void
      */
-    public function init() {
+    function init() {
         parent::init();
         $this->tpl_mypageno = 'index';
         if (SC_Display_Ex::detectDevice() === DEVICE_TYPE_MOBILE) {
             $this->tpl_subtitle = 'MYページ';
         } else {
-            $this->tpl_subtitle = '購入履歴一覧';
+            $this->tpl_subtitle = '応募履歴一覧';
         }
         $masterData = new SC_DB_MasterData_Ex();
         $this->arrCustomerOrderStatus = $masterData->getMasterData('mtb_customer_order_status');
-
+        
         $this->httpCacheControl('nocache');
     }
 
@@ -60,7 +65,7 @@ class LC_Page_Mypage extends LC_Page_AbstractMypage_Ex {
      *
      * @return void
      */
-    public function process() {
+    function process() {
         parent::process();
     }
 
@@ -69,16 +74,19 @@ class LC_Page_Mypage extends LC_Page_AbstractMypage_Ex {
      *
      * @return void
      */
-    public function action() {
-        //決済処理中ステータスのロールバック
-        $objPurchase = new SC_Helper_Purchase_Ex();
-        $objPurchase->cancelPendingOrder(PENDING_ORDER_CANCEL_FLAG);
+    function action() {
 
         $objCustomer = new SC_Customer_Ex();
-        $customer_id = $objCustomer->getValue('customer_id');
+        $customer_id = $objCustomer->getvalue('customer_id');
 
         //ページ送り用
-        $this->objNavi = new SC_PageNavi_Ex($_REQUEST['pageno'], $this->lfGetOrderHistory($customer_id), SEARCH_PMAX, 'eccube.movePage', NAVI_PMAX, 'pageno=#page#', SC_Display_Ex::detectDevice() !== DEVICE_TYPE_MOBILE);
+        $this->objNavi = new SC_PageNavi_Ex($_REQUEST['pageno'],
+                                            $this->lfGetOrderHistory($customer_id),
+                                            SEARCH_PMAX,
+                                            'fnNaviPage',
+                                            NAVI_PMAX,
+                                            'pageno=#page#',
+                                            SC_Display_Ex::detectDevice() !== DEVICE_TYPE_MOBILE);
 
         $this->arrOrder = $this->lfGetOrderHistory($customer_id, $this->objNavi->start_row);
 
@@ -91,30 +99,38 @@ class LC_Page_Mypage extends LC_Page_AbstractMypage_Ex {
                 break;
         }
         // 支払い方法の取得
-        $this->arrPayment = SC_Helper_Payment_Ex::getIDValueList();
+        $this->arrPayment = SC_Helper_DB_Ex::sfGetIDValueList('dtb_payment', 'payment_id', 'payment_method');
         // 1ページあたりの件数
         $this->dispNumber = SEARCH_PMAX;
+        
+        
+    }
 
-        $this->json_payment = SC_Utils::jsonEncode($this->arrPayment);
-        $this->json_customer_order_status = SC_Utils::jsonEncode($this->arrCustomerOrderStatus);
+    /**
+     * デストラクタ.
+     *
+     * @return void
+     */
+    function destroy() {
+        parent::destroy();
     }
 
     /**
      * 受注履歴を返す
      *
      * @param mixed $customer_id
-     * @param integer $startno     0以上の場合は受注履歴を返却する -1の場合は件数を返す
+     * @param mixed $startno 0以上の場合は受注履歴を返却する -1の場合は件数を返す
      * @access private
      * @return void
      */
-    public function lfGetOrderHistory($customer_id, $startno = -1) {
-        $objQuery = SC_Query_Ex::getSingletonInstance();
+    function lfGetOrderHistory($customer_id, $startno = -1) {
+        $objQuery   = SC_Query_Ex::getSingletonInstance();
 
-        $col = 'order_id, create_date, payment_id, payment_total, status';
-        $from = 'dtb_order';
-        $where = 'del_flg = 0 AND customer_id = ?';
+        $col        = 'order_id, create_date, payment_id, payment_total, status';
+        $from       = 'dtb_order';
+        $where      = 'del_flg = 0 AND customer_id = ?';
         $arrWhereVal = array($customer_id);
-        $order = 'order_id DESC';
+        $order      = 'order_id DESC';
 
         if ($startno == -1) {
             return $objQuery->count($from, $where, $arrWhereVal);
@@ -127,5 +143,4 @@ class LC_Page_Mypage extends LC_Page_AbstractMypage_Ex {
         //購入履歴の取得
         return $objQuery->select($col, $from, $where, $arrWhereVal);
     }
-
 }

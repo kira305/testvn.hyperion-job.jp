@@ -1,0 +1,1 @@
+<div id="link_navigation"><p><a href="<!--{$smarty.const.TOP_URLPATH}-->" title="トップ">トップページ</a>&nbsp;&gt;&nbsp;<a href="<!--{$smarty.const.TOP_URLPATH}-->mypage/index.php" title="会員ページ">会員ページ</a>&nbsp;&gt;&nbsp;<em>退会手続き</em></p></div></div>

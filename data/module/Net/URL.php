@@ -32,7 +32,7 @@
 // | Author: Richard Heyes <richard at php net>                            |
 // +-----------------------------------------------------------------------+
 //
-// $Id$
+// $Id: URL.php 21237 2011-09-09 06:29:59Z Seasoft $
 //
 // Net_URL Class
 

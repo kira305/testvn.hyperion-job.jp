@@ -1,7 +1,7 @@
 <!--{*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -20,52 +20,83 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *}-->
 
- <script type="text/javascript">//<![CDATA[
-    $(function(){
-        $('.finishOrder').click(function(){
-            $.colorbox({href:"<!--{$smarty.const.ROOT_URLPATH}--><!--{$smarty.const.USER_DIR}-->apply_popup.php", iframe:true, fastIframe:false, width:"600px", height:"360px", transition:"fade", scrolling:false});
-        });
-    });
-//]]></script>
-
 <div id="undercolumn">
     <div id="undercolumn_entry">
-        <h2 class="title">Đăng ký thành viên(Hoàn thành)</h2>
+        <h2 class="title"><!--{$tpl_title|h}--></h2>
         <div id="complete_area">
-            <p class="message">Đăng ký thành công</p>
-            <p>●　Những đối tượng tìm việc làm thêm có thể ứng tuyển ngay<br />
-              ●　Những đối tượng tìm việc làm chính thức sau khi hoàn tất hồ sơ hoặc upload hồ sơ mới có thể ứng tuyển<br />
-              ●　Sau khi đăng ký vẫn có thể chỉnh sửa thông tin</p>
+            <p class="message">お申込みありがとうございます。<br />
+                会員登録が完了いたしました。</p>
 
-            <br />
-            <form name="form1" id="form1" method="post" action="/user_data/apply.php">
-                <input type="hidden" name="<!--{$smarty.const.TRANSACTION_ID_NAME}-->" value="<!--{$transactionid}-->" />
-                <input type="hidden" name="mode" value="finish" />
-                <div class="btn_area">
-                    <ul>
-                        <li>
-                            <a href="/entry/cv.php" class="bttn">Tạo hồ sơ trực tuyến</a>
-                        </li>
-                        <li>
-                            <a href="/entry/cv_upload.php" class="bttn">Tải hồ sơ đính kèm</a>
-                        </li>
-                        <!--{if $applyProductId > 0}-->
-                            <!--{if $applyProductEmploymentStatus > 1}-->
-                            <li>
-                                <a href="#" class="bttn finishOrder">Hoàn thành</a>
-                            </li>
-                            <!--{/if}-->
-                            <li>
-                                <a href="<!--{$smarty.const.P_DETAIL_URLPATH}--><!--{$applyProductId|u}-->" class="bttn">Đến trang chi tiết công việc</a>
-                            </li>
-                        <!--{else}-->
-                            <li>
-                                <a href="<!--{$smarty.const.ROOT_URLPATH}-->products/list.php" class="bttn">Đến trang danh sách công việc</a>
-                            </li>
-                        <!--{/if}-->
-                    </ul>
-                </div>
-            </form>
+           <div class="shop_information">
+                <p class="name"><!--{$arrSiteInfo.shop_name|h}--></p>
+                <p>TEL：<!--{$arrSiteInfo.tel01}-->-<!--{$arrSiteInfo.tel02}-->-<!--{$arrSiteInfo.tel03}--> <!--{if $arrSiteInfo.business_hour != ""}-->（受付時間/<!--{$arrSiteInfo.business_hour}-->）<!--{/if}--><br />
+                    E-mall：<a href="mailto:<!--{$arrSiteInfo.email02|escape:'hex'}-->"><!--{$arrSiteInfo.email02|escape:'hexentity'}--></a></p>
+            </div>
+
+            <div class="btn_area">
+                <ul>
+                    <li>
+                        <a href="<!--{$smarty.const.TOP_URLPATH}-->" onmouseover="chgImg('<!--{$TPL_URLPATH}-->img/button/btn_toppage_on.jpg','b_toppage');" onmouseout="chgImg('<!--{$TPL_URLPATH}-->img/button/btn_toppage.jpg','b_toppage');"><img src="<!--{$TPL_URLPATH}-->img/button/btn_toppage.jpg" alt="トップページへ" border="0" name="b_toppage" /></a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Google Code for 01&#20250;&#21729;&#30331;&#37682; Conversion Page -->
+<script type="text/javascript">
+/* <![CDATA[ */
+var google_conversion_id = 997306763;
+var google_conversion_language = "en";
+var google_conversion_format = "2";
+var google_conversion_color = "ffffff";
+var google_conversion_label = "83BlCOXwlwQQi-PG2wM";
+var google_conversion_value = 0;
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.googleadservices.com/pagead/conversion.js">
+</script>
+<noscript>
+<div style="display:inline;">
+<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/997306763/?value=0&amp;label=83BlCOXwlwQQi-PG2wM&amp;guid=ON&amp;script=0"/>
+</div>
+</noscript>
+
+<!--会員登録完了計測（thanksページ）用
+/* SiteCatalyst code version: H.21.
+Copyright 1996-2010 Adobe, Inc. All Rights Reserved
+More info available at http://www.omniture.com */-->
+<script language="JavaScript" type="text/javascript" src="https://pharmapremium.jp/s_code.js"></script>
+<script language="JavaScript" type="text/javascript"><!--
+/* You may give each page an identifying name, server, and channel on
+the next lines. */
+s.events="event2"
+s.products=";send1;1;10000"
+ /* clickPast */
+s.SEMvar = s.getQueryParam('s_kwcid');
+s.SEMvar = s.getValOnce(s.SEMvar,'SEM_var',0);
+s.clickPast(s.SEMvar,'event26','event27');
+/************* DO NOT ALTER ANYTHING BELOW THIS LINE ! **************/
+if(s.SEMvar||s.events){var s_code=s.t();if(s_code)document.write(s_code)}//--></script>
+<!-- End SiteCatalyst code version: H.21. ここまで-->
+
+<!-- リマーケティング タグの Google コード -->
+<!--------------------------------------------------
+リマーケティング タグは、個人を特定できる情報と関連付けることも、デリケートなカテゴリに属するページに設置することも許可されません。タグの設定方法については、こちらのページをご覧ください。
+http://google.com/ads/remarketingsetup
+--------------------------------------------------->
+<script type="text/javascript">
+/* <![CDATA[ */
+var google_conversion_id = 997306763;
+var google_custom_params = window.google_tag_params;
+var google_remarketing_only = true;
+/* ]]> */
+</script>
+<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">
+</script>
+<noscript>
+<div style="display:inline;">
+<img height="1" width="1" style="border-style:none;" alt="" src="//googleads.g.doubleclick.net/pagead/viewthroughconversion/997306763/?value=0&amp;guid=ON&amp;script=0"/>
+</div>
+</noscript>

@@ -1,7 +1,7 @@
 <!--{*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -21,22 +21,49 @@
  *}-->
 
 <div id="undercolumn">
-    <h2 class="title">Liên hệ</h2>
-    <div id="undercolumn_contact">
-        <div id="complete_area">
-            <p class="message">Câu hỏi của bạn đã được gửi đi.</p>
-            <p>
-                Trường hợp không nhận được email trả lời vui lòng nhập lại câu hỏi một lần nữa, hoặc liên hệ trực tiếp qua điện thoại.<br />
-                Cám ơn bạn đã tin tưởng sử dụng dịch vụ của chúng tôi.
-            </p>
+        
+    <h2 class="contact">お問い合わせ <span>完了</span></h2>
 
-            <div class="btn_area">
-                <ul>
-                <li>
-                    <a href="<!--{$smarty.const.TOP_URL}-->" class="bttn">Lên đầu trang</a>
-                </li>
-                </ul>
-            </div>
+    <div id="undercolumn_contact">
+        
+        <div class="caption_text">
+        
+        <p><em>万一、ご回答メールが届かない場合は、トラブルの可能性もありますので<br />
+        大変お手数ではございますがもう一度お問い合わせいただくか、お電話にてお問い合わせください。<br />
+        今後ともご愛顧賜りますようよろしくお願い申し上げます。</em></p>
+        <p class="name"><!--{$arrSiteInfo.company_name|h}-->            </p>
+        <p>TEL：<!--{$arrSiteInfo.tel01}-->-<!--{$arrSiteInfo.tel02}-->-<!--{$arrSiteInfo.tel03}-->
+                <!--{if $arrSiteInfo.business_hour != ""}-->
+                (受付時間/<!--{$arrSiteInfo.business_hour}-->)
+                <!--{/if}--><br />
+            E-mail：<a href="mailto:<!--{$arrSiteInfo.email02|escape:'hex'}-->"><!--{$arrSiteInfo.email02|escape:'hexentity'}--></a></p>
         </div>
+
+        <div class="clearfix em3"></div>
+    
+             <button class="icon-btn icon-btn-mail-back" type="submit" onclick="location.href='<!--{$smarty.const.TOP_URLPATH}-->'">
+                <span class="icon-btn-text">トップページへ戻る</span>
+             </button>
     </div>
 </div>
+
+<!-- リマーケティング タグの Google コード -->
+<!--------------------------------------------------
+リマーケティング タグは、個人を特定できる情報と関連付けることも、デリケートなカテゴリに属するページに設置することも許可されません。タグの設定方法については、こちらのページをご覧ください。
+http://google.com/ads/remarketingsetup
+--------------------------------------------------->
+<script type="text/javascript">
+/* <![CDATA[ */
+var google_conversion_id = 997306763;
+var google_custom_params = window.google_tag_params;
+var google_remarketing_only = true;
+/* ]]> */
+</script>
+<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">
+</script>
+<noscript>
+<div style="display:inline;">
+<img height="1" width="1" style="border-style:none;" alt="" src="//googleads.g.doubleclick.net/pagead/viewthroughconversion/997306763/?value=0&amp;guid=ON&amp;script=0"/>
+</div>
+</noscript>
+

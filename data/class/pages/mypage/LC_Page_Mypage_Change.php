@@ -2,7 +2,7 @@
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -21,6 +21,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// {{{ requires
 require_once CLASS_EX_REALDIR . 'page_extends/mypage/LC_Page_AbstractMypage_Ex.php';
 
 /**
@@ -28,29 +29,34 @@ require_once CLASS_EX_REALDIR . 'page_extends/mypage/LC_Page_AbstractMypage_Ex.p
  *
  * @package Page
  * @author LOCKON CO.,LTD.
- * @version $Id$
+ * @version $Id: LC_Page_Mypage_Change.php 21883 2012-06-02 14:43:27Z Yammy $
  */
-class LC_Page_Mypage_Change extends LC_Page_AbstractMypage_Ex
-{
+class LC_Page_Mypage_Change extends LC_Page_AbstractMypage_Ex {
+
+    // }}}
+    // {{{ functions
+
     /**
      * Page を初期化する.
      *
      * @return void
      */
-    public function init()
-    {
+    function init() {
         parent::init();
-        $this->tpl_subtitle = 'Chỉnh sửa nội dung đăng ký thành viên (trang nhập thông tin)';
+        $this->tpl_subtitle = '会員内容変更（入力ページ）';
         $this->tpl_mypageno = 'change';
 
         $masterData         = new SC_DB_MasterData_Ex();
+        $this->arrReminder  = $masterData->getMasterData('mtb_reminder');
+        $this->arrPref      = $masterData->getMasterData('mtb_pref');
+        $this->arrJob       = $masterData->getMasterData('mtb_job');
+        $this->arrEMPSTATUS       = $masterData->getMasterData('mtb_employment_status');
         $this->arrMAILMAGATYPE = $masterData->getMasterData('mtb_mail_magazine_type');
         $this->arrSex       = $masterData->getMasterData('mtb_sex');
-        $this->arrReminder = $masterData->getMasterData('mtb_reminder');
         $this->httpCacheControl('nocache');
 
         // 生年月日選択肢の取得
-        $objDate            = new SC_Date_Ex(BIRTH_YEAR, date('Y', strtotime('now')));
+        $objDate            = new SC_Date_Ex(BIRTH_YEAR, date('Y',strtotime('now')));
         $this->arrYear      = $objDate->getYear('', START_BIRTH_YEAR, '');
         $this->arrMonth     = $objDate->getMonth(true);
         $this->arrDay       = $objDate->getDay(true);
@@ -61,8 +67,7 @@ class LC_Page_Mypage_Change extends LC_Page_AbstractMypage_Ex
      *
      * @return void
      */
-    public function process()
-    {
+    function process() {
         parent::process();
     }
 
@@ -70,38 +75,67 @@ class LC_Page_Mypage_Change extends LC_Page_AbstractMypage_Ex
      * Page のプロセス
      * @return void
      */
-    public function action()
-    {
+    function action() {
+
         $objCustomer = new SC_Customer_Ex();
         $customer_id = $objCustomer->getValue('customer_id');
 
         // mobile用（戻るボタンでの遷移かどうかを判定）
         if (!empty($_POST['return'])) {
-            $_REQUEST['mode'] = 'return';
+            $_POST['mode'] = 'return';
         }
 
         // パラメーター管理クラス,パラメーター情報の初期化
         $objFormParam = new SC_FormParam_Ex();
-        SC_Helper_Customer_Ex::sfCustomerEntryParam($objFormParam);
+        SC_Helper_Customer_Ex::sfCustomerMypageParam($objFormParam);
         $objFormParam->setParam($_POST);    // POST値の取得
 
         switch ($this->getMode()) {
             // 確認
             case 'confirm':
+                if (isset($_POST['submit_address'])) {
+                    // 入力エラーチェック
+                    $this->arrErr = $this->lfCheckError($_POST);
+                    // 入力エラーの場合は終了
+                    if (count($this->arrErr) == 0) {
+                        // 郵便番号検索文作成
+                        $zipcode = $_POST['zip01'] . $_POST['zip02'];
+
+                        // 郵便番号検索
+                        $arrAdsList = SC_Utils_Ex::sfGetAddress($zipcode);
+
+                        // 郵便番号が発見された場合
+                        if (!empty($arrAdsList)) {
+                            $data['pref'] = $arrAdsList[0]['state'];
+                            $data['addr01'] = $arrAdsList[0]['city']. $arrAdsList[0]['town'];
+                            $objFormParam->setParam($data);
+
+                        }
+                        // 該当無し
+                        else {
+                            $this->arrErr['zip01'] = '※該当する住所が見つかりませんでした。<br>';
+                        }
+                    }
+                    $this->arrForm  = $objFormParam->getHashArray();
+                    break;
+                }
                 $this->arrErr = SC_Helper_Customer_Ex::sfCustomerMypageErrorCheck($objFormParam);
+                $this->arrForm = $objFormParam->getHashArray();
 
                 // 入力エラーなし
                 if (empty($this->arrErr)) {
                     //パスワード表示
-                    $this->passlen      = SC_Utils_Ex::sfPassLen(strlen($objFormParam->getValue('password')));
+                    $this->passlen      = SC_Utils_Ex::sfPassLen(strlen($this->arrForm['password']));
 
                     $this->tpl_mainpage = 'mypage/change_confirm.tpl';
-                    $this->tpl_subtitle = 'Chỉnh sửa nội dung đăng ký thành viên (trang xác nhận)';
+                    $this->tpl_title    = 'MYページ';
+                    $this->tpl_subtitle = '会員内容変更（確認ページ）';
                 }
                 break;
             // 会員登録と完了画面
             case 'complete':
                 $this->arrErr = SC_Helper_Customer_Ex::sfCustomerMypageErrorCheck($objFormParam);
+                $this->arrForm = $objFormParam->getHashArray();
 
                 // 入力エラーなし
                 if (empty($this->arrErr)) {
@@ -111,40 +145,88 @@ class LC_Page_Mypage_Change extends LC_Page_AbstractMypage_Ex
                     //セッション情報を最新の状態に更新する
                     $objCustomer->updateSession();
 
+
                     // 完了ページに移動させる。
                     SC_Response_Ex::sendRedirect('change_complete.php');
                 }
                 break;
             // 確認ページからの戻り
             case 'return':
-                // quiet.
-                break;
-            case 'edit':
-                $objFormParam->setParam(SC_Helper_Customer_Ex::sfGetCustomerData($customer_id));
+                $this->arrForm = $objFormParam->getHashArray();
                 break;
             default:
-                $this->tpl_subtitle = 'Trang cá nhân';
-                $objFormParam->setParam(SC_Helper_Customer_Ex::sfGetCustomerData($customer_id));
-                $this->passlen      = SC_Utils_Ex::sfPassLen(strlen($objFormParam->getValue('password')));
+                $this->arrForm = SC_Helper_Customer_Ex::sfGetCustomerData($customer_id);
                 break;
         }
-        $this->arrForm = $objFormParam->getFormParamList();
+
+    }
+
+    /**
+     * デストラクタ.
+     *
+     * @return void
+     */
+    function destroy() {
+        parent::destroy();
     }
 
     /**
      *  会員情報を登録する
      *
-     * @param SC_FormParam $objFormParam
+     * @param mixed $objFormParam
      * @param mixed $customer_id
      * @access private
      * @return void
      */
-    public function lfRegistCustomerData(&$objFormParam, $customer_id)
-    {
+    function lfRegistCustomerData(&$objFormParam, $customer_id) {
         $arrRet             = $objFormParam->getHashArray();
         $sqlval             = $objFormParam->getDbArray();
         $sqlval['birth']    = SC_Utils_Ex::sfGetTimestamp($arrRet['year'], $arrRet['month'], $arrRet['day']);
 
         SC_Helper_Customer_Ex::sfEditCustomerData($sqlval, $customer_id);
+    }
+
+    /**
+     * 入力エラーのチェック.
+     *
+     * @param array $arrRequest リクエスト値($_GET)
+     * @return array $arrErr エラーメッセージ配列
+     */
+    function lfCheckError($arrRequest) {
+        // パラメーター管理クラス
+        $objFormParam = new SC_FormParam_Ex();
+        // パラメーター情報の初期化
+        $objFormParam->addParam('郵便番号1', 'zip01', ZIP01_LEN, 'n', array('EXIST_CHECK', 'NUM_COUNT_CHECK', 'NUM_CHECK'));
+        $objFormParam->addParam('郵便番号2', 'zip02', ZIP02_LEN, 'n', array('EXIST_CHECK', 'NUM_COUNT_CHECK', 'NUM_CHECK'));
+        // // リクエスト値をセット
+        $arrData['zip01'] = $arrRequest['zip01'];
+        $arrData['zip02'] = $arrRequest['zip02'];
+        $objFormParam->setParam($arrData);
+        // エラーチェック
+        $arrErr = $objFormParam->checkError();
+        // 親ウィンドウの戻り値を格納するinputタグのnameのエラーチェック
+        if (!$this->lfInputNameCheck($addData['zip01'])) {
+            $arrErr['zip01'] = '※ 入力形式が不正です。<br />';
+        }
+        if (!$this->lfInputNameCheck($arrdata['zip02'])) {
+            $arrErr['zip02'] = '※ 入力形式が不正です。<br />';
+        }
+
+        return $arrErr;
+    }
+
+    /**
+     * エラーチェック.
+     *
+     * @param string $value
+     * @return エラーなし：true エラー：false
+     */
+    function lfInputNameCheck($value) {
+        // 半角英数字と_（アンダーバー）, []以外の文字を使用していたらエラー
+        if (strlen($value) > 0 && !preg_match("/^[a-zA-Z0-9_\[\]]+$/", $value)) {
+            return false;
+        }
+
+        return true;
     }
 }

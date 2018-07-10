@@ -30,28 +30,41 @@ require_once CLASS_EX_REALDIR . 'page_extends/admin/LC_Page_Admin_Ex.php';
  *
  * @package Page
  * @author LOCKON CO.,LTD.
- * @version $Id$
+ * @version $Id: LC_Page_Admin_Customer.php 21867 2012-05-30 07:37:01Z nakanishi $
  */
 class LC_Page_Admin_Customer_ClientSearch extends LC_Page_Admin_Ex {
+    // }}}
+    // {{{ functions
 
     /**
      * Page を初期化する.
      *
      * @return void
      */
-    public function init() {
+    function init() {
         parent::init();
-        $this->tpl_mainpage = 'customer/client_search.tpl';
+        $this->tpl_mainpage = 'customer/clientsearch.tpl';
         $this->tpl_mainno = 'customer';
-        $this->tpl_subno = 'client_search';
+        $this->tpl_subno = 'index';
         $this->tpl_pager = 'pager.tpl';
         $this->tpl_maintitle = '会員管理';
-        $this->tpl_subtitle = '取引先マスター';
+        $this->tpl_subtitle = '薬局マスター';
 
         $masterData = new SC_DB_MasterData_Ex();
         $this->arrPref = $masterData->getMasterData('mtb_pref', array("pref_id", "pref_name", "rank"));
         $this->arrPageMax = $masterData->getMasterData('mtb_page_max');
-        $this->arrEmploymentStatus = $masterData->getMasterData('mtb_employment_status');
+
+        $objDate = new SC_Date_Ex();
+        $objDate->setStartYear(RELEASE_YEAR);
+        $objDate->setEndYear(DATE('Y'));
+        $this->arrBirthYear = $objDate->getYear();
+        $this->arrMonth = $objDate->getMonth();
+        $this->arrDay = $objDate->getDay();
+        
+        $objQuery = & SC_Query_Ex::getSingletonInstance();
+        $agencyList = $objQuery->select('agency_id, agency_name', 'dtb_agency', 'del_flg = 0');
+        foreach ($agencyList as $agenc)
+            $this->agencyList[$agenc['agency_id']] = $agenc['agency_name'];
 
         $this->httpCacheControl('nocache');
     }
@@ -61,7 +74,7 @@ class LC_Page_Admin_Customer_ClientSearch extends LC_Page_Admin_Ex {
      *
      * @return void
      */
-    public function process() {
+    function process() {
         $this->action();
         $this->sendResponse();
     }
@@ -71,7 +84,7 @@ class LC_Page_Admin_Customer_ClientSearch extends LC_Page_Admin_Ex {
      *
      * @return void
      */
-    public function action() {
+    function action() {
 
         // パラメーター管理クラス
         $objFormParam = new SC_FormParam_Ex();
@@ -85,7 +98,7 @@ class LC_Page_Admin_Customer_ClientSearch extends LC_Page_Admin_Ex {
         $this->arrHidden = $objFormParam->getSearchArray();
 
         // 入力パラメーターチェック
-        $this->arrErr = $objFormParam->checkError();
+        $this->arrErr = $this->lfCheckError($objFormParam);
         if (!SC_Utils_Ex::isBlank($this->arrErr)) {
             return;
         }
@@ -96,7 +109,7 @@ class LC_Page_Admin_Customer_ClientSearch extends LC_Page_Admin_Ex {
          * -------------------------- */
         switch ($this->getMode()) {
             case 'delete':
-                $this->is_delete = $this->lfDoDeleteClient($objFormParam->getValue('edit_client_id'));
+                $this->is_delete = $this->lfDoDeleteCorporate($objFormParam->getValue('edit_corporate_id'));
                 list($this->tpl_linemax, $this->arrData, $this->objNavi) = $this->lfDoSearch($objFormParam->getHashArray());
                 $this->arrPagenavi = $this->objNavi->arrPagenavi;
                 break;
@@ -104,66 +117,165 @@ class LC_Page_Admin_Customer_ClientSearch extends LC_Page_Admin_Ex {
                 list($this->tpl_linemax, $this->arrData, $this->objNavi) = $this->lfDoSearch($objFormParam->getHashArray());
                 $this->arrPagenavi = $this->objNavi->arrPagenavi;
                 break;
+            case 'csv':
+                $objFormParam->trimParam();
+                list($where, $arrval) = $this->buildQuery($objFormParam->getHashArray());
+                $objCSV = new SC_Helper_CSV_Ex();
+                $order = 'create_date DESC';
+                $objCSV->sfDownloadCsv(6, ' where ' . $where, $arrval, $order, true);
+                SC_Response_Ex::actionExit();
+                break;
             default:
                 break;
         }
     }
 
-    public function lfInitParam(&$objFormParam) {
-        $objFormParam->addParam('取引先ID', 'search_client_id', ID_MAX_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('取引先名', 'search_name', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('代表者名', 'search_owner_name', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('担当者', 'search_hr_charger_name', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('TEL', 'search_tel', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('雇用形態', 'search_employment_status', INT_LEN, 'n', array('MAX_LENGTH_CHECK'));
+    /**
+     * デストラクタ.
+     *
+     * @return void
+     */
+    function destroy() {
+        parent::destroy();
+    }
+
+    function lfInitParam(&$objFormParam) {
+        $objFormParam->addParam('会社ID', 'search_agency_id', ID_MAX_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('登録日', 'search_b_start_year', 4, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('登録日', 'search_b_start_month', 2, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('登録日', 'search_b_start_day', 2, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('登録日', 'search_b_end_year', 4, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('登録日', 'search_b_end_month', 2, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('登録日', 'search_b_end_day', 2, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('会社名', 'search_agency_name', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('薬局名', 'search_pharmacy_name', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('薬局担当者名', 'search_name', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('薬局担当者名（カナ）', 'search_kana', STEXT_LEN, 'CKV', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK', 'KANABLANK_CHECK'));
+        $objFormParam->addParam('郵便番号', 'search_zip', TEL_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('住所', 'search_pref', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('住所', 'search_addr', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('電話番号', 'search_tel', TEL_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('FAX番号', 'search_fax', TEL_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('メールアドレス', 'search_email', MTEXT_LEN, 'a', array('SPTAB_CHECK', 'EMAIL_CHAR_CHECK', 'MAX_LENGTH_CHECK'));
+
+        /*
+          $objFormParam->addParam('店舗数', 'search_num_of_stores', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+          $objFormParam->addParam('薬歴', 'search_medication_his', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+          $objFormParam->addParam('薬剤師数', 'search_num_of_pharmacists', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+          $objFormParam->addParam('事務スタッフ', 'search_o_staff', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+          $objFormParam->addParam('メイン処方箋発行機関', 'search_main_authority', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+          $objFormParam->addParam('科目', 'search_kamoku', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+          $objFormParam->addParam('勤務時間1', 'search_work_hour_s', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+          $objFormParam->addParam('勤務時間2', 'search_work_hour_o', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+          $objFormParam->addParam('休憩室', 'search_b_room', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+          $objFormParam->addParam('休憩時間1', 'search_b_time_s', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+          $objFormParam->addParam('休憩時間2', 'search_b_time_o', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+          $objFormParam->addParam('最寄駅', 'search_nearest', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+          $objFormParam->addParam('必需品', 'search_necessities', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+          $objFormParam->addParam('周辺環境', 'search_environ', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+          $objFormParam->addParam('特記事項、社内ルール', 'search_notices', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+         */
 
         $objFormParam->addParam('表示件数', 'search_page_max', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'), 1, false);
         $objFormParam->addParam('ページ番号', 'search_pageno', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'), 1, false);
-        $objFormParam->addParam('edit_client_id', 'edit_client_id', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('edit_corporate_id', 'edit_corporate_id', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
     }
 
-    public function lfDoDeleteClient($client_id) {
+    function lfCheckError(&$objFormParam) {
+        $arrErr = $objFormParam->checkError();
+        $objErr = new SC_CheckError_Ex($objFormParam->getHashArray());
+        $objErr->doFunc(array('誕生日(開始日)', 'search_b_start_year', 'search_b_start_month', 'search_b_start_day'), array('CHECK_DATE'));
+        $objErr->doFunc(array('誕生日(終了日)', 'search_b_end_year', 'search_b_end_month', 'search_b_end_day'), array('CHECK_DATE'));
+        $objErr->doFunc(array('誕生日(開始日)', '誕生日(終了日)', 'search_b_start_year', 'search_b_start_month', 'search_b_start_day', 'search_b_end_year', 'search_b_end_month', 'search_b_end_day'), array('CHECK_SET_TERM'));
+        if (!SC_Utils_Ex::isBlank($objErr->arrErr)) {
+            $arrErr = array_merge($arrErr, $objErr->arrErr);
+        }
+        return $arrErr;
+    }
+
+    function lfDoDeleteCorporate($corporate_id) {
         $arrVal['del_flg'] = 1;
         $arrVal['update_date'] = 'Now()';
         $objQuery = & SC_Query_Ex::getSingletonInstance();
-        $objQuery->update('dtb_client', $arrVal, 'client_id = ? ', array($client_id));
+        $objQuery->update('mtb_corporate', $arrVal, 'corporate_id = ? ', array($corporate_id));
         return true;
     }
 
-    public function buildQuery($arrRet) {
+    function buildQuery($arrRet) {
         $where = "del_flg = 0";
         $arrval = array();
-
+        if ($_SESSION['authority'] == 2){
+            $where .= ' AND agency_id = ?';
+            $arrval[] = $_SESSION['agency_id'];
+        }
         foreach ($arrRet as $key => $val) {
             if ($val == "") {
                 continue;
             }
 
             switch ($key) {
-                case 'search_client_id':
-                    $where .= " AND client_id = ?";
+                case 'search_agency_id':
+                    $where .= " AND agency_id = ?";
                     $arrval[] = $val;
                     break;
-                case 'search_name':
-                    $where .= " AND name ILIKE ?";
+                case 'search_b_start_year':
+                    $date = SC_Utils_Ex::sfGetTimestamp($_POST['search_b_start_year'], $_POST['search_b_start_month'], $_POST['search_b_start_day']);
+                    $where.= " AND create_date >= ?";
+                    $arrval[] = $date;
+                    break;
+                case 'search_b_end_year':
+                    $date = SC_Utils_Ex::sfGetTimestamp($_POST['search_b_end_year'], $_POST['search_b_end_month'], $_POST['search_b_end_day'], true);
+                    $where.= " AND create_date <= ?";
+                    $arrval[] = $date;
+                    break;
+                case 'search_agency_name':
+                    $where .= " AND agency_id IN (SELECT agency_id FROM dtb_agency WHERE agency_name ILIKE ?)";
                     $arrval[] = "%$val%";
                     break;
-                case 'search_owner_name':
+                case 'search_pharmacy_name':
+                    $where .= " AND pharmacy_name ILIKE ?";
+                    $arrval[] = "%$val%";
+                    break;
+                case 'search_name':
                     if (DB_TYPE == "pgsql") {
-                        $where .= " AND (owner_name01||owner_name02 ILIKE ? OR owner_name01 ILIKE ? OR owner_name02 ILIKE ?)";
+                        $where .= " AND (charge_firstname||charge_lastname ILIKE ? OR charge_firstname ILIKE ? OR charge_lastname ILIKE ?)";
                     } elseif (DB_TYPE == "mysql") {
-                        $where .= " AND (concat(owner_name01,owner_name02) ILIKE ? OR owner_name01 ILIKE ? OR owner_name02 ILIKE ?)";
+                        $where .= " AND (concat(charge_firstname,charge_lastname) ILIKE ? OR charge_firstname ILIKE ? OR charge_lastname ILIKE ?)";
                     }
                     $nonsp_val = mb_ereg_replace("[ 　]+", "", $val);
                     $arrval[] = "%$val%";
                     $arrval[] = "%$val%";
                     $arrval[] = "%$val%";
                     break;
-                case 'search_hr_charger_name':
+                case 'search_kana':
                     if (DB_TYPE == "pgsql") {
-                        $where .= " AND (hr_charger_name01||hr_charger_name02 ILIKE ? OR hr_charger_name01 ILIKE ? OR hr_charger_name02 ILIKE ?)";
+                        $where .= " AND (charge_firstname_kana||charge_lastname_kana ILIKE ? OR charge_firstname_kana ILIKE ? OR charge_lastname_kana ILIKE ?)";
                     } elseif (DB_TYPE == "mysql") {
-                        $where .= " AND (concat(hr_charger_name01,hr_charger_name02) ILIKE ? OR hr_charger_name01 ILIKE ? OR hr_charger_name02 ILIKE ?)";
+                        $where .= " AND (concat(charge_firstname_kana,charge_lastname_kana) ILIKE ? OR charge_firstname_kana ILIKE ? OR charge_lastname_kana ILIKE ?)";
+                    }
+                    $nonsp_val = mb_ereg_replace("[ 　]+", "", $val);
+                    $arrval[] = "%$val%";
+                    $arrval[] = "%$val%";
+                    $arrval[] = "%$val%";
+                    break;
+                case 'search_zip':
+                    if (DB_TYPE == "pgsql") {
+                        $where .= " AND (zip_code1 || zip_code2) LIKE ?";
+                    } elseif (DB_TYPE == "mysql") {
+                        $where .= " AND concat(zip_code1,zip_code2) LIKE ?";
+                    }
+                    $nonmark_val = ereg_replace("[()-]+", "", $val);
+                    $arrval[] = "%$nonmark_val%";
+                    break;
+                case 'search_pref':
+                    $where .= " AND pref = ?";
+                    $arrval[] = $val;
+                    break;
+                case 'search_addr':
+                    if (DB_TYPE == "pgsql") {
+                        $where .= " AND (addr1||addr2 ILIKE ? OR addr1 ILIKE ? OR addr2 ILIKE ?)";
+                    } elseif (DB_TYPE == "mysql") {
+                        $where .= " AND (concat(addr1,addr2) ILIKE ? OR addr1 ILIKE ? OR addr2 ILIKE ?)";
                     }
                     $nonsp_val = mb_ereg_replace("[ 　]+", "", $val);
                     $arrval[] = "%$val%";
@@ -171,17 +283,26 @@ class LC_Page_Admin_Customer_ClientSearch extends LC_Page_Admin_Ex {
                     $arrval[] = "%$val%";
                     break;
                 case 'search_tel':
-                    $where .= " AND tel ILIKE ?";
-                    $arrval[] = "%$val%";
-                    break;
-                case 'search_employment_status':
-                    $count = count($val);
-                    if ($count >= 1) {
-                        foreach ($val as $v) {
-                            $where .= " AND concat(' ',employment_status,' ') LIKE ?";
-                            $arrval[] = "% $v %";
-                        }
+                    if (DB_TYPE == "pgsql") {
+                        $where .= " AND (tel1 || tel2 || tel3) LIKE ?";
+                    } elseif (DB_TYPE == "mysql") {
+                        $where .= " AND concat(tel1,tel2,tel3) LIKE ?";
                     }
+                    $nonmark_val = ereg_replace("[()-]+", "", $val);
+                    $arrval[] = "%$nonmark_val%";
+                    break;
+                case 'search_fax':
+                    if (DB_TYPE == "pgsql") {
+                        $where .= " AND (fax1 || fax2 || fax3) LIKE ?";
+                    } elseif (DB_TYPE == "mysql") {
+                        $where .= " AND concat(fax1,fax2,fax3) LIKE ?";
+                    }
+                    $nonmark_val = ereg_replace("[()-]+", "", $val);
+                    $arrval[] = "%$nonmark_val%";
+                    break;
+                case 'search_email':
+                    $where .= " AND email_add ILIKE ?";
+                    $arrval[] = "%$val%";
                     break;
                 default:
                     break;
@@ -190,10 +311,10 @@ class LC_Page_Admin_Customer_ClientSearch extends LC_Page_Admin_Ex {
         return array($where, $arrval);
     }
 
-    public function lfDoSearch($arrRet) {
+    function lfDoSearch($arrRet) {
         list($where, $arrval) = $this->buildQuery($arrRet);
         $col = "*";
-        $from = "dtb_client";
+        $from = "mtb_corporate";
         $objQuery = & SC_Query_Ex::getSingletonInstance();
         $linemax = $objQuery->count($from, $where, $arrval);
         if (is_numeric($arrRet['search_page_max']))

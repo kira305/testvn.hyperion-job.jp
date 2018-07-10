@@ -2,9 +2,9 @@
 /*
  *
  * CheckedItems
- * Copyright(c) 2015 DAISY Inc. All Rights Reserved.
+ * Copyright(c) 2012-2014 DELIGHT Inc. All Rights Reserved.
  *
- * http://www.daisy.link/
+ * http://www.delight-web.com/
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,7 +25,7 @@
  * プラグインのメインクラス
  *
  * @package CheckedItems
- * @author DAISY Inc.
+ * @author DELIGHT Inc.
  * @version $Id: $
  */
 class CheckedItems extends SC_Plugin_Base {

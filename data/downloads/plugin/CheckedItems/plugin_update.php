@@ -1,9 +1,9 @@
 <?php
 /*
  * CheckedItems
- * Copyright(c) 2015 DAISY Inc. All Rights Reserved.
+ * Copyright(c) 2012-2014 DELIGHT Inc. All Rights Reserved.
  *
- * http://www.daisy.link/
+ * http://www.delight-web.com/
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,7 +24,7 @@
  * プラグイン のアップデート用クラス.
  *
  * @package CheckedItems
- * @author DAISY Inc.
+ * @author DELIGHT Inc.
  * @version $Id: $
  */
 class plugin_update{
@@ -34,7 +34,6 @@ class plugin_update{
        ,'0.2'=>2
        ,'1.0'=>10
        ,'1.1'=>11
-       ,'1.2'=>12
     );
 
    /**
@@ -75,11 +74,6 @@ class plugin_update{
                 case   10 :
                     copy(DOWNLOADS_TEMP_PLUGIN_UPDATE_DIR . "CheckedItems.php", PLUGIN_UPLOAD_REALDIR . "CheckedItems/CheckedItems.php");
                     copy(DOWNLOADS_TEMP_PLUGIN_UPDATE_DIR . "LC_Page_FrontParts_Bloc_CheckedItems.php", PLUGIN_UPLOAD_REALDIR . "CheckedItems/LC_Page_FrontParts_Bloc_CheckedItems.php");
-                    copy(DOWNLOADS_TEMP_PLUGIN_UPDATE_DIR . "logo.png", PLUGIN_UPLOAD_REALDIR . "CheckedItems/logo.png");
-                    copy(DOWNLOADS_TEMP_PLUGIN_UPDATE_DIR . "logo.png", PLUGIN_HTML_REALDIR . "CheckedItems/logo.png");
-                case   11 :
-                    copy(DOWNLOADS_TEMP_PLUGIN_UPDATE_DIR . "logo.png", PLUGIN_UPLOAD_REALDIR . "CheckedItems/logo.png");
-                    copy(DOWNLOADS_TEMP_PLUGIN_UPDATE_DIR . "logo.png", PLUGIN_HTML_REALDIR . "CheckedItems/logo.png");
                 break;
                 default:
                 break;

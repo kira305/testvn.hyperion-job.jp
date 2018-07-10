@@ -2,7 +2,7 @@
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -24,8 +24,8 @@
 
 <ul class="level1">
     <li id="navi-order-index" class="<!--{if $tpl_mainno == 'order' && $tpl_subno == 'index'}-->on<!--{/if}-->"><a href="<!--{$smarty.const.ROOT_URLPATH}--><!--{$smarty.const.ADMIN_DIR}-->order/<!--{$smarty.const.DIR_INDEX_PATH}-->"><span>受注管理</span></a></li>
-    <li id="navi-order-add" class="<!--{if $tpl_mainno == 'order' && $tpl_subno == 'add'}-->on<!--{/if}-->"><a href="<!--{$smarty.const.ROOT_URLPATH}--><!--{$smarty.const.ADMIN_DIR}-->order/edit.php?mode=add&amp;<!--{$smarty.const.TRANSACTION_ID_NAME}-->=<!--{$transactionid}-->"><span>受注登録</span></a></li>
-    <li id="navi-order-status"
-        class="<!--{if $tpl_mainno == 'order' && $tpl_subno == 'status'}-->on<!--{/if}-->"
-    ><a href="<!--{$smarty.const.ROOT_URLPATH}--><!--{$smarty.const.ADMIN_DIR}-->order/status.php"><span>対応状況管理</span></a></li>
+    <li id="navi-order-add" class="<!--{if $tpl_mainno == 'order' && $tpl_subno == 'add'}-->on<!--{/if}-->"><a href="<!--{$smarty.const.ROOT_URLPATH}--><!--{$smarty.const.ADMIN_DIR}-->order/edit.php?mode=add&<!--{$smarty.const.TRANSACTION_ID_NAME}-->=<!--{$transactionid}-->"><span>受注登録</span></a></li>
+    <li id="navi-order-status" class="<!--{if $tpl_mainno == 'order' && $tpl_subno == 'status'}-->on<!--{/if}-->"><a href="<!--{$smarty.const.ROOT_URLPATH}--><!--{$smarty.const.ADMIN_DIR}-->order/status.php"><span>対応状況管理</span></a></li>
+    <li id="navi-order-work_possible_date" class="<!--{if $tpl_mainno == 'order' && $tpl_subno == 'work_possible_date'}-->on<!--{/if}-->"><a href="<!--{$smarty.const.ROOT_URLPATH}--><!--{$smarty.const.ADMIN_DIR}-->order/work_possible_date.php"><span>就業可能日管理</span></a></li>
+    <li id="navi-order-work_possible_date_edit" class="<!--{if $tpl_mainno == 'order' && $tpl_subno == 'work_possible_date_edit'}-->on<!--{/if}-->"><a href="<!--{$smarty.const.ROOT_URLPATH}--><!--{$smarty.const.ADMIN_DIR}-->order/work_possible_date_edit.php"><span>就業可能日登録</span></a></li>
 </ul>

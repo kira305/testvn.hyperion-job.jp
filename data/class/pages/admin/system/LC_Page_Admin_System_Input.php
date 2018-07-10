@@ -3,7 +3,7 @@
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -22,6 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// {{{ requires
 require_once CLASS_EX_REALDIR . 'page_extends/admin/LC_Page_Admin_Ex.php';
 
 /**
@@ -29,16 +30,18 @@ require_once CLASS_EX_REALDIR . 'page_extends/admin/LC_Page_Admin_Ex.php';
  *
  * @package Page
  * @author LOCKON CO.,LTD.
- * @version $Id$
+ * @version $Id: LC_Page_Admin_System_Input.php 21867 2012-05-30 07:37:01Z nakanishi $
  */
 class LC_Page_Admin_System_Input extends LC_Page_Admin_Ex {
+    // }}}
+    // {{{ functions
 
     /**
      * Page を初期化する.
      *
      * @return void
      */
-    public function init() {
+    function init() {
         parent::init();
 
         $this->tpl_mainpage = 'system/input.tpl';
@@ -46,8 +49,15 @@ class LC_Page_Admin_System_Input extends LC_Page_Admin_Ex {
         // マスターデータから権限配列を取得
         $masterData = new SC_DB_MasterData_Ex();
         $this->arrAUTHORITY = $masterData->getMasterData('mtb_authority');
-        $this->arrWORK = $masterData->getMasterData('mtb_work');
-        $this->arrTarget = $masterData->getMasterData('mtb_object');
+
+        $objQuery = & SC_Query_Ex::getSingletonInstance();
+        $agencyList = $objQuery->select('agency_id, agency_name', 'dtb_agency', 'del_flg = 0');
+        foreach ($agencyList as $agenc)
+            $this->agencyList[$agenc['agency_id']] = $agenc['agency_name'];
+
+        $corporateList = $objQuery->select('agency_id, corporate_id, pharmacy_name', 'mtb_corporate', 'del_flg = 0');
+        foreach ($corporateList as $corporate)
+            $this->corporateList[$corporate['agency_id']][$corporate['corporate_id']] = $corporate['pharmacy_name'];
 
         $this->tpl_subtitle = 'メンバー登録/編集';
         $this->httpCacheControl('nocache');
@@ -58,7 +68,7 @@ class LC_Page_Admin_System_Input extends LC_Page_Admin_Ex {
      *
      * @return void
      */
-    public function process() {
+    function process() {
         $this->action();
         $this->sendResponse();
     }
@@ -68,17 +78,12 @@ class LC_Page_Admin_System_Input extends LC_Page_Admin_Ex {
      *
      * @return void
      */
-    public function action() {
-        $objFormParam = new SC_FormParam_Ex();
-
-        // アップロードファイル情報の初期化
-        $objUpFile = new SC_UploadFile_Ex(IMAGE_TEMP_REALDIR, IMAGE_SAVE_REALDIR);
-        $objUpFile->addFile('写真', 'image', array('jpg', 'gif', 'png'), IMAGE_SIZE, true, LARGE_IMAGE_WIDTH, LARGE_IMAGE_HEIGHT);
-        $objUpFile->setHiddenFileList($_POST);
+    function action() {
 
         // ページ送りの処理 $_REQUEST['pageno']が信頼しうる値かどうかチェックする。
         $this->tpl_pageno = $this->lfCheckPageNo($_REQUEST['pageno']);
 
+        $objFormParam = new SC_FormParam_Ex();
         $arrErr = array();
         $arrForm = array();
 
@@ -88,17 +93,15 @@ class LC_Page_Admin_System_Input extends LC_Page_Admin_Ex {
                 $this->initForm($objFormParam, $_POST);
 
                 // エラーチェック
-                $arrErr = $this->validateData($objFormParam, $objUpFile, $_POST, $this->getMode());
+                $arrErr = $this->validateData($objFormParam, $_POST, $this->getMode());
                 $this->arrForm = $objFormParam->getHashArray();
-                $this->setUploadFile($objUpFile, $this->arrForm);
 
                 if (SC_Utils_Ex::isBlank($arrErr)) {
-                    $this->insertMemberData($this->arrForm, $objUpFile);
-                    if($this->arrForm['authority'] == 2)
-                        $this->lfSaveUploadFiles($objUpFile);
+
+                    $this->insertMemberData($this->arrForm);
                     // 親ウィンドウを更新後、自ウィンドウを閉じる。
                     $url = ADMIN_SYSTEM_URLPATH . '?pageno=' . $this->arrForm['pageno'];
-                    $this->tpl_onload = "eccube.changeParentUrl('" . $url . "'); window.close();";
+                    $this->tpl_onload = "fnUpdateParent('" . $url . "'); window.close();";
                 } else {
                     // 入力された値を保持する
                     $this->tpl_mode = $this->getMode();
@@ -118,17 +121,15 @@ class LC_Page_Admin_System_Input extends LC_Page_Admin_Ex {
                 $this->initForm($objFormParam, $_POST, $this->getMode());
 
                 // エラーチェック
-                $arrErr = $this->validateData($objFormParam, $objUpFile, $_POST, $this->getMode());
+                $arrErr = $this->validateData($objFormParam, $_POST, $this->getMode());
                 $this->arrForm = $objFormParam->getHashArray();
-                $this->setUploadFile($objUpFile, $this->arrForm);
 
                 if (SC_Utils_Ex::isBlank($arrErr)) {
-                    $this->updateMemberData($this->arrForm['member_id'], $this->arrForm, $objUpFile);
-                    if($this->arrForm['authority'] == 2)
-                        $this->lfSaveUploadFiles($objUpFile);
+
+                    $this->updateMemberData($this->arrForm['member_id'], $this->arrForm);
                     // 親ウィンドウを更新後、自ウィンドウを閉じる。
                     $url = ADMIN_SYSTEM_URLPATH . '?pageno=' . $this->arrForm['pageno'];
-                    $this->tpl_onload = "eccube.changeParentUrl('" . $url . "'); window.close();";
+                    $this->tpl_onload = "fnUpdateParent('" . $url . "'); window.close();";
                 } else {
                     // 入力された値を保持する
                     $this->tpl_mode = $this->getMode();
@@ -141,35 +142,6 @@ class LC_Page_Admin_System_Input extends LC_Page_Admin_Ex {
                     // エラー情報をセットする
                     $this->arrErr = $arrErr;
                 }
-                break;
-
-            // 画像のアップロード
-            case 'upload_image':
-            case 'delete_image':
-                $this->initForm($objFormParam, $_POST);
-                $this->arrForm = $objFormParam->getHashArray();
-
-                switch ($this->getMode()) {
-                    case 'upload_image':
-                        $this->arrErr['image'] = $objUpFile->makeTempFile('image', IMAGE_RENAME);
-                        break;
-                    case 'delete_image':
-                        $this->lfDeleteTempFile($objUpFile, 'image');
-                        break;
-                    default:
-                        break;
-                }
-                $this->setUploadFile($objUpFile, $this->arrForm);
-                
-                // 入力された値を保持する
-                $this->tpl_mode = 'new';
-                if (SC_Utils_Ex::sfIsInt($this->arrForm['member_id']))
-                    $this->tpl_mode = 'edit';
-                $this->tpl_member_id = $this->arrForm['member_id'];
-                $this->tpl_old_login_id = $this->arrForm['old_login_id'];
-
-                // エラー情報をセットする
-                $this->arrErr = $arrErr;
                 break;
 
             default:
@@ -191,13 +163,11 @@ class LC_Page_Admin_System_Input extends LC_Page_Admin_Ex {
                     case 'edit':
                         $this->tpl_mode = $clean_mode_flg;
                         $this->tpl_member_id = $clean_id;
-                        $this->tpl_onfocus = 'eccube.clearValue(this.name);';
-                        $objQuery = & SC_Query_Ex::getSingletonInstance();
-                        $this->arrForm = $objQuery->getRow('*', 'dtb_member', 'member_id = ?', array($clean_id));
+                        $this->tpl_onfocus = 'fnClearText(this.name);';
+                        $this->arrForm = $this->getMemberData($clean_id);
                         $this->arrForm['password'] = DEFAULT_PASSWORD;
                         $this->arrForm['password02'] = DEFAULT_PASSWORD;
                         $this->tpl_old_login_id = $this->arrForm['login_id'];
-                        $this->setUploadFile($objUpFile, $this->arrForm);
                         break;
 
                     case 'new':
@@ -211,58 +181,25 @@ class LC_Page_Admin_System_Input extends LC_Page_Admin_Ex {
         $this->setTemplate($this->tpl_mainpage);
     }
 
-    public function setUploadFile(&$objUpFile, &$arrForm) {
-        $objUpFile->setDBFileList($arrForm);
-        $arrForm['arrHidden'] = $objUpFile->getHiddenFileList();
-        $arrForm['arrFile'] = $objUpFile->getFormFileList(IMAGE_TEMP_URLPATH, IMAGE_SAVE_URLPATH);
-    }
-
-    public function lfDeleteTempFile(&$objUpFile, $image_key) {
-        // TODO: SC_UploadFile::deleteFileの画像削除条件見直し要
-        $arrTempFile = $objUpFile->temp_file;
-        $arrKeyName = $objUpFile->keyname;
-
-        foreach ($arrKeyName as $key => $keyname) {
-            if ($keyname != $image_key)
-                continue;
-
-            if (!empty($arrTempFile[$key])) {
-                $temp_file = $arrTempFile[$key];
-                $arrTempFile[$key] = '';
-
-                if (!in_array($temp_file, $arrTempFile)) {
-                    $objUpFile->deleteFile($image_key);
-                } else {
-                    $objUpFile->temp_file[$key] = '';
-                    $objUpFile->save_file[$key] = '';
-                }
-            } else {
-                $objUpFile->temp_file[$key] = '';
-                $objUpFile->save_file[$key] = '';
-            }
-        }
-    }
-    
-    public function lfSaveUploadFiles(&$objUpFile) {
-        // TODO: SC_UploadFile::moveTempFileの画像削除条件見直し要
-        $objImage = new SC_Image_Ex($objUpFile->temp_dir);
-        $arrTempFile = $objUpFile->temp_file;
-        foreach ($arrTempFile as $temp_file) {
-            if ($temp_file) {
-                $objImage->moveTempImage($temp_file, $objUpFile->save_dir);
-            }
-        }
+    /**
+     * デストラクタ.
+     *
+     * @return void
+     */
+    function destroy() {
+        parent::destroy();
     }
 
     /**
      * フォームパラメーター初期化
      *
-     * @param  SC_FormParam_Ex $objFormParam
-     * @param  array  $arrParams    $_POST値
-     * @param  string $mode         editの時は指定
+     * @param object $objFormParam
+     * @param array  $arrParams $_POST値
+     * @param string $mode editの時は指定
      * @return void
      */
-    public function initForm(&$objFormParam, &$arrParams, $mode = '') {
+    function initForm(&$objFormParam, &$arrParams, $mode = '') {
+
         $objFormParam->addParam('メンバーID', 'member_id', INT_LEN, 'n', array('NUM_CHECK'));
         $objFormParam->addParam('名前', 'name', STEXT_LEN, 'KV', array('EXIST_CHECK', 'MAX_LENGTH_CHECK'));
         $objFormParam->addParam('所属', 'department', STEXT_LEN, 'KV', array('MAX_LENGTH_CHECK'));
@@ -272,22 +209,14 @@ class LC_Page_Admin_System_Input extends LC_Page_Admin_Ex {
             $objFormParam->addParam('パスワード', 'password', '', '', array('EXIST_CHECK'));
             $objFormParam->addParam('パスワード(確認)', 'password02', '', '', array('EXIST_CHECK'));
         } else {
-            $objFormParam->addParam('パスワード', 'password', '', '', array('EXIST_CHECK', 'GRAPH_CHECK'));
-            $objFormParam->addParam('パスワード(確認)', 'password02', '', '', array('EXIST_CHECK', 'GRAPH_CHECK'));
+            $objFormParam->addParam('パスワード', 'password', '', '', array('EXIST_CHECK', 'ALNUM_CHECK'));
+            $objFormParam->addParam('パスワード(確認)', 'password02', '', '', array('EXIST_CHECK', 'ALNUM_CHECK'));
         }
         $objFormParam->addParam('権限', 'authority', INT_LEN, '', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('会社名', 'agency_id', INT_LEN, '', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('薬局名', 'corporate_id', INT_LEN, '', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
         $objFormParam->addParam('稼働/非稼働', 'work', INT_LEN, '', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
         $objFormParam->addParam('ページ', 'pageno', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
-
-        if ($arrParams['authority'] == 2) {
-            $objFormParam->addParam('電話番号', 'tel', STEXT_LEN, 'KV', array('MAX_LENGTH_CHECK'));
-            $objFormParam->addParam('E-mail', 'email', null, 'a', array('NO_SPTAB', 'EMAIL_CHECK', 'SPTAB_CHECK', 'EMAIL_CHAR_CHECK'));
-            $objFormParam->addParam('職場', 'workplace', INT_LEN, '', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
-            $objFormParam->addParam('経歴', 'career', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-            $objFormParam->addParam('メッセージ', 'message', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-            $objFormParam->addParam('save_image', 'save_image', '', '', array());
-            $objFormParam->addParam('temp_image', 'temp_image', '', '', array());
-        }
 
         $objFormParam->setParam($arrParams);
         $objFormParam->convParam();
@@ -297,19 +226,19 @@ class LC_Page_Admin_System_Input extends LC_Page_Admin_Ex {
      * パラメーターの妥当性検証を行う.
      *
      * @param void
-     * @param string|null $mode
-     * @param SC_FormParam_Ex $objFormParam
      * @return array エラー情報の連想配列
      */
-    public function validateData(&$objFormParam, &$objUpFile, &$arrParams, $mode) {
+    function validateData(&$objFormParam, &$arrParams, $mode) {
         $arrErr = $objFormParam->checkError();
-//        if($arrParams['authority'] == 2)
-//            $arrErr = array_merge((array) $arrErr, (array) $objUpFile->checkExists());
         if (isset($arrErr) && count($arrErr) > 0)
             return $arrErr;
 
         // ログインID・パスワードの文字数チェック
         $objErr = new SC_CheckError_Ex();
+        if ($arrParams['authority'] == 2 || $arrParams['authority'] == 3)
+            $objErr->doFunc(array('会社名', 'agency_id'), array('EXIST_CHECK'));
+        if ($arrParams['authority'] == 3)
+            $objErr->doFunc(array('薬局名', 'corporate_id'), array('EXIST_CHECK'));
         if ($mode == 'new') {
             $objErr->doFunc(array('パスワード', 'password', ID_MIN_LEN, ID_MAX_LEN), array('NUM_RANGE_CHECK'));
             $objErr->doFunc(array('ログインID', 'login_id', ID_MIN_LEN, ID_MAX_LEN), array('NUM_RANGE_CHECK'));
@@ -347,19 +276,33 @@ class LC_Page_Admin_System_Input extends LC_Page_Admin_Ex {
     }
 
     /**
+     * DBからmember_idに対応する管理者データを取得する
+     *
+     * @param integer $id メンバーID
+     * @return array 管理者データの連想配列, 無い場合は空の配列を返す
+     */
+    function getMemberData($id) {
+        $table = 'dtb_member';
+        $columns = 'name,department,login_id,authority,agency_id,corporate_id,work';
+        $where = 'member_id = ?';
+
+        $objQuery = & SC_Query_Ex::getSingletonInstance();
+        return $objQuery->getRow($columns, $table, $where, array($id));
+    }
+
+    /**
      *  値が登録済みかどうかを調べる
      *
-     * @param  string  $where WHERE句
-     * @param  string  $val   検索したい値
+     * @param string $where WHERE句
+     * @param string $val 検索したい値
      * @return boolean 登録済みならtrue, 未登録ならfalse
      */
-    public function memberDataExists($where, $val) {
+    function memberDataExists($where, $val) {
         $objQuery = & SC_Query_Ex::getSingletonInstance();
 
         $table = 'dtb_member';
 
         $exists = $objQuery->exists($table, $where, array($val));
-
         return $exists;
     }
 
@@ -370,14 +313,17 @@ class LC_Page_Admin_System_Input extends LC_Page_Admin_Ex {
      * @param  integer $pageno ページの番号
      * @return integer $clean_pageno チェック後のページの番号
      */
-    public function lfCheckPageNo($pageno) {
+    function lfCheckPageNo($pageno) {
+
         $clean_pageno = '';
 
         // $pagenoが0以上の整数かチェック
         if (SC_Utils_Ex::sfIsInt($pageno) && $pageno > 0) {
             $clean_pageno = $pageno;
-            // 例外は全て1とする
-        } else {
+        }
+
+        // 例外は全て1とする
+        else {
             $clean_pageno = 1;
         }
 
@@ -390,25 +336,28 @@ class LC_Page_Admin_System_Input extends LC_Page_Admin_Ex {
      * @param array 管理者データの連想配列
      * @return void
      */
-    public function insertMemberData($arrMemberData, $objUpFile) {
+    function insertMemberData($arrMemberData) {
         $objQuery = & SC_Query_Ex::getSingletonInstance();
-
-        $arrVal = array('name', 'department', 'login_id', 'authority', 'work', 'tel', 'email', 'workplace', 'career', 'message');
 
         // INSERTする値を作成する.
         $salt = SC_Utils_Ex::sfGetRandomString(10);
         $sqlVal = array();
-        foreach ($arrVal as $field)
-            $sqlVal[$field] = $arrMemberData[$field];
+        $sqlVal['name'] = $arrMemberData['name'];
+        $sqlVal['department'] = $arrMemberData['department'];
+        $sqlVal['login_id'] = $arrMemberData['login_id'];
         $sqlVal['password'] = SC_Utils_Ex::sfGetHashString($arrMemberData['password'], $salt);
         $sqlVal['salt'] = $salt;
+        $sqlVal['authority'] = $arrMemberData['authority'];
+        if ($sqlVal['authority'] == 2 || $sqlVal['authority'] == 3)
+            $sqlVal['agency_id'] = $arrMemberData['agency_id'];
+        if ($sqlVal['authority'] == 3)
+            $sqlVal['corporate_id'] = $arrMemberData['corporate_id'];
         $sqlVal['rank'] = $objQuery->max('rank', 'dtb_member') + 1;
+        $sqlVal['work'] = $arrMemberData['work'];
         $sqlVal['del_flg'] = '0'; // 削除フラグをOFFに設定
         $sqlVal['creator_id'] = $_SESSION['member_id'];
         $sqlVal['create_date'] = 'CURRENT_TIMESTAMP';
         $sqlVal['update_date'] = 'CURRENT_TIMESTAMP';
-        $arrRet = $objUpFile->getDBFileList();
-        $sqlVal = array_merge($sqlVal, $arrRet);
 
         // INSERTの実行
         $sqlVal['member_id'] = $objQuery->nextVal('dtb_member_member_id');
@@ -421,23 +370,30 @@ class LC_Page_Admin_System_Input extends LC_Page_Admin_Ex {
      * @param array 管理者データの連想配列
      * @return void
      */
-    public function updateMemberData($member_id, $arrMemberData, $objUpFile) {
+    function updateMemberData($member_id, $arrMemberData) {
         $objQuery = & SC_Query_Ex::getSingletonInstance();
-
-        $arrVal = array('name', 'department', 'login_id', 'authority', 'work', 'tel', 'email', 'workplace', 'career', 'message');
 
         // Updateする値を作成する.
         $sqlVal = array();
-        foreach ($arrVal as $field)
-            $sqlVal[$field] = $arrMemberData[$field];
+        $sqlVal['name'] = $arrMemberData['name'];
+        $sqlVal['department'] = $arrMemberData['department'];
+        $sqlVal['login_id'] = $arrMemberData['login_id'];
+        $sqlVal['authority'] = $arrMemberData['authority'];
+        if ($sqlVal['authority'] == 2 || $sqlVal['authority'] == 3)
+            $sqlVal['agency_id'] = $arrMemberData['agency_id'];
+        else 
+            $sqlVal['agency_id'] = '';
+        if ($sqlVal['authority'] == 3)
+            $sqlVal['corporate_id'] = $arrMemberData['corporate_id'];
+        else
+            $sqlVal['corporate_id'] = '';
+        $sqlVal['work'] = $arrMemberData['work'];
         $sqlVal['update_date'] = 'CURRENT_TIMESTAMP';
         if ($arrMemberData['password'] != DEFAULT_PASSWORD) {
             $salt = SC_Utils_Ex::sfGetRandomString(10);
             $sqlVal['salt'] = $salt;
             $sqlVal['password'] = SC_Utils_Ex::sfGetHashString($arrMemberData['password'], $salt);
         }
-        $arrRet = $objUpFile->getDBFileList();
-        $sqlVal = array_merge($sqlVal, $arrRet);
 
         $where = 'member_id = ?';
 

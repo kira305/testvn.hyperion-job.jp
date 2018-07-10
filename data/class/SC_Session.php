@@ -2,7 +2,7 @@
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -22,29 +22,28 @@
  */
 
 /* セッション管理クラス */
-class SC_Session
-{
+class SC_Session {
+
     /** ログインユーザ名 */
-    public $login_id;
+    var $login_id;
 
     /** ユーザ権限 */
-    public $authority;
+    var $authority;
 
     /** 認証文字列(認証成功の判定に使用) */
-    public $cert;
+    var $cert;
 
     /** セッションID */
-    public $sid;
+    var $sid;
 
     /** ログインユーザの主キー */
-    public $member_id;
+    var $member_id;
 
     /** ページ遷移の正当性チェックに使用 */
-    public $uniqid;
+    var $uniqid;
 
     /* コンストラクタ */
-    public function __construct()
-    {
+    function __construct() {
         // セッション情報の保存
         if (isset($_SESSION['cert'])) {
             $this->sid = session_id();
@@ -65,25 +64,15 @@ class SC_Session
         }
     }
     /* 認証成功の判定 */
-    public function IsSuccess()
-    {
+    function IsSuccess() {
         if ($this->cert == CERT_STRING) {
-            $script_path = realpath($_SERVER['SCRIPT_FILENAME']);
-            $arrScriptPath = explode('/', str_replace('\\', '/', $script_path));
-
             $masterData = new SC_DB_MasterData_Ex();
+            $admin_path = preg_replace('/\/+/', '/', $_SERVER['SCRIPT_NAME']);
             $arrPERMISSION = $masterData->getMasterData('mtb_permission');
-
-            foreach ($arrPERMISSION as $path => $auth) {
-                $permission_path = realpath(HTML_REALDIR . $path);
-                $arrPermissionPath = explode('/', str_replace('\\', '/', $permission_path));
-                $arrDiff = array_diff_assoc($arrScriptPath, $arrPermissionPath);
-                // 一致した場合は、権限チェックを行う
-                if (count($arrDiff) === 0) {
-                    // 数値が自分の権限以上のものでないとアクセスできない。
-                    if ($auth < $this->authority) {
-                        return ACCESS_ERROR;
-                    }
+            if (isset($arrPERMISSION[$admin_path])) {
+                // 数値が自分の権限以上のものでないとアクセスできない。
+                if ($arrPERMISSION[$admin_path] < $this->authority) {
+                    return AUTH_ERROR;
                 }
             }
             return SUCCESS;
@@ -93,52 +82,37 @@ class SC_Session
     }
 
     /* セッションの書き込み */
-
-    /**
-     * @param string $key
-     */
-    public function SetSession($key, $val)
-    {
+    function SetSession($key, $val) {
         $_SESSION[$key] = $val;
     }
 
     /* セッションの読み込み */
-
-    /**
-     * @param string $key
-     */
-    public function GetSession($key)
-    {
+    function GetSession($key) {
         return $_SESSION[$key];
     }
 
     /* セッションIDの取得 */
-    public function GetSID()
-    {
+    function GetSID() {
         return $this->sid;
     }
 
     /** ユニークIDの取得 **/
-    public function getUniqId()
-    {
+    function getUniqId() {
         // ユニークIDがセットされていない場合はセットする。
         if (empty($_SESSION['uniqid'])) {
             $this->setUniqId();
         }
-
         return $this->GetSession('uniqid');
     }
 
     /** ユニークIDのセット **/
-    public function setUniqId()
-    {
+    function setUniqId() {
         // 予測されないようにランダム文字列を付与する。
         $this->SetSession('uniqid', SC_Utils_Ex::sfGetUniqRandomId());
     }
 
     // 関連セッションのみ破棄する。
-    public function logout()
-    {
+    function logout() {
         unset($_SESSION['cert']);
         unset($_SESSION['login_id']);
         unset($_SESSION['authority']);
@@ -148,15 +122,6 @@ class SC_Session
         SC_Helper_Session_Ex::destroyToken();
         // ログに記録する
         GC_Utils_Ex::gfPrintLog('logout : user='.$this->login_id.' auth='.$this->authority.' sid='.$this->sid);
-    }
-
-    /**
-     * セッションIDを新しいIDに書き換える
-     *
-     * @return bool
-     */
-    public function regenerateSID()
-    {
-        return session_regenerate_id(true);
+        GC_Utils_Ex::gfMynumberLog('logout', '');
     }
 }

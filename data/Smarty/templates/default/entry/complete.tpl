@@ -1,7 +1,7 @@
 <!--{*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -22,16 +22,29 @@
 
 <div id="undercolumn">
     <div id="undercolumn_entry">
-        <h2 class="title">Đăng ký thành viên (Hoàn thành)</h2>
+        <h2 class="title"><!--{$tpl_title|h}--></h2>
         <div id="complete_area">
-            <p class="message">Đăng ký thành công</p>
+            <p class="message">会員登録の受付が完了いたしました。</p>
+            <p>現在<span class="attention">仮会員</span>の状態です。<br />
+                ご入力いただいたメールアドレス宛てに、ご連絡が届いておりますので、本会員登録になった上でお買い物をお楽しみください。<br />
+                            </p>
+
+            <div class="shop_information">
+                <p class="name"><!--{$arrSiteInfo.company_name|h}--></p>
+                <p>TEL：<!--{$arrSiteInfo.tel01}-->-<!--{$arrSiteInfo.tel02}-->-<!--{$arrSiteInfo.tel03}-->
+                    <!--{if $arrSiteInfo.business_hour != ""}-->（受付時間/<!--{$arrSiteInfo.business_hour}-->）<!--{/if}--><br />
+                    E-mail：<a href="mailto:<!--{$arrSiteInfo.email02|escape:'hex'}-->"><!--{$arrSiteInfo.email02|escape:'hexentity'}--></a>
+                </p>
+            </div>
+
             <div class="btn_area">
                 <ul>
                     <li>
-                        <a href="<!--{$smarty.const.TOP_URL}-->"><img class="hover_change_image" src="<!--{$TPL_URLPATH}-->img/button/btn_toppage.jpg" alt="Lên đầu trang" /></a>
+                        <a href="<!--{$smarty.const.TOP_URLPATH}-->" onmouseover="chgImg('<!--{$TPL_URLPATH}-->img/button/btn_toppage_on.jpg','b_toppage');" onmouseout="chgImg('<!--{$TPL_URLPATH}-->img/button/btn_toppage.jpg','b_toppage');"><img src="<!--{$TPL_URLPATH}-->img/button/btn_toppage.jpg" alt="トップページへ" border="0" name="b_toppage" /></a>
                     </li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
+

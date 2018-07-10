@@ -3,7 +3,7 @@
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -22,6 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// {{{ requires
 require_once CLASS_EX_REALDIR . 'page_extends/admin/LC_Page_Admin_Ex.php';
 
 /**
@@ -29,16 +30,18 @@ require_once CLASS_EX_REALDIR . 'page_extends/admin/LC_Page_Admin_Ex.php';
  *
  * @package Page
  * @author LOCKON CO.,LTD.
- * @version $Id$
+ * @version $Id: LC_Page_Admin_Customer_Edit.php 21867 2012-05-30 07:37:01Z nakanishi $
  */
 class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
+    // }}}
+    // {{{ functions
 
     /**
      * Page を初期化する.
      *
      * @return void
      */
-    public function init() {
+    function init() {
         parent::init();
         $this->tpl_mainpage = 'customer/edit.tpl';
         $this->tpl_mainno = 'customer';
@@ -49,31 +52,17 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
 
         $masterData = new SC_DB_MasterData_Ex();
         $this->arrPref = $masterData->getMasterData('mtb_pref');
-        $this->arrCountry = $masterData->getMasterData('mtb_country');
-        $this->arrJob = $masterData->getMasterData('mtb_job');
+        $this->arrEMPSTATUS = $masterData->getMasterData('mtb_customer_employment');
         $this->arrSex = $masterData->getMasterData('mtb_sex');
         $this->arrReminder = $masterData->getMasterData('mtb_reminder');
         $this->arrStatus = $masterData->getMasterData('mtb_customer_status');
         $this->arrMailMagazineType = $masterData->getMasterData('mtb_mail_magazine_type');
-        $this->arrMaritalStatus = $masterData->getMasterData('mtb_marital_status');
-        $this->arrTarget = $masterData->getMasterData('mtb_object');
-        $this->arrEducation = $masterData->getMasterData('mtb_education');
-        $this->arrPosition = $masterData->getMasterData('mtb_position');
-        $this->arrRegion = $masterData->getMasterData('mtb_region');
-        $this->arrJLPT = $masterData->getMasterData('mtb_jlpt');
-        $this->arrWorkExperience = array(1 => '経験あり', 0 => '未経験');
-
-        $objQuery = & SC_Query_Ex::getSingletonInstance();
-        $arrPref = $objQuery->select('*', 'mtb_pref');
-        $this->arrPrefByTarget = array();
-        foreach ($arrPref as $pref)
-            $this->arrPrefByTarget[$pref['object_id']][$pref['id']] = $pref['name'];
-
-        $this->arrCategory = $masterData->getMasterData('mtb_category');
-        $arrCategory = $objQuery->select('*', 'mtb_category');
-        $this->arrCategoryByTarget = array();
-        foreach ($arrCategory as $category)
-            $this->arrCategoryByTarget[$category['object_id']][$category['id']] = $category['name'];
+        $this->arrSocialStatus = $masterData->getMasterData('mtb_social_status');
+        $this->arrVisaType = $masterData->getMasterData('mtb_visa_type');
+        $this->arrSalaryIssued = $masterData->getMasterData('mtb_salary_issued');
+        $this->arrSalaryType = $masterData->getMasterData('mtb_salary_type');
+        $this->arrIncomingMailType = $masterData->getMasterData('mtb_incoming_mail_type');
+        $this->arrFLAG = array(1 => '普通', 2 => '当座');
 
         // 日付プルダウン設定
         $objDate = new SC_Date_Ex(BIRTH_YEAR);
@@ -81,12 +70,9 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
         $this->arrMonth = $objDate->getMonth();
         $this->arrDay = $objDate->getDay();
 
-        $objDate = new SC_Date_Ex(RELEASE_YEAR, DATE('Y'));
-        $this->arrReleaseYear = $objDate->getYear();
-
         // 支払い方法種別
-        $this->arrPayment = SC_Helper_Payment_Ex::getIDValueList();
-
+        $objDb = new SC_Helper_DB_Ex();
+        $this->arrPayment = $objDb->sfGetIDValueList('dtb_payment', 'payment_id', 'payment_method');
     }
 
     /**
@@ -94,7 +80,7 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
      *
      * @return void
      */
-    public function process() {
+    function process() {
         $this->action();
         $this->sendResponse();
     }
@@ -104,23 +90,13 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
      *
      * @return void
      */
-    public function action() {
+    function action() {
 
         // パラメーター管理クラス
         $objFormParam = new SC_FormParam_Ex();
-        SC_Helper_Customer_Ex::sfCustomerCvParam($objFormParam);
         // 検索引き継ぎ用パラメーター管理クラス
         $objFormSearchParam = new SC_FormParam_Ex();
 
-        // アップロードファイル情報の初期化
-        $objUpFile = new SC_UploadFile_Ex(IMAGE_TEMP_REALDIR, IMAGE_SAVE_REALDIR);
-        $objUpFile->addFile('写真', 'image', array('jpg', 'gif', 'png'), IMAGE_SIZE, false, LARGE_IMAGE_WIDTH, LARGE_IMAGE_HEIGHT);
-        $objUpFile->setHiddenFileList($_POST);
-
-        // ダウンロード販売ファイル情報の初期化
-        $objDownFile = new SC_UploadFile_Ex(DOWN_TEMP_REALDIR, DOWN_SAVE_REALDIR);
-        $objDownFile->addFile('Tệp hồ sơ', 'down_file', explode(',', DOWNLOAD_EXTENSION), DOWN_SIZE, true, 0, 0);
-        $objDownFile->setHiddenFileList($_POST);
         // モードによる処理切り替え
         switch ($this->getMode()) {
             case 'edit_search':
@@ -134,7 +110,6 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
                 }
                 // 指定会員の情報をセット
                 $this->arrForm = SC_Helper_Customer_Ex::sfGetCustomerData($objFormSearchParam->getValue('edit_customer_id'), true);
-                $this->setUploadFile($objUpFile, $this->arrForm);
                 // 購入履歴情報の取得
                 list($this->tpl_linemax, $this->arrPurchaseHistory, $this->objNavi) = $this->lfPurchaseHistory($objFormSearchParam->getValue('edit_customer_id'));
                 $this->arrPagenavi = $this->objNavi->arrPagenavi;
@@ -142,43 +117,38 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
                 $this->tpl_pageno = '0';
                 break;
             case 'confirm':
-                // var_dump("1");die;
                 // パラメーター処理
                 $this->lfInitParam($objFormParam);
                 $objFormParam->setParam($_POST);
                 $objFormParam->convParam();
                 // 入力パラメーターチェック
-                $this->arrErr = $this->lfCheckError($objFormParam, $objUpFile);
+                $this->arrErr = $this->lfCheckError($objFormParam);
                 $this->arrForm = $objFormParam->getHashArray();
-                $this->setUploadFile($objUpFile, $this->arrForm);
-
                 // 検索引き継ぎ用パラメーター処理
                 $this->lfInitSearchParam($objFormSearchParam);
                 $objFormSearchParam->setParam($objFormParam->getValue('search_data'));
                 $this->arrSearchErr = $this->lfCheckErrorSearchParam($objFormSearchParam);
                 $this->arrSearchData = $objFormSearchParam->getSearchArray();
-                if (!SC_Utils_Ex::isBlank($this->arrErr) or ! SC_Utils_Ex::isBlank($this->arrSearchErr)) {
+                if (!SC_Utils_Ex::isBlank($this->arrErr) or !SC_Utils_Ex::isBlank($this->arrSearchErr)) {
                     return;
                 }
                 // 確認画面テンプレートに切り替え
                 $this->tpl_mainpage = 'customer/edit_confirm.tpl';
                 break;
             case 'return':
-            var_dump("2");die;
                 // パラメーター処理
                 $this->lfInitParam($objFormParam);
                 $objFormParam->setParam($_POST);
                 $objFormParam->convParam();
                 // 入力パラメーターチェック
-                $this->arrErr = $this->lfCheckError($objFormParam, $objUpFile);
+                $this->arrErr = $this->lfCheckError($objFormParam);
                 $this->arrForm = $objFormParam->getHashArray();
-                $this->setUploadFile($objUpFile, $this->arrForm);
                 // 検索引き継ぎ用パラメーター処理
                 $this->lfInitSearchParam($objFormSearchParam);
                 $objFormSearchParam->setParam($objFormParam->getValue('search_data'));
                 $this->arrSearchErr = $this->lfCheckErrorSearchParam($objFormSearchParam);
                 $this->arrSearchData = $objFormSearchParam->getSearchArray();
-                if (!SC_Utils_Ex::isBlank($this->arrErr) or ! SC_Utils_Ex::isBlank($this->arrSearchErr)) {
+                if (!SC_Utils_Ex::isBlank($this->arrErr) or !SC_Utils_Ex::isBlank($this->arrSearchErr)) {
                     return;
                 }
                 // 購入履歴情報の取得
@@ -189,100 +159,26 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
 
                 break;
             case 'complete':
-            
                 // 登録・保存処理
                 // パラメーター処理
                 $this->lfInitParam($objFormParam);
                 $objFormParam->setParam($_POST);
                 $objFormParam->convParam();
-
                 // 入力パラメーターチェック
-                $this->arrErr = $this->lfCheckError($objFormParam, $objUpFile);
+                $this->arrErr = $this->lfCheckError($objFormParam);
                 $this->arrForm = $objFormParam->getHashArray();
-                $this->setUploadFile($objUpFile, $this->arrForm);
                 // 検索引き継ぎ用パラメーター処理
                 $this->lfInitSearchParam($objFormSearchParam);
                 $objFormSearchParam->setParam($objFormParam->getValue('search_data'));
                 $this->arrSearchErr = $this->lfCheckErrorSearchParam($objFormSearchParam);
                 $this->arrSearchData = $objFormSearchParam->getSearchArray();
-                if (!SC_Utils_Ex::isBlank($this->arrErr) or ! SC_Utils_Ex::isBlank($this->arrSearchErr)) {
+                if (!SC_Utils_Ex::isBlank($this->arrErr) or !SC_Utils_Ex::isBlank($this->arrSearchErr)) {
                     return;
                 }
-                $this->lfRegistData($objFormParam, $objUpFile);
+                $this->lfRegistData($objFormParam);
                 $this->tpl_mainpage = 'customer/edit_complete.tpl';
                 break;
-
-            // 会員登録と完了画面
-            case 'cv_complete':
-                var_dump("4");die;
-                $this->lfInitParam($objFormParam);
-                $objFormParam->setParam($_POST);
-                $objFormParam->convParam();
-
-                // 入力パラメーターチェック
-                $this->arrErr = $this->lfCheckError($objFormParam, $objUpFile);
-                $this->arrForm = $objFormParam->getHashArray();
-                $this->setUploadFile($objUpFile, $this->arrForm);
-
-                // 検索引き継ぎ用パラメーター処理
-                $this->lfInitSearchParam($objFormSearchParam);
-                $objFormSearchParam->setParam($objFormParam->getValue('search_data'));
-                $this->arrSearchErr = $this->lfCheckErrorSearchParam($objFormSearchParam);
-                $this->arrSearchData = $objFormSearchParam->getSearchArray();
-
-                $this->arrErr = $objDownFile->checkExists();
-                // 入力エラーなし
-                if (empty($this->arrErr)) {
-
-                    // 会員情報の登録
-                    $val = $objFormParam->getDbArray();
-
-                    $sqlval['cv'] = $val['cv'];
-                    $sqlval['cv_name'] = $val['cv_name'];
-                    $customer_id = $objFormParam->getValue('customer_id');
-                    SC_Helper_Customer_Ex::sfEditCustomerData($sqlval, $customer_id);
-                    $objDownFile->moveTempDownFile();
-                    //セッション情報を最新の状態に更新する
-                    // 完了ページに移動させる。
-                    $this->tpl_mainpage = 'customer/edit_complete.tpl';
-                }
-                break;
-            case 'upload_down':
-            case 'delete_down':
-                // 登録・保存処理
-                // パラメーター処理
-                $this->lfInitParam($objFormParam);
-                $objFormParam->setParam($_POST);
-                $objFormParam->convParam();
-                // 入力パラメーターチェック
-                $this->arrErr = $this->lfCheckError($objFormParam, $objUpFile);
-                // 検索引き継ぎ用パラメーター処理
-                $this->lfInitSearchParam($objFormSearchParam);
-                $objFormSearchParam->setParam($objFormParam->getValue('search_data'));
-                $this->arrSearchErr = $this->lfCheckErrorSearchParam($objFormSearchParam);
-                $this->arrSearchData = $objFormSearchParam->getSearchArray();
-
-                switch ($this->getMode()) {
-                    case 'upload_down':
-                        // ファイルを一時ディレクトリにアップロード
-                        $this->arrErr['down_file'] = $objDownFile->makeTempDownFile();
-                        $objFormParam->setParam(array('cv_name' => $_FILES['down_file']['name']));
-                        $this->arrForm = $objFormParam->getHashArray();
-                        $this->setUploadFileForCVUpload($objUpFile, $objDownFile, $this->arrForm);
-                        break;
-                    case 'delete_down':
-                        // ファイル削除
-                        $objDownFile->deleteFile('down_file');
-                        $objFormParam->setParam(array('cv' => ''));
-                        $this->arrForm = $objFormParam->getHashArray();
-                        $this->setUploadFileForCVUpload($objUpFile, $objDownFile, $this->arrForm);
-                        break;
-                    default:
-                        break;
-                }
-                break;
             case 'complete_return':
-            var_dump("5");die;
                 // 入力パラメーターチェック
                 $this->lfInitParam($objFormParam);
                 $objFormParam->setParam($_POST);
@@ -294,105 +190,62 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
                 if (!SC_Utils_Ex::isBlank($this->arrSearchErr)) {
                     return;
                 }
-            //画像のアップロード
-            case 'upload_image':
-            case 'delete_image':
-                // パラメーター処理
-                $this->lfInitParam($objFormParam);
-                $objFormParam->setParam($_POST);
-                $objFormParam->convParam();
-                $this->arrForm = $objFormParam->getHashArray();
-                // 検索引き継ぎ用パラメーター処理
-                $this->lfInitSearchParam($objFormSearchParam);
-                $objFormSearchParam->setParam($objFormParam->getValue('search_data'));
-                $this->arrSearchErr = $this->lfCheckErrorSearchParam($objFormSearchParam);
-                $this->arrSearchData = $objFormSearchParam->getSearchArray();
-
-                switch ($this->getMode()) {
-                    case 'upload_image':
-                        $this->arrErr['image'] = $objUpFile->makeTempFile('image', IMAGE_RENAME);
-                        break;
-                    case 'delete_image':
-                        $this->lfDeleteTempFile($objUpFile, 'image');
-                        break;
-                    default:
-                        break;
-                }
-                $this->setUploadFile($objUpFile, $this->arrForm);
-                break;
             default:
                 $this->lfInitParam($objFormParam);
                 $this->arrForm = $objFormParam->getHashArray();
-                $this->setUploadFileForCVUpload($objUpFile, $objDownFile, $this->arrForm);
                 break;
         }
-
     }
 
-    public function setUploadFile(&$objUpFile, &$arrForm) {
-        $objUpFile->setDBFileList($arrForm);
-        $arrForm['arrHidden'] = $objUpFile->getHiddenFileList();
-        $arrForm['arrFile'] = $objUpFile->getFormFileList(IMAGE_TEMP_URLPATH, IMAGE_SAVE_URLPATH);
-    }
-
-    public function setUploadFileForCVUpload(&$objUpFile, &$objDownFile, &$arrForm) {
-
-       $objUpFile->setDBFileList($arrForm);
-        $objDownFile->setDBDownFile($arrForm);
-        $arrHidden = $objUpFile->getHiddenFileList();
-        $arrForm['arrHidden'] = array_merge((array) $arrHidden, (array) $objDownFile->getHiddenFileList());
-        $arrForm['arrFile'] = $objUpFile->getFormFileList(IMAGE_TEMP_URLPATH, IMAGE_SAVE_URLPATH);
-        $arrForm['cv'] = $objDownFile->getFormDownFile();
-    }
-
-    public function lfDeleteTempFile(&$objUpFile, $image_key) {
-        // TODO: SC_UploadFile::deleteFileの画像削除条件見直し要
-        $arrTempFile = $objUpFile->temp_file;
-        $arrKeyName = $objUpFile->keyname;
-
-        foreach ($arrKeyName as $key => $keyname) {
-            if ($keyname != $image_key)
-                continue;
-
-            if (!empty($arrTempFile[$key])) {
-                $temp_file = $arrTempFile[$key];
-                $arrTempFile[$key] = '';
-
-                if (!in_array($temp_file, $arrTempFile)) {
-                    $objUpFile->deleteFile($image_key);
-                } else {
-                    $objUpFile->temp_file[$key] = '';
-                    $objUpFile->save_file[$key] = '';
-                }
-            } else {
-                $objUpFile->temp_file[$key] = '';
-                $objUpFile->save_file[$key] = '';
-            }
-        }
+    /**
+     * デストラクタ.
+     *
+     * @return void
+     */
+    function destroy() {
+        parent::destroy();
     }
 
     /**
      * パラメーター情報の初期化
      *
-     * @param  array $objFormParam フォームパラメータークラス
+     * @param array $objFormParam フォームパラメータークラス
      * @return void
      */
-    public function lfInitParam(&$objFormParam) {
+    function lfInitParam(&$objFormParam) {
         // 会員項目のパラメーター取得
         SC_Helper_Customer_Ex::sfCustomerEntryParam($objFormParam, true);
         // 検索結果一覧画面への戻り用パラメーター
         $objFormParam->addParam('検索用データ', 'search_data', '', '', array(), '', false);
         // 会員購入履歴ページング用
         $objFormParam->addParam('', 'search_pageno', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'), '', false);
+        
+        $objFormParam->addParam('最寄駅(線)', 'metro_name', STEXT_LEN, 'aKV', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('最寄駅(駅)', 'bus_stop', STEXT_LEN, 'aKV', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('社会ステータス', 'social_status', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('国籍', 'nationality', STEXT_LEN, 'aKV', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('ビザの種類', 'visa_type', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('給与明細発行形態', 'salary_issued', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('給与受取区分', 'salary_type', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+
+        $objFormParam->addParam('銀行名', 'bank', STEXT_LEN, 'aKV', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('銀行支店名', 'bank_branch', STEXT_LEN, 'aKV', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('支店番号', 'branch_code', STEXT_LEN, 'aKV', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('口座名義1', 'account_holder1', STEXT_LEN, 'aKV', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('口座名義2', 'account_holder2', STEXT_LEN, 'aKV', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('預金種目', 'event_deposit', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('口座番号', 'account_number', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('派遣料金', 'price', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('スタッフID', 'staff_id', STEXT_LEN, 'aKV', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));   
     }
 
     /**
      * 検索パラメーター引き継ぎ用情報の初期化
      *
-     * @param  SC_FormParam_Ex $objFormParam フォームパラメータークラス
+     * @param array $objFormParam フォームパラメータークラス
      * @return void
      */
-    public function lfInitSearchParam(&$objFormParam) {
+    function lfInitSearchParam(&$objFormParam) {
         SC_Helper_Customer_Ex::sfSetSearchParam($objFormParam);
         // 初回受け入れ時用
         $objFormParam->addParam('編集対象会員ID', 'edit_customer_id', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
@@ -401,22 +254,21 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
     /**
      * 検索パラメーターエラーチェック
      *
-     * @param  SC_FormParam_Ex $objFormParam フォームパラメータークラス
+     * @param array $objFormParam フォームパラメータークラス
      * @return array エラー配列
      */
-    public function lfCheckErrorSearchParam(&$objFormParam) {
+    function lfCheckErrorSearchParam(&$objFormParam) {
         return SC_Helper_Customer_Ex::sfCheckErrorSearchParam($objFormParam);
     }
 
     /**
      * フォーム入力パラメーターエラーチェック
      *
-     * @param  array $objFormParam フォームパラメータークラス
+     * @param array $objFormParam フォームパラメータークラス
      * @return array エラー配列
      */
-    public function lfCheckError(&$objFormParam, $objUpFile) {
+    function lfCheckError(&$objFormParam) {
         $arrErr = SC_Helper_Customer_Ex::sfCustomerMypageErrorCheck($objFormParam, true);
-        $arrErr = array_merge((array) $arrErr, (array) $objUpFile->checkExists());
 
         // メアド重複チェック(共通ルーチンは使えない)
         $objQuery = & SC_Query_Ex::getSingletonInstance();
@@ -432,34 +284,32 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
         if (!SC_Utils_Ex::isBlank($arrData['email'])) {
             if ($arrData['email'] == $objFormParam->getValue('email')) {
                 $arrErr['email'] = '※ すでに他の会員(ID:' . $arrData['customer_id'] . ')が使用しているアドレスです。';
-            } elseif ($arrData['email'] == $objFormParam->getValue('email_mobile')) {
+            } else if ($arrData['email'] == $objFormParam->getValue('email_mobile')) {
                 $arrErr['email_mobile'] = '※ すでに他の会員(ID:' . $arrData['customer_id'] . ')が使用しているアドレスです。';
             }
         }
         if (!SC_Utils_Ex::isBlank($arrData['email_mobile'])) {
             if ($arrData['email_mobile'] == $objFormParam->getValue('email_mobile')) {
                 $arrErr['email_mobile'] = '※ すでに他の会員(ID:' . $arrData['customer_id'] . ')が使用している携帯アドレスです。';
-            } elseif ($arrData['email_mobile'] == $objFormParam->getValue('email')) {
+            } else if ($arrData['email_mobile'] == $objFormParam->getValue('email')) {
                 if ($arrErr['email'] == '') {
                     $arrErr['email'] = '※ すでに他の会員(ID:' . $arrData['customer_id'] . ')が使用している携帯アドレスです。';
                 }
             }
         }
-
         return $arrErr;
     }
 
     /**
      * 登録処理
      *
-     * @param  array $objFormParam フォームパラメータークラス
-     * @return integer エラー配列
+     * @param array $objFormParam フォームパラメータークラス
+     * @return array エラー配列
      */
-    public function lfRegistData(&$objFormParam, $objUpFile) {
+    function lfRegistData(&$objFormParam) {
+        $objQuery = & SC_Query_Ex::getSingletonInstance();
         // 登録用データ取得
         $arrData = $objFormParam->getDbArray();
-               
-        
         // 足りないものを作る
         if (!SC_Utils_Ex::isBlank($objFormParam->getValue('year'))) {
             $arrData['birth'] = $objFormParam->getValue('year') . '/'
@@ -467,9 +317,6 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
                     . $objFormParam->getValue('day')
                     . ' 00:00:00';
         }
-        $arrData['desired_work'] = implode(" ", $arrData['desired_work']);
-        $arrData['desired_position'] = implode(" ", $arrData['desired_position']);
-        $arrData['desired_region'] = implode(" ", $arrData['desired_region']);
 
         if (!is_numeric($arrData['customer_id'])) {
             $arrData['secret_key'] = SC_Utils_Ex::sfGetUniqRandomId('r');
@@ -479,30 +326,16 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
                 $arrData['secret_key'] = SC_Utils_Ex::sfGetUniqRandomId('r');
             }
         }
-        $arrRet = $objUpFile->getDBFileList();
-        $arrData = array_merge($arrData, $arrRet);
-        $this->lfSaveUploadFiles($objUpFile);
-
         return SC_Helper_Customer_Ex::sfEditCustomerData($arrData, $arrData['customer_id']);
-    }
-    
-    public function lfSaveUploadFiles(&$objUpFile) {
-        // TODO: SC_UploadFile::moveTempFileの画像削除条件見直し要
-        $objImage = new SC_Image_Ex($objUpFile->temp_dir);
-        $arrTempFile = $objUpFile->temp_file;
-        foreach ($arrTempFile as $temp_file) {
-            if ($temp_file) {
-                $objImage->moveTempImage($temp_file, $objUpFile->save_dir);
-            }
-        }
     }
 
     /**
      * 購入履歴情報の取得
      *
+     * @param array $arrParam 検索パラメーター連想配列
      * @return array( integer 全体件数, mixed 会員データ一覧配列, mixed SC_PageNaviオブジェクト)
      */
-    public function lfPurchaseHistory($customer_id, $pageno = 0) {
+    function lfPurchaseHistory($customer_id, $pageno = 0) {
         if (SC_Utils_Ex::isBlank($customer_id)) {
             return array('0', array(), NULL);
         }
@@ -514,7 +347,7 @@ class LC_Page_Admin_Customer_Edit extends LC_Page_Admin_Ex {
         // 購入履歴の件数取得
         $linemax = $objQuery->count($table, $where, $arrVal);
         // ページ送りの取得
-        $objNavi = new SC_PageNavi_Ex($pageno, $linemax, $page_max, 'eccube.moveSecondSearchPage', NAVI_PMAX);
+        $objNavi = new SC_PageNavi_Ex($pageno, $linemax, $page_max, 'fnNaviSearchPage2', NAVI_PMAX);
         // 取得範囲の指定(開始行番号、行数のセット)
         $objQuery->setLimitOffset($page_max, $objNavi->start_row);
         // 表示順序

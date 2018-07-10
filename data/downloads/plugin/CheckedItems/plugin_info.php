@@ -1,9 +1,9 @@
 <?php
 /*
  * CheckedItems
- * Copyright(c) 2015 DAISY Inc. All Rights Reserved.
+ * Copyright(c) 2012-2014 DELIGHT Inc. All Rights Reserved.
  *
- * http://www.daisy.link/
+ * http://www.delight-web.com/
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,19 +24,19 @@
  * プラグイン の情報クラス.
  *
  * @package CheckedItems
- * @author DAISY Inc.
+ * @author DELIGHT Inc.
  * @version $Id: $
  */
 class plugin_info{
     static $PLUGIN_CODE       = "CheckedItems";
     static $PLUGIN_NAME       = "最近チェックした商品";
     static $CLASS_NAME        = "CheckedItems";
-    static $PLUGIN_VERSION     = "1.2";
+    static $PLUGIN_VERSION     = "1.1";
     static $COMPLIANT_VERSION  = "2.12.0-2.13.3";
-    static $AUTHOR            = "DAISY inc.";
+    static $AUTHOR            = "DELIGHT inc.";
     static $DESCRIPTION       = "最近チェックした商品を表示するブロックです。";
     static $PLUGIN_SITE_URL    = "http://www.ec-cube.net/owners/index.php";
-    static $AUTHOR_SITE_URL    = "http://www.daisy.link/";
+    static $AUTHOR_SITE_URL    = "http://www.delight-web.com/ec-cube/products/about.php";
     static $LICENSE          = "LGPL";
     static $HOOK_POINTS       = array(array('LC_Page_Products_Detail_action_after', 'LC_Page_Products_Detail_action_after'));
 }

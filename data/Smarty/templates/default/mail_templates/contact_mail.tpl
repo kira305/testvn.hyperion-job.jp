@@ -1,7 +1,7 @@
 <!--{*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -19,20 +19,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *}-->
-<!--{$tpl_header}-->
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
- ※Email này được gửi từ <!--{$tpl_shopname}-->
-　Nếu có bất kỳ thắc mắc nào vui lòng gửi mail đến địa chỉ <!--{$tpl_infoemail}--> để được trợ giúp.
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Kính gửi: <!--{$arrForm.name01.value}--> <!--{$arrForm.name02.value}-->
+<!--{$arrForm.name01.value}--> <!--{$arrForm.name02.value}--><!--{$tpl_header}-->
 
-Chúng tôi đã nhận được phản hồi của quý khách.
-Xin quý khách vui lòng đợi trong giây lát, chúng tôi sẽ liên hệ lại sau.
-
-■Họ tên　：<!--{$arrForm.name01.value}--> <!--{$arrForm.name02.value}--><!--{if $arrForm.kana01.value}-->(<!--{$arrForm.kana01.value}--> <!--{$arrForm.kana02.value}-->)<!--{/if}--> 様
-■Số điện thoại：<!--{$arrForm.tel01.value}-->-<!--{$arrForm.tel02.value}-->-<!--{$arrForm.tel03.value}-->
-■Địa chỉ email：<!--{$arrForm.email.value}-->
-■Nội dung liên hệ
+■　お名前：<!--{$arrForm.name01.value}--> <!--{$arrForm.name02.value}--> (<!--{$arrForm.kana01.value}--> <!--{$arrForm.kana02.value}-->) 様
+■　郵便番号：<!--{if $arrForm.zip01.value && $arrForm.zip02.value}-->〒<!--{$arrForm.zip01.value}-->-<!--{$arrForm.zip02.value}--><!--{/if}-->
+■　住所：<!--{$arrPref[$arrForm.pref.value]}--><!--{$arrForm.addr01.value}--><!--{$arrForm.addr02.value}-->
+■　電話番号：<!--{$arrForm.tel01.value}-->-<!--{$arrForm.tel02.value}-->-<!--{$arrForm.tel03.value}-->
+■　お問い合わせの内容
 <!--{$arrForm.contents.value}-->
+
 <!--{$tpl_footer}-->

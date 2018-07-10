@@ -1,8 +1,9 @@
 <?php
+
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -21,6 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// {{{ requires
 require_once CLASS_EX_REALDIR . 'page_extends/LC_Page_Ex.php';
 
 /**
@@ -28,21 +30,21 @@ require_once CLASS_EX_REALDIR . 'page_extends/LC_Page_Ex.php';
  *
  * @package Page
  * @author LOCKON CO.,LTD.
- * @version $Id$
+ * @version $Id: LC_Page_Shopping_Deliv.php 21951 2012-07-02 12:04:24Z pineray $
  */
-class LC_Page_Shopping_Deliv extends LC_Page_Ex
-{
+class LC_Page_Shopping_Deliv extends LC_Page_Ex {
+    // }}}
+    // {{{ functions
+
     /**
      * Page を初期化する.
      *
      * @return void
      */
-    public function init()
-    {
+    function init() {
         parent::init();
         $masterData = new SC_DB_MasterData_Ex();
         $this->arrPref = $masterData->getMasterData('mtb_pref');
-        $this->arrCountry = $masterData->getMasterData('mtb_country');
         $this->tpl_title = 'お届け先の指定';
         $this->httpCacheControl('nocache');
     }
@@ -52,8 +54,7 @@ class LC_Page_Shopping_Deliv extends LC_Page_Ex
      *
      * @return void
      */
-    public function process()
-    {
+    function process() {
         parent::process();
         $this->action();
         $this->sendResponse();
@@ -64,17 +65,13 @@ class LC_Page_Shopping_Deliv extends LC_Page_Ex
      *
      * @return void
      */
-    public function action()
-    {
-        //決済処理中ステータスのロールバック
-        $objPurchase = new SC_Helper_Purchase_Ex();
-        $objPurchase->cancelPendingOrder(PENDING_ORDER_CANCEL_FLAG);
+    function action() {
 
         $objSiteSess = new SC_SiteSession_Ex();
         $objCartSess = new SC_CartSession_Ex();
         $objCustomer = new SC_Customer_Ex();
+        $objPurchase = new SC_Helper_Purchase_Ex();
         $objFormParam = new SC_FormParam_Ex();
-        $objAddress = new SC_Helper_Address_Ex();
 
         $this->tpl_uniqid = $objSiteSess->getUniqId();
         $objPurchase->verifyChangeCart($this->tpl_uniqid, $objCartSess);
@@ -108,13 +105,14 @@ class LC_Page_Shopping_Deliv extends LC_Page_Ex
 
         $arrForm = $objFormParam->getHashArray();
 
+        if (!$this->doCheck($arrForm, $objCustomer)) {
+            SC_Utils_Ex::sfDispSiteError(PAGE_ERROR, '', true);
+        }
+
         switch ($this->getMode()) {
             // 削除
             case 'delete':
-                if (!$objAddress->deleteAddress($arrForm['other_deliv_id'], $objCustomer->getValue('customer_id'))) {
-                    SC_Utils_Ex::sfDispSiteError(FREE_ERROR_MSG, '', false, '別のお届け先を削除できませんでした。');
-                    SC_Response_Ex::actionExit();
-                }
+                $this->doDelete($arrForm['other_deliv_id']);
                 break;
 
             // 会員登録住所に送る
@@ -122,13 +120,14 @@ class LC_Page_Shopping_Deliv extends LC_Page_Ex
                 $objPurchase->unsetShippingTemp();
 
                 $shipping_id = $arrForm['deliv_check'] == -1 ? 0 : $arrForm['deliv_check'];
-                $success = $this->registerDeliv($shipping_id, $this->tpl_uniqid, $objPurchase, $objCustomer, $objAddress);
+                $success = $this->registerDeliv($shipping_id, $this->tpl_uniqid, $objPurchase, $objCustomer);
                 if (!$success) {
                     SC_Utils_Ex::sfDispSiteError(PAGE_ERROR, '', true);
                 }
 
                 $objPurchase->setShipmentItemTempForSole($objCartSess, $shipping_id);
                 $objSiteSess->setRegistFlag();
+
 
                 SC_Response_Ex::sendRedirect(SHOPPING_PAYMENT_URLPATH);
                 SC_Response_Ex::actionExit();
@@ -138,7 +137,7 @@ class LC_Page_Shopping_Deliv extends LC_Page_Ex
             case 'return':
 
                 // 確認ページへ移動
-                SC_Response_Ex::sendRedirect(CART_URL);
+                SC_Response_Ex::sendRedirect(CART_URLPATH);
                 SC_Response_Ex::actionExit();
                 break;
 
@@ -157,9 +156,7 @@ class LC_Page_Shopping_Deliv extends LC_Page_Ex
             default:
                 // 配送IDの取得
                 $shippingData = $objPurchase->getShippingTemp();
-                if (!SC_Utils_Ex::isBlank($shippingData)) {
-                    $arrShippingId = array_keys($shippingData);
-                }
+                $arrShippingId = array_keys($shippingData);
                 if (isset($arrShippingId[0])) {
                     $this->arrForm['deliv_check']['value'] = $arrShippingId[0] == 0 ? -1 : $arrShippingId[0];
                 }
@@ -167,42 +164,40 @@ class LC_Page_Shopping_Deliv extends LC_Page_Ex
         }
 
         // 登録済み住所を取得
-        $addr = array(
-            array(
-                'other_deliv_id'    => NULL,
-                'customer_id'       => $objCustomer->getValue('customer_id'),
-                'name01'            => $objCustomer->getValue('name01'),
-                'name02'            => $objCustomer->getValue('name02'),
-                'kana01'            => $objCustomer->getValue('kana01'),
-                'kana02'            => $objCustomer->getValue('kana02'),
-                'company_name'      => $objCustomer->getValue('company_name'),
-                'country_id'           => $objCustomer->getValue('country_id'),
-                'zipcode'           => $objCustomer->getValue('zipcode'),
-                'zip01'             => $objCustomer->getValue('zip01'),
-                'zip02'             => $objCustomer->getValue('zip02'),
-                'pref'              => $objCustomer->getValue('pref'),
-                'addr01'            => $objCustomer->getValue('addr01'),
-                'addr02'            => $objCustomer->getValue('addr02'),
-                'tel01'             => $objCustomer->getValue('tel01'),
-                'tel02'             => $objCustomer->getValue('tel02'),
-                'tel03'             => $objCustomer->getValue('tel03'),
-            )
-        );
-        $this->arrAddr = array_merge($addr, $objAddress->getList($objCustomer->getValue('customer_id')));
-        $this->tpl_addrmax = count($this->arrAddr) - 1; // 会員の住所をカウントしない
+        $this->arrAddr = $objCustomer->getCustomerAddress($objCustomer->getValue('customer_id'));
+        $this->tpl_addrmax = count($this->arrAddr);
+    }
 
+    /**
+     * デストラクタ.
+     *
+     * @return void
+     */
+    function destroy() {
+        parent::destroy();
     }
 
     /**
      * パラメーター情報の初期化を行う.
      *
-     * @param  SC_FormParam $objFormParam SC_FormParam インスタンス
+     * @param SC_FormParam $objFormParam SC_FormParam インスタンス
      * @return void
      */
-    public function lfInitParam(&$objFormParam)
-    {
+    function lfInitParam(&$objFormParam) {
         $objFormParam->addParam('その他のお届け先ID', 'other_deliv_id', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
         $objFormParam->addParam('お届け先チェック', 'deliv_check', INT_LEN, 'n', array('MAX_LENGTH_CHECK'));
+    }
+
+    /**
+     * その他のお届け先情報を削除する.
+     *
+     * @param integer $other_deliv_id その他のお届け先ID
+     * @return void
+     */
+    function doDelete($other_deliv_id) {
+        $objQuery = & SC_Query_Ex::getSingletonInstance();
+        $where = 'other_deliv_id = ?';
+        $objQuery->delete('dtb_other_deliv', $where, array($other_deliv_id));
     }
 
     /**
@@ -212,23 +207,24 @@ class LC_Page_Shopping_Deliv extends LC_Page_Ex
      * その他のお届け先がチェックされている場合は, その他のお届け先からお届け先を取得する.
      * お届け先チェックの値が不正な場合は false を返す.
      *
-     * @param  integer            $other_deliv_id
-     * @param  string             $uniqid         受注一時テーブルのユニークID
-     * @param  SC_Helper_Purchase $objPurchase    SC_Helper_Purchase インスタンス
-     * @param  SC_Customer        $objCustomer    SC_Customer インスタンス
-     * @param SC_Helper_Address_Ex $objAddress
-     * @return boolean            お届け先チェックの値が妥当な場合 true
+     * @param integer $other_deliv_id
+     * @param string $uniqid 受注一時テーブルのユニークID
+     * @param SC_Helper_Purchase $objPurchase SC_Helper_Purchase インスタンス
+     * @param SC_Customer $objCustomer SC_Customer インスタンス
+     * @return boolean お届け先チェックの値が妥当な場合 true
      */
-    public function registerDeliv($other_deliv_id, $uniqid, &$objPurchase, &$objCustomer, $objAddress)
-    {
+    function registerDeliv($other_deliv_id, $uniqid, &$objPurchase, &$objCustomer) {
+        GC_Utils_Ex::gfDebugLog('register deliv. deliv_check=' . $deliv_check);
         $arrValues = array();
         // 会員登録住所がチェックされている場合
         if ($other_deliv_id == 0) {
             $objPurchase->copyFromCustomer($arrValues, $objCustomer, 'shipping');
+        }
         // 別のお届け先がチェックされている場合
-        } else {
-            $arrOtherDeliv = $objAddress->getAddress($other_deliv_id, $objCustomer->getValue('customer_id'));
-            if (!$arrOtherDeliv) {
+        else {
+            $objQuery = & SC_Query_Ex::getSingletonInstance();
+            $arrOtherDeliv = $objQuery->getRow('*', 'dtb_other_deliv', 'customer_id = ? AND other_deliv_id = ?', array($objCustomer->getValue('customer_id'), $other_deliv_id));
+            if (empty($arrOtherDeliv)) {
                 return false;
             }
 
@@ -236,7 +232,19 @@ class LC_Page_Shopping_Deliv extends LC_Page_Ex
         }
         $objPurchase->saveShippingTemp($arrValues, $other_deliv_id);
         $objPurchase->saveOrderTemp($uniqid, $arrValues, $objCustomer);
-
         return true;
     }
+
+    function doCheck($arrForm, &$objCustomer) {
+        $objQuery = & SC_Query_Ex::getSingletonInstance();
+        if (empty($arrForm['other_deliv_id'])) {
+            $result = 1;
+        } else {
+            $where = 'other_deliv_id = ? AND customer_id = ?';
+            $result = $objQuery->count('dtb_other_deliv', $where, array($arrForm['other_deliv_id'], $objCustomer->getValue('customer_id')));
+        }
+
+        return $result;
+    }
+
 }

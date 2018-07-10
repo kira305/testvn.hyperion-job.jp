@@ -2,7 +2,7 @@
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -21,6 +21,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// {{{ requires
 require_once CLASS_EX_REALDIR . 'page_extends/admin/LC_Page_Admin_Ex.php';
 
 /**
@@ -28,17 +29,19 @@ require_once CLASS_EX_REALDIR . 'page_extends/admin/LC_Page_Admin_Ex.php';
  *
  * @package Page
  * @author LOCKON CO.,LTD.
- * @version $Id$
+ * @version $Id: LC_Page_Admin_Mail_TemplateInput.php 21867 2012-05-30 07:37:01Z nakanishi $
  */
-class LC_Page_Admin_Mail_TemplateInput extends LC_Page_Admin_Ex
-{
+class LC_Page_Admin_Mail_TemplateInput extends LC_Page_Admin_Ex {
+
+    // }}}
+    // {{{ functions
+
     /**
      * Page を初期化する.
      *
      * @return void
      */
-    public function init()
-    {
+    function init() {
         parent::init();
         $this->tpl_mainpage = 'mail/template_input.tpl';
         $this->tpl_mainno = 'mail';
@@ -55,8 +58,7 @@ class LC_Page_Admin_Mail_TemplateInput extends LC_Page_Admin_Ex
      *
      * @return void
      */
-    public function process()
-    {
+    function process() {
         $this->action();
         $this->sendResponse();
     }
@@ -66,8 +68,8 @@ class LC_Page_Admin_Mail_TemplateInput extends LC_Page_Admin_Ex
      *
      * @return void
      */
-    public function action()
-    {
+    function action() {
+
         $objMailHelper = new SC_Helper_Mail_Ex();
 
         switch ($this->getMode()) {
@@ -108,14 +110,23 @@ class LC_Page_Admin_Mail_TemplateInput extends LC_Page_Admin_Ex
     }
 
     /**
+     * デストラクタ.
+     *
+     * @return void
+     */
+    function destroy() {
+        parent::destroy();
+    }
+
+    /**
      * メルマガテンプレートデータの登録・更新を行う
      *
      * @param SC_FormParam $objFormParam SC_FormParam インスタンス
      * @param integer template_id 更新時は指定
      * @return void
      */
-    public function lfRegistData(&$objFormParam, $template_id = null)
-    {
+    function lfRegistData(&$objFormParam, $template_id = null) {
+
         $objQuery =& SC_Query_Ex::getSingletonInstance();
         $sqlval = $objFormParam->getDbArray();
 
@@ -139,14 +150,15 @@ class LC_Page_Admin_Mail_TemplateInput extends LC_Page_Admin_Ex
     /**
      * お問い合わせ入力時のパラメーター情報の初期化を行う.
      *
-     * @param  SC_FormParam $objFormParam SC_FormParam インスタンス
+     * @param SC_FormParam $objFormParam SC_FormParam インスタンス
      * @return void
      */
-    public function lfInitParam(&$objFormParam)
-    {
+    function lfInitParam(&$objFormParam) {
         $objFormParam->addParam('メール形式', 'mail_method', INT_LEN, 'n', array('EXIST_CHECK','ALNUM_CHECK'));
+        $objFormParam->addParam('管理タイトル', 'kanrititle', STEXT_LEN, 'KVa', array('SPTAB_CHECK','MAX_LENGTH_CHECK'));
         $objFormParam->addParam('Subject', 'subject', STEXT_LEN, 'KVa', array('EXIST_CHECK','SPTAB_CHECK','MAX_LENGTH_CHECK'));
         $objFormParam->addParam('本文', 'body', LLTEXT_LEN, 'KVCa', array('EXIST_CHECK','SPTAB_CHECK','MAX_LENGTH_CHECK'));
         $objFormParam->addParam('テンプレートID', 'template_id', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'), '', false);
     }
+
 }

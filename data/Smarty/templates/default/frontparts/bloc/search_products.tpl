@@ -1,256 +1,187 @@
-<!--{*
- * This file is part of EC-CUBE
- *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
- *
- * http://www.lockon.co.jp/
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *}-->
-<script>
-    $(function(){
-        $('#show_more_condition').on('click', function(){
-            $('#more_condition').toggle();
-            return false;
+<!-- ▼メイン用 商品検索 -->
+<script type="text/javascript" src="<!--{$smarty.const.ROOT_URLPATH}-->js/products.js"></script>
+<script type="text/javascript">//<![CDATA[
+    function fnSetClassCategories(form, classcat_id2_selected) {
+        var $form = $(form);
+        var product_id = $form.find('input[name=product_id]').val();
+        var $sele1 = $form.find('select[name=classcategory_id1]');
+        var $sele2 = $form.find('select[name=classcategory_id2]');
+        setClassCategories($form, product_id, $sele1, $sele2, classcat_id2_selected);
+    }
+    // 並び順を変更
+    function fnChangeOrderby(orderby) {
+        fnSetVal('orderby', orderby);
+        fnSetVal('pageno', 1);
+        fnSubmit();
+    }
+    // 表示件数を変更
+    function fnChangeDispNumber(dispNumber) {
+        fnSetVal('disp_number', dispNumber);
+        fnSetVal('pageno', 1);
+        fnSubmit();
+    }
+    // カゴに入れる
+    function fnInCart(productForm) {
+        var searchForm = $("#form1");
+        var cartForm = $(productForm);
+        // 検索条件を引き継ぐ
+        var hiddenValues = ['mode', 'work_location_flg[]', 'employment_status[]', 'condition[]', 'appeal_point[]', 'category_id', 'name', 'orderby', 'disp_number', 'pageno', 'rnd'];
+        $.each(hiddenValues, function() {
+            // 商品別のフォームに検索条件の値があれば上書き
+            if (this == 'work_location_flg[]' || this == 'employment_status[]' || this == 'condition[]' || this == 'appeal_point[]') {
+                $.each(searchForm.find('input[name=' + this + ']'), function() {
+                    cartForm.append($("<input/>").attr("name", this.name).attr("type", "hidden").val(this.value));
+                });
+            }
+            else
+                cartForm.append($("<input/>").attr("name", this).attr("type", "hidden").val(searchForm.find('input[name=' + this + ']').val()));
         });
-        
-        var prevTarget = <!--{$target}-->;
-        $('select[name=employment_status]').change(function() {
-            var target = detectTargetByEmpStatus($(this).val());
-            if(prevTarget != target){
-                $("select[name=salary_type]").find('option').not(':first').remove();
-                $("select[name=currency]").find('option').not(':first').remove();
-                $("select[name=salary_range]").find('option').not(':first').remove();
-                var categoryList = $("input[name='category_id[]']").closest('.checkList');
-                categoryList.html('');
-                categoryList.prev().text('Lựa chọn ngành nghề');
+        // 商品別のフォームを送信
+        cartForm.submit();
+    }
+//]]></script>
 
-                if(target == 0){
-                    <!--{foreach key=key item=item from=$arrSalaryType}-->
-                        $("select[name=salary_type]").append( $("<option>").val("<!--{$key}-->").html("<!--{$item}-->") );
-                    <!--{/foreach}-->
-                    <!--{foreach key=key item=item from=$arrCurrency}-->
-                        $("select[name=currency]").append( $("<option>").val("<!--{$key}-->").html("<!--{$item}-->") );
-                    <!--{/foreach}-->
-                    <!--{foreach key=key item=item from=$arrCategory}-->
-                        var label = $('<label />', { text: '<!--{$item}-->' });
-                        var input = $('<input />', { type: 'checkbox', name: 'category_id[]', value: <!--{$key}--> });
-                        label.prepend(input);
-                        categoryList.append(label);
-                    <!--{/foreach}-->
-                } else {
-                    <!--{foreach key=key item=item from=$arrSalaryTypeByTarget}-->
-                        if(target == <!--{$key}-->){
-                            <!--{foreach key=c_key item=c_item  from=$item}-->
-                                $("select[name=salary_type]").append( $("<option>").val("<!--{$c_key}-->").html("<!--{$c_item}-->") );
-                            <!--{/foreach}-->
-                        }
-                    <!--{/foreach}-->
-                    <!--{foreach key=key item=item from=$arrCurrencyByTarget}-->
-                        if(target == <!--{$key}-->){
-                            <!--{foreach key=c_key item=c_item  from=$item}-->
-                                $("select[name=currency]").append( $("<option>").val("<!--{$c_key}-->").html("<!--{$c_item}-->") );
-                            <!--{/foreach}-->
-                        }
-                    <!--{/foreach}-->
-                    <!--{foreach key=key item=item from=$arrCategoryByTarget}-->
-                        if(target == <!--{$key}-->){
-                            <!--{foreach key=c_key item=c_item  from=$item}-->
-                                var label = $('<label />', { text: '<!--{$c_item}-->' });
-                                var input = $('<input />', { type: 'checkbox', name: 'category_id[]', value: <!--{$c_key}--> });
-                                label.prepend(input);
-                                categoryList.append(label);
-                            <!--{/foreach}-->
-                        }
-                    <!--{/foreach}-->
-                    if(target == 1){
-                        $("select[name=currency]").val('1');
-                    } else {
-                        $("select[name=salary_type]").val('3');
-                    }
-                    $(this).blur(); 
-                }
-                prevTarget = target;
-            }
-        });
-        
-        function detectTargetByEmpStatus(empId){
-            var target = 0;
-            <!--{foreach key=key item=item  from=$arrTargetByEmploymentStatus}-->
-                if(empId == <!--{$key}-->){
-                    target = '<!--{$item}-->';
-                }
-            <!--{/foreach}-->
-            return target;
-        }
-
-        $('select[name=salary_type], select[name=currency]').change(function(){
-            $("select[name=salary_range]").find('option').not(':first').remove();
-            var salaryType = $("select[name=salary_type]").val();
-            var currency = $("select[name=currency]").val();
-            
-            if($(this).attr('name') == 'salary_type' && $('select[name=employment_status]').val() == ''){
-                $("select[name=currency]").find('option').not(':first').remove();
-                if(salaryType == 1 || salaryType == 2){
-                    <!--{foreach key=key item=item from=$arrCurrencyByTarget}-->
-                        if(<!--{$key}--> == 1){
-                            <!--{foreach key=c_key item=c_item  from=$item}-->
-                                $("select[name=currency]").append( $("<option>").val("<!--{$c_key}-->").html("<!--{$c_item}-->") );
-                            <!--{/foreach}-->
-                        }
-                    <!--{/foreach}-->
-                    $("select[name=currency]").val(1);
-                } else {
-                    <!--{foreach key=key item=item from=$arrCurrency}-->
-                        $("select[name=currency]").append( $("<option>").val("<!--{$key}-->").html("<!--{$item}-->") );
-                    <!--{/foreach}-->
-                    $("select[name=currency]").val(currency);
-                }
-            }
-            
-            currency = $("select[name=currency]").val();
-            if(salaryType != '' && salaryType > 0 && currency != '' && currency > 0){
-                <!--{foreach key=key item=item from=$arrSalaryRangeByTypeAndCurrency}-->
-                    if(salaryType == <!--{$key}-->){
-                        <!--{foreach key=t_key item=t_item  from=$item}-->
-                            if(currency == <!--{$t_key}-->){
-                                <!--{foreach key=c_key item=c_item  from=$t_item}-->
-                                    $("select[name=salary_range]").append( $("<option>").val("<!--{$c_key}-->").html("<!--{$c_item}-->") );
-                                <!--{/foreach}-->
-                            }
-                        <!--{/foreach}-->
-                    }
-                <!--{/foreach}-->
-            }
-        });
-    });
+<script type="text/javascript">
+    function back() {
+        document.form1.mode.value = 'back';
+        document.form1.submit();
+    }
 </script>
-<!--{strip}-->
-    <div class="block_outer">
-        <div id="search_area">
-        <h2>Tìm kiếm công việc</h2>
-            <div class="block_body">
-                <!--検索フォーム-->
-                <form name="search_form" id="search_form" method="get" action="<!--{$smarty.const.ROOT_URLPATH}-->products/list.php">
-                    <input type="hidden" name="<!--{$smarty.const.TRANSACTION_ID_NAME}-->" value="<!--{$transactionid}-->" />
+
+<style>
+    input[type='text'].search_free{
+        display: block;
+        width: 625px !important;
+        border: solid 1px #CCC !important;
+        padding: 30px 12px;
+        background: #FFFFFF;
+        color: #63c2cd !important;
+        font-size: 1.2em;
+        border-radius: 5px !important;
+        padding-left: 20px;
+        margin: 0px auto 0em auto !important;
+        transition: all .3s;
+        font-weight: 200;
+    }
+    input[type='text'].search_free:hover, input[type='text'].search_free:focus {
+        border: 1px solid #63c2cd !important;
+        outline: 0px !important;
+        background: #F0F6FF !important;
+        color: #63c2cd !important;
+    }
+</style>
+
+<div class="block_outer">
+    <div id="search_area">
+        <h2 class="search">お仕事検索 <span>ハイペリオンで働きたいお仕事が今すぐ見つかる！</span></h2>
+        <!-- ▼メイン用 商品検索 -->
+        <div id="search_main_area">
+            <h3 id="search_st0">ピッタリ条件de指定検索</h3>
+            <div class="search_main_detail">
+                <!--  検索フォーム  -->
+                <form name="search_form" id="search_form" method="get" action="/products/list.php">
+                    <input type="hidden" name="transactionid" value="98038189d2b2a77be994d3d1d5a1d5689a60de32" />
                     <input type="hidden" name="mode" value="search" />
-                    <input type="hidden" name="prevPage" value="<!--{$prevPage}-->">
-                    <dl>
-                        <dt>Từ khóa</dt>
-                        <dd>
-                            <input type="text" name="name" class="box380" maxlength="50" value="<!--{$smarty.get.name|h}-->" placeholder="Nhập từ khóa" />
-                        </dd>
-                    </dl>
-                    <dl>
-                        <dt>Loại công việc</dt>
-                        <dd>
-                            <select name="employment_status" class="box240">
-                                <!--{if $page != 2}-->
-                                    <option label="Lựa chọn công việc" value="">Lựa chọn công việc</option>
-                                <!--{/if}-->
-                                <!--{if $page > 0}-->
-                                    <!--{html_options options=$arrEmploymentStatusByTarget[$page] selected=$smarty.get.employment_status}-->
-                                <!--{else}-->
-                                    <!--{html_options options=$arrEmploymentStatus selected=$smarty.get.employment_status}-->
-                                <!--{/if}-->
-                            </select>
-                        </dd>
-                    </dl>
-                    <dl>
-                        <dt>Ngành nghề</dt>
-                        <dd>
-                            <div class="checkInsideSelect">
-                                <!--{assign var=count value=$smarty.get.category_id|@count}-->
-                                <!--{assign var=first value=$smarty.get.category_id[0]}-->
-                                <a href="#"><!--{if $count == 0}-->Lựa chọn ngành nghề<!--{elseif $count == 1}--><!--{$arrCatList[$first]}--><!--{else}-->選択条件<!--{$count}--><!--{/if}--></a>
-                                <div class="checkList">
-                                    <!--{if $target > 0}-->
-                                        <!--{html_checkboxes name="category_id" options=$arrCategoryByTarget[$target] selected=$smarty.get.category_id separator=''}-->
-                                    <!--{else}-->
-                                        <!--{html_checkboxes name="category_id" options=$arrCategory selected=$smarty.get.category_id separator=''}-->
-                                    <!--{/if}-->
-                                </div>
+                    <div class="search_main_list">
+                        <div class="clearfix"></div>
+                        <section class="search_st1">                         
+                            <h4 id="search_st1">Step1 : お仕事先のエリアをチェック</h4>
+                            <ul class="search_main_list">
+                                <li><input type="checkbox" name="work_location_flg[]" value="" id="job_g_01" class="checkAll"/><label for="job_g_01" class="checkbox"><span>すべて</span></label>&nbsp;</li>
+                                <!--{foreach from=$arrWorkLocationFlg key=id item=value}-->
+                                    <li><input type="checkbox" name="work_location_flg[]" value="<!--{$id}-->" id="work_location_flg<!--{$id}-->" class="job_g_01"/><label for="work_location_flg<!--{$id}-->" class="checkbox"><span><!--{$value}--></span></label>&nbsp;</li>
+                                <!--{/foreach}-->
+                            </ul>
+                        </section>
+                        <section class="search_st2">
+                            <h4 id="search_st2">Step2 : 希望する職種をチェック</h4>
+                            <ul class="search_main_list">
+                                <li><input type="checkbox" name="category_id[]" value="" id="job_g_02" class="checkAll"/><label for="job_g_02" class="checkbox"><span>すべて</span></label>&nbsp;</li>
+                                <!--{foreach from=$arrCatList key=id item=value}-->
+                                <li><input type="checkbox" name="category_id[]" value="<!--{$id}-->" id="category_id<!--{$id}-->" class="job_g_02"/><label for="category_id<!--{$id}-->" class="checkbox"><span><!--{$value}--></span></label>&nbsp;</li>
+                                <!--{/foreach}-->
+                            </ul>
+                        </section>
+                        <input type="radio" name="switch_st3" id="search_st3">
+                        <section class="search_st2_button" style="text-align: center">
+                            <div class="clearfix"></div>
+                            <a href="#search_st0" class="icon-btn icon-btn-arup icon-link">
+                                <span class="icon-btn-text hidden">▲</span>
+                            </a>
+                            <label class="icon-btn icon-btn-ardown" for="search_st3">
+                                <span class="icon-btn-text">もっと条件を設定</span>
+                            </label>
+                            <button class="icon-btn icon-btn-search" type="submit">
+                                <span class="icon-btn-text">この条件で検索する</span>
+                            </button>
+                        </section>
+                        <section class="search_st3">
+                            <h4 id="search_st3">Step3 : 応募条件・雇用形態をチェック</h4>
+                            <ul class="search_main_list">
+                                <li><input type="checkbox" name="employment_status[]" value="" id="job_g_03" class="checkAll"/><label for="job_g_03" class="checkbox"><span>すべて</span></label>&nbsp;</li>
+                                <!--{foreach from=$arrEMPSTATUS key=id item=value}-->
+                                    <li><input type="checkbox" name="employment_status[]" value="<!--{$id}-->" id="employment_status<!--{$id}-->" class="job_g_03"/><label for="employment_status<!--{$id}-->" class="checkbox"><span><!--{$value}--></span></label>&nbsp;</li>
+                                <!--{/foreach}-->
+                            </ul>
+                        </section>
+                        <input type="radio" name="switch_st4" id="search_st4">
+                        <section class="search_st3_button" style="text-align: center">
+                            <div class="clearfix"></div>
+                            <a href="#search_st0" class="icon-btn icon-btn-arup icon-link">
+                                <span class="icon-btn-text hidden">▲</span>
+                            </a>
+                            <label class="icon-btn icon-btn-ardown" for="search_st4">
+                                <span class="icon-btn-text">もっと条件を設定</span>
+                            </label>
+                            <button class="icon-btn icon-btn-search" type="submit">
+                                <span class="icon-btn-text">この条件で検索する</span>
+                            </button>
+                        </section>
+                        <section class="search_st4">
+                            <h4 id="search_st4">Step4 : 特徴・待遇をチェック</h4>
+                            <ul class="search_main_list">
+                                <li><input type="checkbox" name="appeal_point[]" value="" id="job_g_05" class="checkAll"/><label for="job_g_05" class="checkbox"><span>すべて</span></label>&nbsp;</li>
+                                <!--{foreach from=$arrAPPEALPOINT key=id item=value}-->
+                                    <li><input type="checkbox" name="appeal_point[]" value="<!--{$id}-->" id="appeal_point<!--{$id}-->" class="job_g_05"/><label for="appeal_point<!--{$id}-->" class="checkbox"><span><!--{$value}--></span></label>&nbsp;</li>
+                                <!--{/foreach}-->
+                            </ul>
+                        </section>
+                        <input type="radio" name="switch_st5" id="search_st5">
+                        <section class="search_st4_button" style="text-align: center">
+                            <div class="clearfix"></div>
+                            <a href="#search_st0" class="icon-btn icon-btn-arup icon-link">
+                                <span class="icon-btn-text hidden">▲</span>
+                            </a>
+                            <label class="icon-btn icon-btn-ardown" for="search_st5">
+                                <span class="icon-btn-text">もっと条件を設定</span>
+                            </label>
+                            <button class="icon-btn icon-btn-search" type="submit">
+                                <span class="icon-btn-text">この条件で検索する</span>
+                            </button>
+                        </section>
+                        <section class="search_st5">
+                            <h4 id="search_st5">フリーワードを＋</h4>
+                            <div>
+                                <input type="text" name="name" class="search_free" maxlength="50" value="" placeholder="検索ワードを入力"/>
                             </div>
-                        </dd>
-                    </dl>
-                    <dl>
-                        <dt>Địa điểm làm việc</dt>
-                        <dd>
-                            <div class="checkInsideSelect">
-                                <!--{assign var=count value=$smarty.get.region|@count}-->
-                                <!--{assign var=first value=$smarty.get.region[0]}-->
-                                <a href="#"><!--{if $count == 0}-->Lựa chọn địa điểm làm việc<!--{elseif $count == 1}--><!--{$arrRegion[$first]}--><!--{else}-->選択条件<!--{$count}--><!--{/if}--></a>
-                                <div class="checkList" id="regionCheckList">
-                                    <!--{foreach key=key item=item from=$arrRegion}-->
-                                    <label><input type="checkbox" name="region[]" value="<!--{$key}-->" <!--{if in_array($key,$smarty.get.region)}-->checked="checked"<!--{/if}-->><!--{$item}--></label>
-                                    <div <!--{if !in_array($key,$smarty.get.region)}-->style='display: none'<!--{/if}-->><!--{html_checkboxes name="city" options=$arrCityByRegion[$key] selected=$smarty.get.city separator=''}--></div>
-                                    <!--{/foreach}-->
-                                </div>
-                            </div>
-                        </dd>
-                    </dl>
-                    <div id="more_condition" style="<!--{if $smarty.get.salary_type == '' && $smarty.get.currency == '' && $smarty.get.salary_range == '' && $smarty.get.welfare|@count == 0}-->display: none<!--{/if}-->">
-                        <dl>
-                            <dt>Lương</dt>
-                            <dd>
-                                <select name="salary_type" class="box150">
-                                    <!--{if $target != 2}-->
-                                        <option label="Lựa chọn hình thức trả lương" value="">Lựa chọn hình thức trả lương</option>
-                                    <!--{/if}-->
-                                    <!--{if $target > 0}-->
-                                        <!--{html_options options=$arrSalaryTypeByTarget[$target] selected=$smarty.get.salary_type}-->
-                                    <!--{else}-->
-                                        <!--{html_options options=$arrSalaryType selected=$smarty.get.salary_type}-->
-                                    <!--{/if}-->
-                                </select> &nbsp; 
-                                <select name="currency" class="box100">
-                                    <!--{if $target != 1}-->
-                                        <option label="Lựa chọn loại tiền tệ" value="">Lựa chọn loại tiền tệ</option>
-                                    <!--{/if}-->
-                                    <!--{if $target > 0}-->
-                                        <!--{html_options options=$arrCurrencyByTarget[$target] selected=$smarty.get.currency}-->
-                                    <!--{else}-->
-                                        <!--{html_options options=$arrCurrency selected=$smarty.get.currency}-->
-                                    <!--{/if}-->
-                                </select> &nbsp; 
-                                <select name="salary_range" class="box150">
-                                    <option label="Chọn mức lương" value="">Chọn mức lương</option>
-                                    <!--{if $smarty.get.salary_type > 0 && $smarty.get.currency > 0}-->
-                                        <!--{html_options options=$arrSalaryRangeByTypeAndCurrency[$smarty.get.salary_type][$smarty.get.currency] selected=$smarty.get.salary_range}-->
-                                    <!--{/if}-->
-                                </select>
-                            </dd>
-                        </dl>
-                        <dl>
-                            <dt>Điều kiện khác</dt>
-                            <dd>
-                                <div class="checkInsideSelect">
-                                    <!--{assign var=count value=$smarty.get.welfare|@count}-->
-                                    <!--{assign var=first value=$smarty.get.welfare[0]}-->
-                                    <a href="#"><!--{if $count == 0}-->Lựa chọn điều kiện khác<!--{elseif $count == 1}--><!--{$arrWelfare[$first]}--><!--{else}-->選択条件<!--{$count}--><!--{/if}--></a>
-                                    <div class="checkList">
-                                        <!--{html_checkboxes name="welfare" options=$arrWelfare selected=$smarty.get.welfare separator=''}-->
-                                    </div>
-                                </div>
-                            </dd>
-                        </dl>
+                        </section>
+                        <section class="search_st5_button" style="text-align: center">
+                            <div class="clearfix"></div>
+                            <a href="#search_st0" class="icon-btn icon-btn-arup icon-link">
+                                <span class="icon-btn-text hidden">▲</span>
+                            </a>
+                            <button class="icon-btn icon-btn-search" type="submit">
+                                <span class="icon-btn-text">この条件で検索する</span>
+                            </button>
+                            <div class="clearfix"></div>
+                        </section>
                     </div>
-                    <p class="alignL"><a href="#" id="show_more_condition">≫ Tìm kiếm nâng cao</a></p>
-                    <p class="btn"><input type="submit" value="TÌM KIẾM" name="search" /><br /></p>
-                </form>
-            </div>
+                </form><!--  検索フォーム  -->
+            </div><!-- ▲メイン -->
         </div>
     </div>
-<!--{/strip}-->
+</div>
+<br />
+<!-- ▲メイン用 商品検索 -->
+
+

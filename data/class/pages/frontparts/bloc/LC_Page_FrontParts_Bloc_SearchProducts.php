@@ -3,7 +3,7 @@
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -22,6 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// {{{ requires
 require_once CLASS_EX_REALDIR . 'page_extends/frontparts/bloc/LC_Page_FrontParts_Bloc_Ex.php';
 
 /**
@@ -32,13 +33,15 @@ require_once CLASS_EX_REALDIR . 'page_extends/frontparts/bloc/LC_Page_FrontParts
  * @version $Id:LC_Page_FrontParts_Bloc_SearchProducts.php 15532 2007-08-31 14:39:46Z nanasess $
  */
 class LC_Page_FrontParts_Bloc_SearchProducts extends LC_Page_FrontParts_Bloc_Ex {
+    // }}}
+    // {{{ functions
 
     /**
      * Page を初期化する.
      *
      * @return void
      */
-    public function init() {
+    function init() {
         parent::init();
     }
 
@@ -47,7 +50,7 @@ class LC_Page_FrontParts_Bloc_SearchProducts extends LC_Page_FrontParts_Bloc_Ex 
      *
      * @return void
      */
-    public function process() {
+    function process() {
         $this->action();
         $this->sendResponse();
     }
@@ -57,79 +60,141 @@ class LC_Page_FrontParts_Bloc_SearchProducts extends LC_Page_FrontParts_Bloc_Ex 
      *
      * @return void
      */
-    public function action() {
+    function action() {
+
+        // 商品ID取得
+        $product_id = $this->lfGetProductId();
+        // カテゴリID取得
+        $category_id = $this->lfGetCategoryId();
+        // メーカーID取得
+        $maker_id = $this->lfGetMakerId();
+        // 選択中のカテゴリIDを判定する
+        $this->category_id = $this->lfGetSelectedCategoryId($product_id, $category_id);
+        // カテゴリ検索用選択リスト
+        $this->arrCatList = $this->lfGetCategoryList();
+        // 選択中のメーカーIDを判定する
+        $this->maker_id = $this->lfGetSelectedMakerId($product_id, $maker_id);
+        // メーカー検索用選択リスト
+        $this->arrMakerList = $this->lfGetMakerList();
+
         $masterData = new SC_DB_MasterData_Ex();
-        $this->arrRegion = $masterData->getMasterData('mtb_region');
-        $this->arrWelfare = $masterData->getMasterData('mtb_welfare');
+        $this->arrWorkLocationFlg = $masterData->getMasterData('mtb_work_location_flg');
+        $this->arrAPPEALPOINT = $masterData->getMasterData('mtb_appeal_point');
+        $this->arrCONDITION = $masterData->getMasterData('mtb_condition');
+        $this->arrEMPSTATUS = $masterData->getMasterData('mtb_employment_status');
+        foreach ($this->arrEMPSTATUS as $key => $value) {
+            $index = ($key - 1) / 4;
+            $this->arrEMPSTATUSS[$index][$key] = $value;
+        }
+    }
 
-        $this->arrEmploymentStatus = $masterData->getMasterData('mtb_employment_status');
-        $this->arrEmploymentStatusByTarget[1] = array(1 => $this->arrEmploymentStatus[1], 2 => $this->arrEmploymentStatus[2], 3 => $this->arrEmploymentStatus[3]);
-        $this->arrEmploymentStatusByTarget[2] = array(1 => $this->arrEmploymentStatus[1]);
-        $this->arrTargetByEmploymentStatus = array(1 => 2, 2 => 1, 3 => 1);
-        $this->arrSalaryType = $masterData->getMasterData('mtb_salary_type');
-        $this->arrSalaryTypeByTarget[1] = array(1 => $this->arrSalaryType[1], 2 => $this->arrSalaryType[2]);
-        $this->arrSalaryTypeByTarget[2] = array(3 => $this->arrSalaryType[3]);
-        $this->arrCurrency = $masterData->getMasterData('mtb_currency');
-        $this->arrCurrencyByTarget[1] = array(1 => $this->arrCurrency[1]);
-        $this->arrCurrencyByTarget[2] = $this->arrCurrency;
+    /**
+     * デストラクタ.
+     *
+     * @return void
+     */
+    function destroy() {
+        parent::destroy();
+    }
 
-        $this->arrCity = $masterData->getMasterData('mtb_city');
-        $objQuery = & SC_Query_Ex::getSingletonInstance();
-        $arrCity = $objQuery->select('*', 'mtb_city');
-        $this->arrCityByRegion = array();
-        foreach ($arrCity as $city)
-            $this->arrCityByRegion[$city['region_id']][$city['id']] = $city['name_vn'];
+    /**
+     * 商品IDを取得する.
+     *
+     * @return string $product_id 商品ID
+     */
+    function lfGetProductId() {
+        $product_id = '';
+        if (isset($_GET['product_id']) && $_GET['product_id'] != '' && is_numeric($_GET['product_id'])) {
+            $product_id = $_GET['product_id'];
+        }
+        return $product_id;
+    }
 
-        $this->arrCategory = $masterData->getMasterData('mtb_category');
-        $arrCategory = $objQuery->select('*', 'mtb_category');
-        $this->arrCategoryByTarget = array();
-        foreach ($arrCategory as $category){
-            if($category['object_id'] != '' && $category['object_id'] > 0)
-                $this->arrCategoryByTarget[$category['object_id']][$category['id']] = $category['name_vn'];
-            else{
-                $this->arrCategoryByTarget[1][$category['id']] = $category['name_vn'];
-                $this->arrCategoryByTarget[2][$category['id']] = $category['name_vn'];
+    /**
+     * カテゴリIDを取得する.
+     *
+     * @return string $category_id カテゴリID
+     */
+    function lfGetCategoryId() {
+        $category_id = '';
+        if (isset($_GET['category_id']) && $_GET['category_id'] != '' && is_numeric($_GET['category_id'])) {
+            $category_id = $_GET['category_id'];
+        }
+        return $category_id;
+    }
+
+    /**
+     * メーカーIDを取得する.
+     *
+     * @return string $maker_id メーカーID
+     */
+    function lfGetMakerId() {
+        $maker_id = '';
+        if (isset($_GET['maker_id']) && $_GET['maker_id'] != '' && is_numeric($_GET['maker_id'])) {
+            $maker_id = $_GET['maker_id'];
+        }
+        return $maker_id;
+    }
+
+    /**
+     * 選択中のカテゴリIDを取得する
+     *
+     * @return array $arrCategoryId 選択中のカテゴリID
+     */
+    function lfGetSelectedCategoryId($product_id, $category_id) {
+        // 選択中のカテゴリIDを判定する
+        $objDb = new SC_Helper_DB_Ex();
+        $arrCategoryId = $objDb->sfGetCategoryId($product_id, $category_id);
+        return $arrCategoryId;
+    }
+
+    /**
+     * 選択中のメーカーIDを取得する
+     *
+     * @return array $arrMakerId 選択中のメーカーID
+     */
+    function lfGetSelectedMakerId($product_id, $maker_id) {
+        // 選択中のメーカーIDを判定する
+        $objDb = new SC_Helper_DB_Ex();
+        $arrMakerId = $objDb->sfGetMakerId($product_id, $maker_id);
+        return $arrMakerId;
+    }
+
+    /**
+     * カテゴリ検索用選択リストを取得する
+     *
+     * @return array $arrCategoryList カテゴリ検索用選択リスト
+     */
+    function lfGetCategoryList() {
+        $objDb = new SC_Helper_DB_Ex();
+        // カテゴリ検索用選択リスト
+        $arrCategoryList = $objDb->sfGetCategoryList('', true, '　');
+        if (is_array($arrCategoryList)) {
+            // 文字サイズを制限する
+            foreach ($arrCategoryList as $key => $val) {
+                $truncate_str = SC_Utils_Ex::sfCutString($val, SEARCH_CATEGORY_LEN, false);
+                $arrCategoryList[$key] = preg_replace('/　/u', '&nbsp;&nbsp;', $truncate_str);
             }
         }
+        return $arrCategoryList;
+    }
 
-        $arrSalaryRange = $objQuery->select('*', 'mtb_salary_range');
-        $arrSalaryRangeByTypeAndCurrency = array();
-        foreach ($arrSalaryRange as $range) {
-            $type = substr($range['id'], 0, 1);
-            $arrSalaryRangeByTypeAndCurrency[$type][$range['currency_id']][$range['id']] = SC_Utils_Ex::sfBriefPrice($range['name'], $this->arrCurrency[$range['currency_id']]);
-        }
-        $this->arrSalaryRangeByTypeAndCurrency = array();
-        foreach ($arrSalaryRangeByTypeAndCurrency as $type => $arr1) {
-            foreach ($arr1 as $currencyId => $arr2) {
-                $k = 0;
-                foreach ($arr2 as $id => $value) {
-                    $k++;
-                    if ($k == 1)
-                        $this->arrSalaryRangeByTypeAndCurrency[$type][$currencyId][$id . '0'] = 'Dưới '.$value ;
-                    if ($k == count($arr2))
-                        $this->arrSalaryRangeByTypeAndCurrency[$type][$currencyId][$id . '00'] ='Trên '.$value;
-                    else
-                        $this->arrSalaryRangeByTypeAndCurrency[$type][$currencyId][$id] = $value . '〜' . $arrSalaryRangeByTypeAndCurrency[$type][$currencyId][$id + 1];
-                }
+    /**
+     * メーカー検索用選択リストを取得する
+     *
+     * @return array $arrMakerList メーカー検索用選択リスト
+     */
+    function lfGetMakerList() {
+        $objDb = new SC_Helper_DB_Ex();
+        // メーカー検索用選択リスト
+        $arrMakerList = $objDb->sfGetMakerList('', true);
+        if (is_array($arrMakerList)) {
+            // 文字サイズを制限する
+            foreach ($arrMakerList as $key => $val) {
+                $arrMakerList[$key] = SC_Utils_Ex::sfCutString($val, SEARCH_CATEGORY_LEN, false);
             }
         }
-
-        $this->prevPage = $_SERVER['REQUEST_URI'];
-        if (isset($_GET['prevPage']))
-            $this->prevPage = $_GET['prevPage'];
-        $this->page = 0;
-        $this->target = 0;
-
-        if ($this->prevPage == '/user_data/vietnam.php') {
-            $this->page = 2;
-            $this->target = 2;
-        } else if ($this->prevPage == '/user_data/japan.php')
-            $this->page = 1;
-
-        if ($_REQUEST['employment_status'][0] == 1)
-            $this->target = 2;
-        else if ($_REQUEST['employment_status'] == 2 || $_REQUEST['employment_status'] == 3)
-            $this->target = 1;
+        return $arrMakerList;
     }
 
 }

@@ -1,9 +1,9 @@
 <?php
 /*
  * CheckedItems
- * Copyright(c) 2015 DAISY Inc. All Rights Reserved.
+ * Copyright(c) 2012-2014 DELIGHT Inc. All Rights Reserved.
  *
- * http://www.daisy.link/
+ * http://www.delight-web.com/
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,7 +27,7 @@ require_once CLASS_EX_REALDIR . 'page_extends/admin/LC_Page_Admin_Ex.php';
  * 最近チェックした商品の設定クラス
  *
  * @package CheckedItems
- * @author DAISY Inc.
+ * @author DELIGHT Inc.
  * @version $Id: $
  */
 class LC_Page_Plugin_CheckedItems_Config extends LC_Page_Admin_Ex {

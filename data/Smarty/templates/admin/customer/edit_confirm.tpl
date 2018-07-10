@@ -2,7 +2,7 @@
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -34,18 +34,15 @@ function func_return(){
 </script>
 
 
-<form name="form1" id="form1" method="post" action="?" enctype="multipart/form-data">
+<form name="form1" id="form1" method="post" action="?">
     <input type="hidden" name="<!--{$smarty.const.TRANSACTION_ID_NAME}-->" value="<!--{$transactionid}-->" />
     <input type="hidden" name="mode" value="complete" />
-    <!--{foreach key=key item=item from=$arrForm.arrHidden}-->
-    <input type="hidden" name="<!--{$key}-->" value="<!--{$item|h}-->" />
-    <!--{/foreach}-->
 
     <!--{foreach from=$arrForm key=key item=item}-->
         <!--{if $key ne "mode" && $key ne "subm" && $key ne $smarty.const.TRANSACTION_ID_NAME}-->
-            <!--{if is_array($item)}-->
-                <!--{foreach item=statusVal from=$item}-->
-                    <input type="hidden" name="<!--{$key}-->[]" value="<!--{$statusVal|h}-->" />
+			<!--{if is_array($item)}-->
+                <!--{foreach item=c_item from=$item}-->
+                    <input type="hidden" name="<!--{$key|h}-->[]" value="<!--{$c_item|h}-->" />
                 <!--{/foreach}-->
             <!--{else}-->
                 <input type="hidden" name="<!--{$key|h}-->" value="<!--{$item|h}-->" />
@@ -73,6 +70,14 @@ function func_return(){
                 <td><!--{$arrForm.customer_id|h}--></td>
             </tr>
             <tr>
+                <th>スタッフID</th>
+                <td><!--{$arrForm.staff_id|h}--></td>
+            </tr>
+            <tr>
+                <th>会員状態</th>
+                <td><!--{if $arrForm.status == 1}-->仮会員<!--{else}-->本会員<!--{/if}--></td>
+            </tr>
+            <tr>
                 <th>お名前</th>
                 <td><!--{$arrForm.name01|h}--><!--{$arrForm.name02|h}-->　様</td>
             </tr>
@@ -80,35 +85,17 @@ function func_return(){
                 <th>お名前(フリガナ)</th>
                 <td><!--{$arrForm.kana01|h}--><!--{$arrForm.kana02|h}-->　様</td>
             </tr>
-            <!--{if $smarty.const.FORM_COUNTRY_ENABLE}-->
             <tr>
-                <th>国</th>
-                <td><!--{$arrCountry[$arrForm.country_id]|h}--></td>
-            </tr>
-            <tr>
-                <th>ZIPCODE</th>
-                <td><!--{$arrForm.zipcode|h}--></td>
-            </tr>
-            <!--{/if}-->
-            <tr>
-                <th>現住所</th>
-                <td><!--{$arrTarget[$arrForm.current_address]|h}--></td>
-            </tr>
-            <tr <!--{if $arrForm.current_address != 1}-->style="display: none"<!--{/if}-->>
                 <th>郵便番号</th>
                 <td>〒 <!--{$arrForm.zip01|h}--> - <!--{$arrForm.zip02|h}--></td>
             </tr>
             <tr>
-                <th>都道府県</th>
-                <td><!--{$arrPref[$arrForm.pref]|h}--></td>
-            </tr>
-            <tr>
-                <th>市区町村</th>
-                <td><!--{$arrForm.addr01|h}--></td>
-            </tr>
-            <tr>
                 <th>住所</th>
-                <td><!--{$arrForm.addr02|h}--></td>
+                <td><!--{$arrPref[$arrForm.pref]|h}--><!--{$arrForm.addr01|h}--><!--{$arrForm.addr02|h}--></td>
+            </tr>
+            <tr>
+                <th>最寄駅</th>
+                <td><!--{$arrForm.metro_name|h}--> 線 &nbsp; &nbsp; <!--{$arrForm.bus_stop|h}-->　駅</td>
             </tr>
             <tr>
                 <th>メールアドレス</th>
@@ -123,12 +110,48 @@ function func_return(){
                 <td><!--{$arrForm.tel01|h}--> - <!--{$arrForm.tel02|h}--> - <!--{$arrForm.tel03|h}--></td>
             </tr>
             <tr>
-                <th>性別</th>
+                <th>FAX</th>
+                <td><!--{if strlen($arrForm.fax01) > 0}--><!--{$arrForm.fax01|h}--> - <!--{$arrForm.fax02|h}--> - <!--{$arrForm.fax03|h}--><!--{else}-->未登録<!--{/if}--></td>
+            </tr>
+            <tr>
+                <th>ご性別</th>
                 <td><!--{$arrSex[$arrForm.sex]|h}--></td>
+            </tr>
+            <tr>
+                <th>希望する就業形態</th>
+                <td>
+                    <!--{foreach from=$arrForm.job item=item}-->
+                        <!--{$arrEMPSTATUS[$item]|h}--> &nbsp; &nbsp; 
+                    <!--{/foreach}-->
+		</td>
             </tr>
             <tr>
                 <th>生年月日</th>
                 <td><!--{if strlen($arrForm.year) > 0 && strlen($arrForm.month) > 0 && strlen($arrForm.day) > 0}--><!--{$arrForm.year|h}-->年<!--{$arrForm.month|h}-->月<!--{$arrForm.day|h}-->日<!--{else}-->未登録<!--{/if}--></td>
+            </tr>
+            <tr>
+                <th>派遣料金</th>
+                <td><!--{$arrForm.price|h}--> 円</td>
+            </tr>
+            <tr>
+                <th>社会ステータス</th>
+                <td><!--{$arrSocialStatus[$arrForm.social_status]|h}--></td>
+            </tr>
+            <tr>
+                <th>国籍</th>
+                <td><!--{$arrForm.nationality|h}--></td>
+            </tr>
+            <tr>
+                <th>ビザの種類</th>
+                <td><!--{$arrVisaType[$arrForm.visa_type]|h}--></td>
+            </tr>
+            <tr>
+                <th>給与明細発行形態</th>
+                <td><!--{$arrSalaryIssued[$arrForm.salary_issued]|h}--></td>
+            </tr>
+            <tr>
+                <th>給与受取区分</th>
+                <td><!--{$arrSalaryType[$arrForm.salary_type]|h}--></td>
             </tr>
             <tr>
                 <th>パスワード</th>
@@ -141,138 +164,56 @@ function func_return(){
                     答え： <!--{$smarty.const.DEFAULT_PASSWORD}-->
                 </td>
             </tr>
+
+			<tr>
+                <th>銀行名<span class="attention">※</span></th>
+                <td><!--{$arrForm.bank|h}--></td>
+            </tr>
+            <tr>
+                <th>銀行支店名<span class="attention">※</span></th>
+                <td><!--{$arrForm.bank_branch|h}--></td>
+            </tr>
+            <tr>
+                <th>支店番号</th>
+                <td><!--{$arrForm.branch_code|h}--></td>
+            </tr>
+            <tr>
+                <th>口座名義<span class="attention">※</span></th>
+                <td><!--{$arrForm.account_holder1|h}--> <!--{$arrForm.account_holder1|h}--></td>
+            </tr>
+            <tr>
+                <th>預金種目<span class="attention">※</span></th>
+                <td><!--{$arrFLAG[$arrForm.event_deposit]|h}--></td>
+            </tr>
+            <tr>
+                <th>口座番号s<span class="attention">※</span></th>
+                <td><!--{$arrForm.account_number|h}--></td>
+            </tr>
+            <tr>
+                <th>受信メール種類設定</th>
+                <td>
+                    <!--{foreach from=$arrForm.incoming_mail_type item=item}-->
+                        <!--{$arrIncomingMailType[$item]|h}--> &nbsp; &nbsp; 
+                    <!--{/foreach}-->
+		</td>
+            </tr>
             <tr>
                 <th>メールマガジン</th>
-                <td><!--{$arrMailMagazineType[$arrForm.mailmaga_flg]|h}--></td>
+                <td><!--{if $arrForm.mailmaga_flg eq 1}-->HTML<!--{elseif $arrForm.mailmaga_flg eq 2}-->テキスト<!--{else}-->希望しない<!--{/if}--></td>
             </tr>
             <tr>
-                <th>写真</th>
-                <td>
-                    <!--{assign var=key value="image"}-->
-                    <!--{if $arrForm.arrFile[$key].filepath != ""}-->
-                        <img src="<!--{$arrForm.arrFile[$key].filepath}-->" alt="<!--{$arrForm.name01|h}--><!--{$arrForm.name02|h}-->" /><br />
-                    <!--{/if}-->
-                </td>
+                <th>SHOP用メモ</th>
+                <td><!--{$arrForm.note|h|nl2br|default:"未登録"}--></td>
             </tr>
             <tr>
-                <th>婚姻状態</th>
-                <td><!--{$arrMaritalStatus[$arrForm.marital_status]|h}--></td>
-            </tr>
-            <tr>
-                <th>最終学歴</th>
-                <td><!--{$arrEducation[$arrForm.education]|h}--></td>
-            </tr>
-            <tr>
-                <th>学校名</th>
-                <td><!--{$arrForm.school_name|h}--></td>
-            </tr>
-            <tr>
-                <th>専攻</th>
-                <td><!--{$arrForm.major|h}--></td>
-            </tr>
-            <tr>
-                <th>職歴</th>
-                <td><!--{$arrWorkExperience[$arrForm.work_experience]|h}--></td>
+                <th>所持ポイント</th>
+                <td><!--{$arrForm.point|default:"0"|h}--> pt</td>
             </tr>
         </table>
-            
-        <!--{if $arrForm.work_experience == 1}-->
-            <h2>職歴</h2>
-            <table class="list" id="career_list">
-                <tr>
-                    <th style="width: 20%">開始日 ~ 終了日</th>
-                    <th style="width: 8%">年間</th>
-                    <th style="width: 22%">会社名</th>
-                    <th style="width: 22%">住所</th>
-                    <th style="width: 28%">仕事内容</th>
-                </tr>
-                <!--{section name=cnt loop=5}-->
-                    <!--{assign var=index value="`$smarty.section.cnt.index`"}-->
-                    <!--{if $arrForm.working_company_name[$index] != ''}-->
-                <tr>
-                    <td>
-                        <!--{if strlen($arrForm.start_year[$index]) > 0 && strlen($arrForm.start_month[$index]) > 0}--><!--{$arrForm.start_year[$index]|h}-->年<!--{$arrForm.start_month[$index]|h}-->月<!--{else}-->未登録<!--{/if}--> ~ 
-                        <!--{if strlen($arrForm.end_year[$index]) > 0 && strlen($arrForm.end_month[$index]) > 0}--><!--{$arrForm.end_year[$index]|h}-->年<!--{$arrForm.end_month[$index]|h}-->月<!--{else}-->未登録<!--{/if}-->
-                    </td>
-                    <td><!--{$arrForm.working_year[$index]|h}--></td>
-                    <td><!--{$arrForm.working_company_name[$index]|h}--></td>
-                    <td><!--{$arrForm.company_addr[$index]|h}--></td>
-                    <td><!--{$arrForm.job_description[$index]|h}--></td>
-                </tr>
-                    <!--{/if}-->
-                <!--{/section}-->
-            </table>
-        <!--{/if}-->
-            
-        <table class="form">
-            <tr>
-                <th>希望職種</th>
-                <td>
-                    <!--{foreach from=$arrForm.desired_work item=status}-->
-                        <!--{if $status != ""}-->
-                            <!--{$arrCategory[$status]}--><br />
-                        <!--{/if}-->
-                    <!--{/foreach}-->
-                </td>
-            </tr>
-            <tr>
-                <th>希望ポジション</th>
-                <td>
-                    <!--{foreach from=$arrForm.desired_position item=status}-->
-                        <!--{if $status != ""}-->
-                            <!--{$arrPosition[$status]}--><br /> 
-                        <!--{/if}-->
-                    <!--{/foreach}-->
-                </td>
-            </tr>
-            <tr>
-                <th>現在の給料</th>
-                <td><!--{if strlen($arrForm.current_salary) >= 1}--><!--{$arrForm.current_salary|h}--> 円<!--{/if}--></td>
-            </tr>
-            <tr>
-                <th>希望給料</th>
-                <td><!--{if strlen($arrForm.desired_salary) >= 1}--><!--{$arrForm.desired_salary|h}--> 円<!--{/if}--></td>
-            </tr>
-            <tr>
-                <th>希望勤務地</th>
-                <td>
-                    <!--{foreach from=$arrForm.desired_region item=status}-->
-                        <!--{if $status != ""}-->
-                            <!--{$arrRegion[$status]}--><br />
-                        <!--{/if}-->
-                    <!--{/foreach}-->
-                </td>
-            </tr>
-            <tr>
-                <th>日本語レベル</th>
-                <td>JLPT：<!--{$arrJLPT[$arrForm.jp_level]|h}--><br />その他：<!--{$arrForm.jp_other|h|default:"無し"}--></td>
-            </tr>
-            <tr>
-                <th>英語レベル</th>
-                <td>TOEIC：<!--{$arrForm.toeic|h}--><br />IELTS：<!--{$arrForm.ielts|h}--><br />その他：<!--{$arrForm.eng_other|h|default:"無し"}--></td>
-            </tr>
-            <tr>
-                <th>他の言語</th>
-                <td><!--{$arrForm.other_language|h|nl2br|default:"未登録"}--></td>
-            </tr>
-            <tr>
-                <th>資格</th>
-                <td><!--{$arrForm.qualification|h|nl2br|default:"未登録"}--></td>
-            </tr>
-            <tr>
-                <th>スキル</th>
-                <td><!--{$arrForm.skill|h|nl2br|default:"未登録"}--></td>
-            </tr>
-            <tr>
-                <th>自己PR</th>
-                <td><!--{$arrForm.self_pr|h|nl2br|default:"未登録"}--></td>
-            </tr>
-        </table>
-
         <div class="btn-area">
             <ul>
                 <li><a class="btn-action" href="javascript:;" onclick="func_return(); return false;"><span class="btn-prev">編集画面に戻る</span></a></li>
-                <li><a class="btn-action" href="javascript:;" onclick="eccube.fnFormModeSubmit('form1', 'complete', '', ''); return false;"><span class="btn-next">この内容で登録する</span></a></li>
+                <li><a class="btn-action" href="javascript:;" onclick="fnFormModeSubmit('form1', 'complete', '', ''); return false;"><span class="btn-next">この内容で登録する</span></a></li>
             </ul>
         </div>
     </div>

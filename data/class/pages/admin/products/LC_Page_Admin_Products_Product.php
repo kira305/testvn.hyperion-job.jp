@@ -3,7 +3,7 @@
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -22,23 +22,26 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// {{{ requires
 require_once CLASS_EX_REALDIR . 'page_extends/admin/products/LC_Page_Admin_Products_Ex.php';
 
 /**
- * 求人登録 のページクラス
+ * 商品登録 のページクラス
  *
  * @package Page
  * @author LOCKON CO.,LTD.
- * @version $Id$
+ * @version $Id: LC_Page_Admin_Products_Product.php 21935 2012-06-21 06:02:41Z pineray $
  */
 class LC_Page_Admin_Products_Product extends LC_Page_Admin_Products_Ex {
+    // }}}
+    // {{{ functions
 
     /**
      * Page を初期化する.
      *
      * @return void
      */
-    public function init() {
+    function init() {
         parent::init();
         $this->tpl_mainpage = 'products/product.tpl';
         $this->tpl_mainno = 'products';
@@ -50,58 +53,33 @@ class LC_Page_Admin_Products_Product extends LC_Page_Admin_Products_Ex {
         $this->arrProductType = $masterData->getMasterData('mtb_product_type');
         $this->arrDISP = $masterData->getMasterData('mtb_disp');
         $this->arrSTATUS = $masterData->getMasterData('mtb_status');
+        $this->arrMODE = $masterData->getMasterData('mtb_product_mode');
+        $this->arrSTATUS_IMAGE = $masterData->getMasterData('mtb_status_image');
         $this->arrDELIVERYDATE = $masterData->getMasterData('mtb_delivery_date');
-        $this->arrMaker = SC_Helper_Maker_Ex::getIDValueList();
+        $this->arrMaker = SC_Helper_DB_Ex::sfGetIDValueList('dtb_maker', 'maker_id', 'name');
         $this->arrAllowedTag = $masterData->getMasterData('mtb_allowed_tag');
-
-        $this->arrDummyFlg = array(0 => '本物', 1 => 'ダミー');
-        $this->arrTarget = $masterData->getMasterData('mtb_object');
-        foreach ($this->arrTarget as &$target)
-            $target .= '在住';
-        $this->arrPref = $masterData->getMasterData('mtb_pref');
-        $this->arrEmploymentStatus = $masterData->getMasterData('mtb_employment_status');
-        $this->arrEmploymentStatusByTarget[1] = array(1 => $this->arrEmploymentStatus[1], 2 => $this->arrEmploymentStatus[2], 3 => $this->arrEmploymentStatus[3]);
-        $this->arrEmploymentStatusByTarget[2] = array(1 => $this->arrEmploymentStatus[1]);
-        $this->arrTargetByEmploymentStatus = array(1 => 2, 2 => 1, 3 => 1);
-        $this->arrSalaryType = $masterData->getMasterData('mtb_salary_type');
-        $this->arrSalaryTypeByTarget[1] = array(1 => $this->arrSalaryType[1], 2 => $this->arrSalaryType[2]);
-        $this->arrSalaryTypeByTarget[2] = array(3 => $this->arrSalaryType[3]);
-        $this->arrCurrency = $masterData->getMasterData('mtb_currency');
-        $this->arrCurrencyByTarget[1] = array(1 => $this->arrCurrency[1]);
-        $this->arrCurrencyByTarget[2] = $this->arrCurrency;
-        $this->arrPosition = $masterData->getMasterData('mtb_position');
-        $this->arrRegion = $masterData->getMasterData('mtb_region');
-        $this->arrSex = $masterData->getMasterData('mtb_sex');
-        $this->arrWelfare = $masterData->getMasterData('mtb_welfare');
-        $this->arrProcess = $masterData->getMasterData('mtb_process');
+        $this->arrEMPSTATUS = $masterData->getMasterData('mtb_employment_status');
+        $this->arrAPPEALPOINT = $masterData->getMasterData('mtb_appeal_point');
+        $this->arrCONDITION = $masterData->getMasterData('mtb_condition');
+        $this->arrWorkLocationFlg = $masterData->getMasterData('mtb_work_location_flg');
+        $this->arrSUBTITLE = $masterData->getMasterData('mtb_subtitle');
+        $this->arrRECNEWSFLG = array(1 => '派遣', 2 => 'スポット派遣', 3 => '紹介');
+        $this->arrNEWSFLG = array(1 => 'オススメ', 2 => '非表示');
+        $this->arrDUMMYFLG = array(1 => '本物', 2 => 'ダミー');
 
         $objDate = new SC_Date_Ex(RELEASE_YEAR);
-        $this->arrEndYear = $objDate->getYear();
+        $this->arrYear = $objDate->getYear();
         $this->arrMonth = $objDate->getMonth();
         $this->arrDay = $objDate->getDay();
 
+        $where = 'del_flg = 0';
         $objQuery = & SC_Query_Ex::getSingletonInstance();
-        $arrConcierge = $objQuery->select('member_id, name', 'dtb_member', 'authority = 2');
-        $this->arrConcierge = array();
-        foreach ($arrConcierge as $concierge)
-            $this->arrConcierge[$concierge['member_id']] = $concierge['name'];
-
-        $arrCity = $objQuery->select('*', 'mtb_city');
-        $this->arrCityByRegion = array();
-        foreach ($arrCity as $city)
-            $this->arrCityByRegion[$city['region_id']][$city['id']] = $city['name'];
-
-        $this->arrCategory = $masterData->getMasterData('mtb_category');
-        $arrCategory = $objQuery->select('*', 'mtb_category');
-        $this->arrCategoryByTarget = array();
-        foreach ($arrCategory as $category) {
-            if ($category['object_id'] != '' && $category['object_id'] > 0)
-                $this->arrCategoryByTarget[$category['object_id']][$category['id']] = $category['name'];
-            else {
-                $this->arrCategoryByTarget[1][$category['id']] = $category['name'];
-                $this->arrCategoryByTarget[2][$category['id']] = $category['name'];
-            }
-        }
+        $agencyList = $objQuery->select('agency_id, agency_name', 'dtb_agency', $where);
+        foreach ($agencyList as $agenc)
+            $this->arrAGENCY[$agenc['agency_id']] = $agenc['agency_name'];
+        $corporateList = $objQuery->select('agency_id, corporate_id, pharmacy_name', 'mtb_corporate', $where);
+        foreach ($corporateList as $corporate)
+            $this->arrCORPORATE[$corporate['agency_id']][$corporate['corporate_id']] = $corporate['pharmacy_name'];
     }
 
     /**
@@ -109,7 +87,7 @@ class LC_Page_Admin_Products_Product extends LC_Page_Admin_Products_Ex {
      *
      * @return void
      */
-    public function process() {
+    function process() {
         $this->action();
         $this->sendResponse();
     }
@@ -119,7 +97,7 @@ class LC_Page_Admin_Products_Product extends LC_Page_Admin_Products_Ex {
      *
      * @return void
      */
-    public function action() {
+    function action() {
         $objFormParam = new SC_FormParam_Ex();
 
         // アップロードファイル情報の初期化
@@ -139,7 +117,7 @@ class LC_Page_Admin_Products_Product extends LC_Page_Admin_Products_Ex {
         switch ($mode) {
             case 'pre_edit':
             case 'copy' :
-                // パラメーター初期化(求人ID)
+                // パラメーター初期化(商品ID)
                 $this->lfInitFormParam_PreEdit($objFormParam, $_POST);
                 // エラーチェック
                 $this->arrErr = $objFormParam->checkError();
@@ -147,14 +125,14 @@ class LC_Page_Admin_Products_Product extends LC_Page_Admin_Products_Ex {
                     trigger_error('', E_USER_ERROR);
                 }
 
-                // 求人ID取得
+                // 商品ID取得
                 $product_id = $objFormParam->getValue('product_id');
-                // 求人データ取得
+                // 商品データ取得
                 $arrForm = $this->lfGetFormParam_PreEdit($objUpFile, $objDownFile, $product_id);
 
-                // 複製の場合は、ダウンロード求人情報部分はコピーしない
+                // 複製の場合は、ダウンロード商品情報部分はコピーしない
                 if ($mode == 'copy') {
-                    // ダウンロード求人ファイル名をunset
+                    // ダウンロード商品ファイル名をunset
                     $arrForm['down_filename'] = '';
 
                     // $objDownFile->setDBDownFile()でsetされたダウンロードファイル名をunset
@@ -164,7 +142,7 @@ class LC_Page_Admin_Products_Product extends LC_Page_Admin_Products_Ex {
                 // ページ表示用パラメーター設定
                 $this->arrForm = $this->lfSetViewParam_InputPage($objUpFile, $objDownFile, $arrForm);
 
-                // 求人複製の場合、画像ファイルコピー
+                // 商品複製の場合、画像ファイルコピー
                 if ($mode == 'copy') {
                     $this->arrForm['copy_product_id'] = $this->arrForm['product_id'];
                     $this->arrForm['product_id'] = '';
@@ -198,7 +176,7 @@ class LC_Page_Admin_Products_Product extends LC_Page_Admin_Products_Ex {
             case 'complete':
                 // パラメーター初期化, 取得
                 $this->lfInitFormParam($objFormParam, $_POST);
-                $arrForm = $objFormParam->getHashArray();
+                $arrForm = $this->lfGetFormParam_Complete($objFormParam);
                 // エラーチェック
                 $this->arrErr = $this->lfCheckError_Edit($objFormParam, $objUpFile, $objDownFile, $arrForm);
                 if (count($this->arrErr) == 0) {
@@ -211,7 +189,7 @@ class LC_Page_Admin_Products_Product extends LC_Page_Admin_Products_Ex {
                     $objDb->sfCountCategory($objQuery);
                     $objDb->sfCountMaker($objQuery);
 
-                    // ダウンロード求人の複製時に、ダウンロード求人用ファイルを
+                    // ダウンロード商品の複製時に、ダウンロード商品用ファイルを
                     // 変更すると、複製元のファイルが削除されるのを回避。
                     if (!empty($arrForm['copy_product_id'])) {
                         $objDownFile->save_file = array();
@@ -262,7 +240,7 @@ class LC_Page_Admin_Products_Product extends LC_Page_Admin_Products_Ex {
                 $this->tpl_onload = $this->lfSetOnloadJavaScript_InputPage($anchor_hash);
                 break;
 
-            // ダウンロード求人ファイルアップロード
+            // ダウンロード商品ファイルアップロード
             case 'upload_down':
             case 'delete_down':
                 // パラメーター初期化
@@ -290,7 +268,7 @@ class LC_Page_Admin_Products_Product extends LC_Page_Admin_Products_Ex {
                 $this->tpl_onload = $this->lfSetOnloadJavaScript_InputPage($anchor_hash);
                 break;
 
-            // 関連求人選択
+            // 関連商品選択
             case 'recommend_select' :
                 // パラメーター初期化
                 $this->lfInitFormParam_RecommendSelect($objFormParam);
@@ -299,7 +277,7 @@ class LC_Page_Admin_Products_Product extends LC_Page_Admin_Products_Ex {
                 // 入力画面表示設定
                 $this->arrForm = $this->lfSetViewParam_InputPage($objUpFile, $objDownFile, $arrForm);
 
-                // 選択された関連求人IDがすでに登録している関連求人と重複していないかチェック
+                // 選択された関連商品IDがすでに登録している関連商品と重複していないかチェック
                 $this->lfCheckError_RecommendSelect($this->arrForm, $this->arrErr);
 
                 // ページonload時のJavaScript設定
@@ -317,15 +295,7 @@ class LC_Page_Admin_Products_Product extends LC_Page_Admin_Products_Ex {
                 // ページonload時のJavaScript設定
                 $this->tpl_onload = $this->lfSetOnloadJavaScript_InputPage();
                 break;
-            case 'search_client':
-                $this->lfInitFormParam($objFormParam, $_POST);
-                $this->setClientTo($_POST['edit_client_id'], $objFormParam);
-                $arrForm = $objFormParam->getHashArray();
-                $this->arrErr = $this->lfCheckError_Edit($objFormParam, $objUpFile, $objDownFile, $arrForm);
-                $this->arrForm = $this->lfSetViewParam_InputPage($objUpFile, $objDownFile, $arrForm);
-                $anchor_hash = $this->getAnchorHash($_POST['anchor_key']);
-                $this->tpl_onload = $this->lfSetOnloadJavaScript_InputPage($anchor_hash);
-                break;
+
             default:
                 // 入力画面表示設定
                 $arrForm = array();
@@ -335,51 +305,29 @@ class LC_Page_Admin_Products_Product extends LC_Page_Admin_Products_Ex {
                 break;
         }
 
-        // 関連求人の読み込み
+        // 関連商品の読み込み
         $this->arrRecommend = $this->lfGetRecommendProducts($this->arrForm);
-        if (isset($this->arrForm['selection_process']) && count($this->arrForm['selection_process']) > 0) {
-            $tempArr = array();
-            foreach ($this->arrForm['selection_process'] as $pid) {
-                $tempArr[$pid] = $this->arrProcess[$pid];
-                unset($this->arrProcess[$pid]);
-            }
-            if (count($this->arrProcess) > 0) {
-                foreach ($this->arrProcess as $pid => $value)
-                    $tempArr[$pid] = $value;
-            }
-            $this->arrProcess = $tempArr;
-        }
     }
 
-    public function setClientTo($client_id, &$objFormParam) {
-        $objQuery = & SC_Query_Ex::getSingletonInstance();
-        $arrResults = $objQuery->select('*', 'dtb_client', 'client_id = ?', array($client_id));
-        $client = $arrResults[0];
-        $objFormParam->setValue('client_id', $client_id);
-        $objFormParam->setValue('client_introduction', '設立年月日：' . $client['establishment_date'] . '
-資本金：' . $client['capital'] . '
-会社の規模：' . $client['scale'] . '
-事業部の簡単な情報：' . $client['introduction']);
-        $objFormParam->setValue('client_introduction_vn', 'Ngày thành lập：' . $client['establishment_date_vn'] . '
-Vốn：' . $client['capital_vn'] . '
-Quy mô công ty：' . $client['scale_vn'] . '
-Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_vn']);
-        $objFormParam->setValue('client_zip01', $client['zip01']);
-        $objFormParam->setValue('client_zip02', $client['zip02']);
-        $objFormParam->setValue('client_pref', $client['pref']);
-        $objFormParam->setValue('client_addr01', $client['addr01']);
+    /**
+     * デストラクタ.
+     *
+     * @return void
+     */
+    function destroy() {
+        parent::destroy();
     }
 
     /**
      * パラメーター情報の初期化
      * - 編集/複製モード
      *
-     * @param  SC_FormParam_Ex $objFormParam SC_FormParamインスタンス
-     * @param  array  $arrPost      $_POSTデータ
+     * @param object $objFormParam SC_FormParamインスタンス
+     * @param array $arrPost $_POSTデータ
      * @return void
      */
-    public function lfInitFormParam_PreEdit(&$objFormParam, $arrPost) {
-        $objFormParam->addParam('求人ID', 'product_id', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+    function lfInitFormParam_PreEdit(&$objFormParam, $arrPost) {
+        $objFormParam->addParam('商品ID', 'product_id', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
         $objFormParam->setParam($arrPost);
         $objFormParam->convParam();
     }
@@ -387,130 +335,110 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
     /**
      * パラメーター情報の初期化
      *
-     * @param  SC_FormParam_Ex $objFormParam SC_FormParamインスタンス
-     * @param  array  $arrPost      $_POSTデータ
+     * @param object $objFormParam SC_FormParamインスタンス
+     * @param array $arrPost $_POSTデータ
      * @return void
      */
-    public function lfInitFormParam(&$objFormParam, $arrPost) {
-        $objFormParam->addParam('求人ID', 'product_id', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('仕事名', 'name', STEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('仕事名_VN', 'name_vn', STEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('職種', 'category_id', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
+    function lfInitFormParam(&$objFormParam, $arrPost) {
+        $objFormParam->addParam('商品ID', 'product_id', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('会社名', 'agency_id', INT_LEN, 'n', array('MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('薬局名', 'corporate_id', INT_LEN, 'n', array('MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('商品名', 'name', STEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('商品カテゴリ', 'category_id', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
         $objFormParam->addParam('公開・非公開', 'status', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('求人ステータス', 'product_status', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('MODE', 'product_mode', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('商品ステータス', 'product_status', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('薬局名', 'shipping_pharmacy', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('管理薬剤師名', 'pharmacist_name1', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('管理薬剤師名', 'pharmacist_name2', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('管理薬剤師(カナ)', 'pharmacist_kana1', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('管理薬剤師(カナ)', 'pharmacist_kana2', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('郵便番号', 'zip1', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('郵便番号', 'zip2', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('住所', 'addr1', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('住所', 'addr2', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('電話番号', 'tel1', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('電話番号', 'tel2', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('電話番号', 'tel3', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('雇用形態', 'employment_status', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('アピールポイント', 'appeal_point', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('条件', 'conditions', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('ダミーフラグ', 'dummy_flg', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
 
-        if (!$arrPost['has_product_class']) {
-            // 新規登録, 規格なし求人の編集の場合
-            $objFormParam->addParam('求人種別', 'product_type_id', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
-            $objFormParam->addParam('ダウンロード求人ファイル名', 'down_filename', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-            $objFormParam->addParam('ダウンロード求人実ファイル名', 'down_realfilename', MTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        if ($this->lfGetProductClassFlag($arrPost['has_product_class']) == false) {
+            // 新規登録, 規格なし商品の編集の場合
+            $objFormParam->addParam('商品種別', 'product_type_id', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+            $objFormParam->addParam('ダウンロードファイル名', 'down_filename', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+            $objFormParam->addParam('ダウンロードファイルアップロード', 'down_realfilename', MTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
             $objFormParam->addParam('temp_down_file', 'temp_down_file', '', '', array());
             $objFormParam->addParam('save_down_file', 'save_down_file', '', '', array());
-            $objFormParam->addParam('求人コード', 'product_code', STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-            $objFormParam->addParam(NORMAL_PRICE_TITLE, 'price01', PRICE_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK', 'ZERO_START'));
-            $objFormParam->addParam(SALE_PRICE_TITLE, 'price02', PRICE_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK', 'ZERO_START'));
-            if (OPTION_PRODUCT_TAX_RULE) {
-                $objFormParam->addParam('消費税率', 'tax_rate', PERCENTAGE_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
-            }
-            $objFormParam->addParam('在庫数', 'stock', AMOUNT_LEN, 'n', array('SPTAB_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK', 'ZERO_START'));
+            $objFormParam->addParam('商品コード', 'product_code', STEXT_LEN, 'KVna', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+            $objFormParam->addParam(NORMAL_PRICE_TITLE, 'price01', PRICE_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+            $objFormParam->addParam(SALE_PRICE_TITLE, 'price02', STEXT_LEN, 'KVna', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+            $objFormParam->addParam('在庫数', 'stock', AMOUNT_LEN, 'n', array('SPTAB_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
             $objFormParam->addParam('在庫無制限', 'stock_unlimited', INT_LEN, 'n', array('SPTAB_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
         }
-        $objFormParam->addParam('求人送料', 'deliv_fee', PRICE_LEN, 'n', array('NUM_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK', 'ZERO_START'));
-        $objFormParam->addParam('ポイント付与率', 'point_rate', PERCENTAGE_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK', 'ZERO_START'));
+        $objFormParam->addParam('商品送料', 'deliv_fee', PRICE_LEN, 'n', array('NUM_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('ポイント付与率', 'point_rate', PERCENTAGE_LEN, 'n', array('NUM_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
         $objFormParam->addParam('発送日目安', 'deliv_date_id', INT_LEN, 'n', array('NUM_CHECK'));
-        $objFormParam->addParam('販売制限数', 'sale_limit', AMOUNT_LEN, 'n', array('SPTAB_CHECK', 'ZERO_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK', 'ZERO_START'));
+        $objFormParam->addParam('販売制限数', 'sale_limit', AMOUNT_LEN, 'n', array('SPTAB_CHECK', 'ZERO_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'), 1);
         $objFormParam->addParam('メーカー', 'maker_id', INT_LEN, 'n', array('NUM_CHECK'));
         $objFormParam->addParam('メーカーURL', 'comment1', URL_LEN, 'a', array('SPTAB_CHECK', 'URL_CHECK', 'MAX_LENGTH_CHECK'));
         $objFormParam->addParam('検索ワード', 'comment3', LLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
         $objFormParam->addParam('備考欄(SHOP専用)', 'note', LLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('簡単な仕事情報', 'main_list_comment', MTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('簡単な仕事情報_VN', 'main_list_comment_vn', MTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('仕事詳細', 'main_comment', LLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('仕事詳細_VN', 'main_comment_vn', LLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('一覧-メインコメント', 'main_list_comment', MTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('詳細-メインコメント', 'main_comment', LLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('save_main_list_image', 'save_main_list_image', '', '', array());
+        $objFormParam->addParam('save_main_image', 'save_main_image', '', '', array());
         $objFormParam->addParam('save_main_large_image', 'save_main_large_image', '', '', array());
+        $objFormParam->addParam('temp_main_list_image', 'temp_main_list_image', '', '', array());
+        $objFormParam->addParam('temp_main_image', 'temp_main_image', '', '', array());
         $objFormParam->addParam('temp_main_large_image', 'temp_main_large_image', '', '', array());
-
-        $objFormParam->addParam('ダミーフラグ', 'dummy_flg', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('コメント7', 'comment7', LLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('コメント8', 'comment8', LLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('コメント9', 'comment9', LLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('コメント10', 'comment10', LLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('コメント11', 'comment11', LLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('コメント12', 'comment12', LLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('コメント13', 'comment13', LLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('コメント14', 'comment14', LLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('コメント15', 'comment15', LLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('コメント16', 'comment16', LLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('コメント17', 'comment17', LLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('コメント18', 'comment18', LLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('コメント19', 'comment19', LLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('コメント20', 'comment20', LLTEXT_LEN, 'KVa', array('MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('地域', 'work_location_flg', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        for ($cnt = 1; $cnt <= PRODUCTSUB_MAX; $cnt++) {
+            if ($cnt < 12 || $cnt > 19) {
+                $objFormParam->addParam('詳細-サブタイトル' . $cnt, 'sub_title' . $cnt, STEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+                $objFormParam->addParam('詳細-サブコメント' . $cnt, 'sub_comment' . $cnt, LLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+            }
+        }
 
         for ($cnt = 1; $cnt <= RECOMMEND_PRODUCT_MAX; $cnt++) {
-            $objFormParam->addParam('関連求人コメント' . $cnt, 'recommend_comment' . $cnt, LTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-            $objFormParam->addParam('関連求人ID' . $cnt, 'recommend_id' . $cnt, INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+            $objFormParam->addParam('関連商品コメント' . $cnt, 'recommend_comment' . $cnt, LTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+            $objFormParam->addParam('関連商品ID' . $cnt, 'recommend_id' . $cnt, INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
             $objFormParam->addParam('recommend_delete' . $cnt, 'recommend_delete' . $cnt, '', 'n', array());
         }
 
-        $objFormParam->addParam('求人ID', 'copy_product_id', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('商品ID', 'copy_product_id', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
 
         $objFormParam->addParam('has_product_class', 'has_product_class', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
         $objFormParam->addParam('product_class_id', 'product_class_id', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
 
-        if ($arrPost['employment_status'] == 2 || $arrPost['employment_status'] == 3) {
-            $objFormParam->addParam('ポジション', 'position', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
-            $objFormParam->addParam('給与詳細', 'salary', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-            $objFormParam->addParam('給与詳細_VN', 'salary_vn', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        } else {
-            $objFormParam->addParam('ポジション', 'position', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
-            $objFormParam->addParam('給与詳細', 'salary', MLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-            $objFormParam->addParam('給与詳細_VN', 'salary_vn', MLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('年', 'year', 4, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'), '', false);
+        $objFormParam->addParam('月', 'month', 2, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'), '', false);
+        $objFormParam->addParam('日', 'day', 2, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'), '', false);
+
+        $objFormParam->addParam('おすすめ情報フラグ', 'rec_news_flg', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+        $objFormParam->addParam('新着求人情報', 'news_flg', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
+
+        if ($_SESSION['authority'] == 2 || $_SESSION['authority'] == 3) {
+            $arrPost['agency_id'] = $_SESSION['agency_id'];
+            if ($_SESSION['authority'] == 3)
+                $arrPost['corporate_id'] = $_SESSION['corporate_id'];
         }
-        $objFormParam->addParam('ダミーフラグ', 'dummy_flg', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('掲載終了日', 'end_year', 4, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'), '', false);
-        $objFormParam->addParam('掲載終了日', 'end_month', 2, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'), '', false);
-        $objFormParam->addParam('掲載終了日', 'end_day', 2, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'), '', false);
-        $objFormParam->addParam('求人数', 'offer_number', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('対象', 'target', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('雇用形態', 'employment_status', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('給与区分', 'salary_type', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('通貨', 'currency', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('給与上限', 'salary_min', PRICE_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK', 'ZERO_START'));
-        $objFormParam->addParam('給与下限', 'salary_max', PRICE_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK', 'ZERO_START'));
-        $objFormParam->addParam('為替相場', 'exchange_rate', STEXT_LEN, 'n', array('MAX_LENGTH_CHECK', 'ZERO_START'));
-        $objFormParam->addParam('都道府県', 'region', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('市区町村', 'city', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('勤務地', 'work_location', STEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('勤務地_VN', 'work_location_vn', STEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('交通アクセス', 'traffic_access', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('交通アクセス_VN', 'traffic_access_vn', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('勤務時間', 'working_hour', MLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('勤務時間_VN', 'working_hour_vn', MLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('勤務曜日', 'working_day', MLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('勤務曜日_VN', 'working_day_vn', MLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('昼休み時間', 'lunch_time', MLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('昼休み時間_VN', 'lunch_time_vn', MLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('試用期間', 'trial_period', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('試用期間_VN', 'trial_period_vn', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('性別', 'sex', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('資格', 'qualification', MLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('資格_VN', 'qualification_vn', MLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('性格', 'personality', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('性格_VN', 'personality_vn', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('経験・スキルの詳細', 'skill', MLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('経験・スキルの詳細_VN', 'skill_vn', MLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('昇給', 'payrise', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('昇給_VN', 'payrise_vn', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('賞与', 'bonus', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('賞与_VN', 'bonus_vn', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('保険', 'insurance', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('保険_VN', 'insurance_vn', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('福利', 'welfare', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('その他の福利', 'other_welfare', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('その他の福利_VN', 'other_welfare_vn', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('健康診断', 'medical_checkup', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('健康診断_VN', 'medical_checkup_vn', MLTEXT_LEN, 'KVa', array('SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('応募方法', 'applicate_method', MLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('応募方法_VN', 'applicate_method_vn', MLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('選考プロセス', 'selection_process', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('コンシェルジュ', 'concierge', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
-
-        $objFormParam->addParam('企業名', 'client_id', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('会社紹介', 'client_introduction', MLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('会社紹介_VN', 'client_introduction_vn', MLTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-        $objFormParam->addParam('郵便番号1', 'client_zip01', ZIP01_LEN, 'n', array('EXIST_CHECK', 'SPTAB_CHECK', 'NUM_CHECK', 'NUM_COUNT_CHECK'));
-        $objFormParam->addParam('郵便番号2', 'client_zip02', ZIP02_LEN, 'n', array('EXIST_CHECK', 'SPTAB_CHECK', 'NUM_CHECK', 'NUM_COUNT_CHECK'));
-        $objFormParam->addParam('都道府県', 'client_pref', INT_LEN, 'n', array('EXIST_CHECK', 'MAX_LENGTH_CHECK', 'NUM_CHECK'));
-        $objFormParam->addParam('住所', 'client_addr01', MTEXT_LEN, 'KVa', array('EXIST_CHECK', 'SPTAB_CHECK', 'MAX_LENGTH_CHECK'));
-
-
-
         $objFormParam->setParam($arrPost);
         $objFormParam->convParam();
     }
@@ -519,32 +447,32 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
      * パラメーター情報の初期化
      * - 画像ファイルアップロードモード
      *
-     * @param  SC_FormParam_Ex $objFormParam SC_FormParamインスタンス
+     * @param object $objFormParam SC_FormParamインスタンス
      * @return void
      */
-    public function lfInitFormParam_UploadImage(&$objFormParam) {
+    function lfInitFormParam_UploadImage(&$objFormParam) {
         $objFormParam->addParam('image_key', 'image_key', '', '', array());
     }
 
     /**
      * パラメーター情報の初期化
-     * - ダウンロード求人ファイルアップロードモード
+     * - ダウンロード商品ファイルアップロードモード
      *
-     * @param  SC_FormParam_Ex $objFormParam SC_FormParamインスタンス
+     * @param object $objFormParam SC_FormParamインスタンス
      * @return void
      */
-    public function lfInitFormParam_UploadDown(&$objFormParam) {
+    function lfInitFormParam_UploadDown(&$objFormParam) {
         $objFormParam->addParam('down_key', 'down_key', '', '', array());
     }
 
     /**
      * パラメーター情報の初期化
-     * - 関連求人追加モード
+     * - 関連商品追加モード
      *
-     * @param  SC_FormParam_Ex $objFormParam SC_FormParamインスタンス
+     * @param object $objFormParam SC_FormParamインスタンス
      * @return void
      */
-    public function lfInitFormParam_RecommendSelect(&$objFormParam) {
+    function lfInitFormParam_RecommendSelect(&$objFormParam) {
         $objFormParam->addParam('anchor_key', 'anchor_key', '', '', array());
         $objFormParam->addParam('select_recommend_no', 'select_recommend_no', INT_LEN, 'n', array('NUM_CHECK', 'MAX_LENGTH_CHECK'));
     }
@@ -553,34 +481,36 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
      * アップロードファイルパラメーター情報の初期化
      * - 画像ファイル用
      *
-     * @param  SC_UploadFile_Ex $objUpFile SC_UploadFileインスタンス
+     * @param object $objUpFile SC_UploadFileインスタンス
      * @return void
      */
-    public function lfInitFile(&$objUpFile) {
-        $objUpFile->addFile('画像', 'main_large_image', array('jpg', 'gif', 'png'), IMAGE_SIZE, false, LARGE_IMAGE_WIDTH, LARGE_IMAGE_HEIGHT);
+    function lfInitFile(&$objUpFile) {
+        $objUpFile->addFile('一覧-メイン画像', 'main_list_image', array('jpg', 'gif', 'png'), IMAGE_SIZE, false, SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT);
+        $objUpFile->addFile('詳細-メイン画像', 'main_image', array('jpg', 'gif', 'png'), IMAGE_SIZE, false, NORMAL_IMAGE_WIDTH, NORMAL_IMAGE_HEIGHT);
+        $objUpFile->addFile('詳細-メイン拡大画像', 'main_large_image', array('jpg', 'gif', 'png'), IMAGE_SIZE, false, LARGE_IMAGE_WIDTH, LARGE_IMAGE_HEIGHT);
     }
 
     /**
      * アップロードファイルパラメーター情報の初期化
-     * - ダウンロード求人ファイル用
+     * - ダウンロード商品ファイル用
      *
-     * @param  SC_UploadFile_Ex $objDownFile SC_UploadFileインスタンス
+     * @param object $objDownFile SC_UploadFileインスタンス
      * @return void
      */
-    public function lfInitDownFile(&$objDownFile) {
+    function lfInitDownFile(&$objDownFile) {
         $objDownFile->addFile('ダウンロード販売用ファイル', 'down_file', explode(',', DOWNLOAD_EXTENSION), DOWN_SIZE, true, 0, 0);
     }
 
     /**
      * フォーム入力パラメーターのエラーチェック
      *
-     * @param  object $objFormParam SC_FormParamインスタンス
-     * @param  SC_UploadFile_Ex $objUpFile    SC_UploadFileインスタンス
-     * @param  SC_UploadFile_Ex $objDownFile  SC_UploadFileインスタンス
-     * @param  array  $arrForm      フォーム入力パラメーター配列
-     * @return array  エラー情報を格納した連想配列
+     * @param object $objFormParam SC_FormParamインスタンス
+     * @param object $objUpFile SC_UploadFileインスタンス
+     * @param object $objDownFile SC_UploadFileインスタンス
+     * @param array $arrForm フォーム入力パラメーター配列
+     * @return array エラー情報を格納した連想配列
      */
-    public function lfCheckError_Edit(&$objFormParam, &$objUpFile, &$objDownFile, $arrForm) {
+    function lfCheckError_Edit(&$objFormParam, &$objUpFile, &$objDownFile, $arrForm) {
         $objErr = new SC_CheckError_Ex($arrForm);
         $arrErr = array();
 
@@ -590,43 +520,42 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
         // アップロードファイル必須チェック
         $arrErr = array_merge((array) $arrErr, (array) $objUpFile->checkExists());
 
-        $objErr->doFunc(array('掲載終了日', 'end_year', 'end_month', 'end_day'), array('CHECK_DATE'));
-        $objErr->doFunc(array('郵便番号', 'zip01', 'zip02'), array('ALL_EXIST_CHECK'));
-        if (SC_Utils_Ex::sfIsInt($arrForm['salary_min']) && SC_Utils_Ex::sfIsInt($arrForm['salary_max']) && $arrForm['salary_min'] > $arrForm['salary_max'])
-            $objErr->arrErr['salary_min'] .= '※ 給与の指定範囲が不正です。<br />';
+        $objErr->doFunc(array('掲載終了日', 'year', 'month', 'day'), array('CHECK_DATE'));
 
         // HTMLタグ許可チェック
         $objErr->doFunc(array('詳細-メインコメント', 'main_comment', $this->arrAllowedTag), array('HTML_TAG_CHECK'));
-        $objErr->doFunc(array('詳細-メインコメント_VN', 'main_comment_vn', $this->arrAllowedTag), array('HTML_TAG_CHECK'));
+        for ($cnt = 1; $cnt <= PRODUCTSUB_MAX; $cnt++) {
+            if ($cnt < 12 || $cnt > 19)
+                $objErr->doFunc(array('詳細-サブコメント' . $cnt, 'sub_comment' . $cnt, $this->arrAllowedTag), array('HTML_TAG_CHECK'));
+        }
 
-        // 規格情報がない求人の場合のチェック
+        // 規格情報がない商品の場合のチェック
         if ($arrForm['has_product_class'] != true) {
             // 在庫必須チェック(在庫無制限ではない場合)
             if ($arrForm['stock_unlimited'] != UNLIMITED_FLG_UNLIMITED) {
                 $objErr->doFunc(array('在庫数', 'stock'), array('EXIST_CHECK'));
             }
-            // ダウンロード求人ファイル必須チェック(ダウンロード求人の場合)
+            //ダウンロード商品ファイル必須チェック(ダウンロード商品の場合)
             if ($arrForm['product_type_id'] == PRODUCT_TYPE_DOWNLOAD) {
                 $arrErr = array_merge((array) $arrErr, (array) $objDownFile->checkExists());
-                $objErr->doFunc(array('ダウンロード求人ファイル名', 'down_filename'), array('EXIST_CHECK'));
+                $objErr->doFunc(array('ダウンロード商品ファイル名', 'down_filename'), array('EXIST_CHECK'));
             }
         }
 
         $arrErr = array_merge((array) $arrErr, (array) $objErr->arrErr);
-
         return $arrErr;
     }
 
     /**
-     * 関連求人の重複登録チェック、エラーチェック
+     * 関連商品の重複登録チェック、エラーチェック
      *
-     * 関連求人の重複があった場合はエラーメッセージを格納し、該当の求人IDをリセットする
+     * 関連商品の重複があった場合はエラーメッセージを格納し、該当の商品IDをリセットする
      *
-     * @param  array $arrForm 入力値の配列
-     * @param  array $arrErr  エラーメッセージの配列
+     * @param array $arrForm 入力値の配列
+     * @param array $arrErr エラーメッセージの配列
      * @return void
      */
-    public function lfCheckError_RecommendSelect(&$arrForm, &$arrErr) {
+    function lfCheckError_RecommendSelect(&$arrForm, &$arrErr) {
         $select_recommend_no = $arrForm['select_recommend_no'];
         $select_recommend_id = $arrForm['recommend_id' . $select_recommend_no];
 
@@ -635,11 +564,11 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
                 if ($select_recommend_no == preg_replace('/^recommend_id/', '', $key)) {
                     continue;
                 }
-                $delete_key = 'recommend_delete' . intval(str_replace('recommend_id', '', $key));
-                if ($select_recommend_id == $arrForm[$key] && $arrForm[$delete_key] != 1) {
+
+                if ($select_recommend_id == $arrForm[$key]) {
                     // 重複した場合、選択されたデータをリセットする
                     $arrForm['recommend_id' . $select_recommend_no] = '';
-                    $arrErr['recommend_comment' . $select_recommend_no] = '※ すでに登録されている関連求人です。<br />';
+                    $arrErr['recommend_comment' . $select_recommend_no] = '※ すでに登録されている関連商品です。<br />';
                     break;
                 }
             }
@@ -649,10 +578,10 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
     /**
      * 検索パラメーター引き継ぎ用配列取得
      *
-     * @param  array $arrPost $_POSTデータ
+     * @param array $arrPost $_POSTデータ
      * @return array 検索パラメーター配列
      */
-    public function lfGetSearchParam($arrPost) {
+    function lfGetSearchParam($arrPost) {
         $arrSearchParam = array();
         $objFormParam = new SC_FormParam_Ex();
 
@@ -667,16 +596,19 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
      * フォームパラメーター取得
      * - 編集/複製モード
      *
-     * @param  SC_UploadFile_Ex  $objUpFile   SC_UploadFileインスタンス
-     * @param  SC_UploadFile_Ex  $objDownFile SC_UploadFileインスタンス
-     * @param  integer $product_id  求人ID
-     * @return array   フォームパラメーター配列
+     * @param object $objUpFile SC_UploadFileインスタンス
+     * @param object $objDownFile SC_UploadFileインスタンス
+     * @param integer $product_id 商品ID
+     * @return array フォームパラメーター配列
      */
-    public function lfGetFormParam_PreEdit(&$objUpFile, &$objDownFile, $product_id) {
+    function lfGetFormParam_PreEdit(&$objUpFile, &$objDownFile, $product_id) {
         $arrForm = array();
 
-        // DBから求人データ取得
+        // DBから商品データ取得
         $arrForm = $this->lfGetProductData_FromDB($product_id);
+        if (isset($arrForm['end_date']))
+            list($arrForm['year'], $arrForm['month'], $arrForm['day']) = explode('-', $arrForm['end_date']);
+
         // DBデータから画像ファイル名の読込
         $objUpFile->setDBFileList($arrForm);
         // DBデータからダウンロードファイル名の読込
@@ -686,33 +618,48 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
     }
 
     /**
+     * フォームパラメーター取得
+     * - 登録モード
+     *
+     * @param object $objFormParam SC_FormParamインスタンス
+     * @return array フォームパラメーター配列
+     */
+    function lfGetFormParam_Complete(&$objFormParam) {
+        $arrForm = $objFormParam->getHashArray();
+        $arrForm['category_id'] = unserialize($arrForm['category_id']);
+        $objFormParam->setValue('category_id', $arrForm['category_id']);
+
+        return $arrForm;
+    }
+
+    /**
      * 表示用フォームパラメーター取得
      * - 入力画面
      *
-     * @param  SC_UploadFile_Ex $objUpFile   SC_UploadFileインスタンス
-     * @param  SC_UploadFile_Ex $objDownFile SC_UploadFileインスタンス
-     * @param  array  $arrForm     フォーム入力パラメーター配列
-     * @return array  表示用フォームパラメーター配列
+     * @param object $objUpFile SC_UploadFileインスタンス
+     * @param object $objDownFile SC_UploadFileインスタンス
+     * @param array $arrForm フォーム入力パラメーター配列
+     * @return array 表示用フォームパラメーター配列
      */
-    public function lfSetViewParam_InputPage(&$objUpFile, &$objDownFile, &$arrForm) {
+    function lfSetViewParam_InputPage(&$objUpFile, &$objDownFile, &$arrForm) {
         // カテゴリマスターデータ取得
         $objDb = new SC_Helper_DB_Ex();
         list($this->arrCatVal, $this->arrCatOut) = $objDb->sfGetLevelCatList(false);
+        
+        if ($_SESSION['authority'] == 2 || $_SESSION['authority'] == 3) {
+            $arrForm['agency_id'] = $_SESSION['agency_id'];
+            if ($_SESSION['authority'] == 3)
+                $arrForm['corporate_id'] = $_SESSION['corporate_id'];
+        }
 
+        if (isset($arrForm['category_id']) && !is_array($arrForm['category_id'])) {
+            $arrForm['category_id'] = unserialize($arrForm['category_id']);
+        }
         if ($arrForm['status'] == '') {
             $arrForm['status'] = DEFAULT_PRODUCT_DISP;
         }
         if ($arrForm['product_type_id'] == '') {
             $arrForm['product_type_id'] = DEFAULT_PRODUCT_DOWN;
-        }
-        if (OPTION_PRODUCT_TAX_RULE) {
-            // 編集の場合は設定された税率、新規の場合はデフォルトの税率を取得
-            if ($arrForm['product_id'] == '') {
-                $arrRet = SC_Helper_TaxRule_Ex::getTaxRule();
-            } else {
-                $arrRet = SC_Helper_TaxRule_Ex::getTaxRule($arrForm['product_id'], $arrForm['product_class_id']);
-            }
-            $arrForm['tax_rate'] = $arrRet['tax_rate'];
         }
         // アップロードファイル情報取得(Hidden用)
         $arrHidden = $objUpFile->getHiddenFileList();
@@ -721,11 +668,14 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
         // 画像ファイル表示用データ取得
         $arrForm['arrFile'] = $objUpFile->getFormFileList(IMAGE_TEMP_URLPATH, IMAGE_SAVE_URLPATH);
 
-        // ダウンロード求人実ファイル名取得
+        // ダウンロード商品実ファイル名取得
         $arrForm['down_realfilename'] = $objDownFile->getFormDownFile();
 
         // 基本情報(デフォルトポイントレート用)
         $arrForm['arrInfo'] = SC_Helper_DB_Ex::sfGetBasisData();
+
+        // サブ情報ありなしフラグ
+        $arrForm['sub_find'] = $this->hasSubProductData($arrForm);
 
         return $arrForm;
     }
@@ -734,15 +684,19 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
      * 表示用フォームパラメーター取得
      * - 確認画面
      *
-     * @param  SC_UploadFile_Ex $objUpFile   SC_UploadFileインスタンス
-     * @param  SC_UploadFile_Ex $objDownFile SC_UploadFileインスタンス
-     * @param  array  $arrForm     フォーム入力パラメーター配列
-     * @return array  表示用フォームパラメーター配列
+     * @param object $objUpFile SC_UploadFileインスタンス
+     * @param object $objDownFile SC_UploadFileインスタンス
+     * @param array $arrForm フォーム入力パラメーター配列
+     * @return array 表示用フォームパラメーター配列
      */
-    public function lfSetViewParam_ConfirmPage(&$objUpFile, &$objDownFile, &$arrForm) {
+    function lfSetViewParam_ConfirmPage(&$objUpFile, &$objDownFile, &$arrForm) {
+        // カテゴリ表示用
+        $arrForm['arrCategoryId'] = $arrForm['category_id'];
+        // hidden に渡す値は serialize する
+        $arrForm['category_id'] = serialize($arrForm['category_id']);
         // 画像ファイル用データ取得
         $arrForm['arrFile'] = $objUpFile->getFormFileList(IMAGE_TEMP_URLPATH, IMAGE_SAVE_URLPATH);
-        // ダウンロード求人実ファイル名取得
+        // ダウンロード商品実ファイル名取得
         $arrForm['down_realfilename'] = $objDownFile->getFormDownFile();
 
         return $arrForm;
@@ -751,16 +705,18 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
     /**
      * 縮小した画像をセットする
      *
-     * @param  SC_UploadFile_Ex $objUpFile SC_UploadFileインスタンス
-     * @param  string $image_key 画像ファイルキー
+     * @param object $objUpFile SC_UploadFileインスタンス
+     * @param string $image_key 画像ファイルキー
      * @return void
      */
-    public function lfSetScaleImage(&$objUpFile, $image_key) {
-        $subno = str_replace('sub_large_image', '', $image_key);
+    function lfSetScaleImage(&$objUpFile, $image_key) {
         switch ($image_key) {
-            case 'sub_large_image' . $subno:
-                // サブメイン画像
-                $this->lfMakeScaleImage($objUpFile, $_POST['image_key'], 'sub_image' . $subno);
+            case 'main_large_image':
+                // 詳細メイン画像
+                $this->lfMakeScaleImage($objUpFile, $image_key, 'main_image');
+            case 'main_image':
+                // 一覧メイン画像
+                $this->lfMakeScaleImage($objUpFile, $image_key, 'main_list_image');
                 break;
             default:
                 break;
@@ -770,10 +726,10 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
     /**
      * 画像ファイルのコピー
      *
-     * @param  object $objUpFile SC_UploadFileインスタンス
+     * @param object $objUpFile SC_UploadFileインスタンス
      * @return void
      */
-    public function lfCopyProductImageFiles(&$objUpFile) {
+    function lfCopyProductImageFiles(&$objUpFile) {
         $arrKey = $objUpFile->keyname;
         $arrSaveFile = $objUpFile->save_file;
 
@@ -785,13 +741,13 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
     /**
      * 縮小画像生成
      *
-     * @param  object  $objUpFile SC_UploadFileインスタンス
-     * @param  string  $from_key  元画像ファイルキー
-     * @param  string  $to_key    縮小画像ファイルキー
-     * @param  boolean $forced
+     * @param object $objUpFile SC_UploadFileインスタンス
+     * @param string $from_key 元画像ファイルキー
+     * @param string $to_key 縮小画像ファイルキー
+     * @param boolean $forced
      * @return void
      */
-    public function lfMakeScaleImage(&$objUpFile, $from_key, $to_key, $forced = false) {
+    function lfMakeScaleImage(&$objUpFile, $from_key, $to_key, $forced = false) {
         $arrImageKey = array_flip($objUpFile->keyname);
         $from_path = '';
 
@@ -824,11 +780,11 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
      * アップロードファイルパラメーター情報から削除
      * 一時ディレクトリに保存されている実ファイルも削除する
      *
-     * @param  SC_UploadFile_Ex $objUpFile SC_UploadFileインスタンス
-     * @param  string $image_key 画像ファイルキー
+     * @param object $objUpFile SC_UploadFileインスタンス
+     * @param string $image_key 画像ファイルキー
      * @return void
      */
-    public function lfDeleteTempFile(&$objUpFile, $image_key) {
+    function lfDeleteTempFile(&$objUpFile, $image_key) {
         // TODO: SC_UploadFile::deleteFileの画像削除条件見直し要
         $arrTempFile = $objUpFile->temp_file;
         $arrKeyName = $objUpFile->keyname;
@@ -857,12 +813,12 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
     /**
      * アップロードファイルを保存する
      *
-     * @param  object  $objUpFile   SC_UploadFileインスタンス
-     * @param  object  $objDownFile SC_UploadFileインスタンス
-     * @param  integer $product_id  求人ID
+     * @param object $objUpFile SC_UploadFileインスタンス
+     * @param object $objDownFile SC_UploadFileインスタンス
+     * @param integer $product_id 商品ID
      * @return void
      */
-    public function lfSaveUploadFiles(&$objUpFile, &$objDownFile, $product_id) {
+    function lfSaveUploadFiles(&$objUpFile, &$objDownFile, $product_id) {
         // TODO: SC_UploadFile::moveTempFileの画像削除条件見直し要
         $objImage = new SC_Image_Ex($objUpFile->temp_dir);
         $arrKeyName = $objUpFile->keyname;
@@ -889,12 +845,12 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
      * 同名ファイルの登録がある場合には画像ファイルの削除を行わない。
      * 戻り値： 同名ファイル有り(true) 同名ファイル無し(false)
      *
-     * @param  string  $product_id      求人ID
-     * @param  string  $arrImageKey     対象としない画像カラム名
-     * @param  string  $image_file_name 画像ファイル名
+     * @param string $product_id 商品ID
+     * @param string $arrImageKey 対象としない画像カラム名
+     * @param string $image_file_name 画像ファイル名
      * @return boolean
      */
-    public function lfHasSameProductImage($product_id, $arrImageKey, $image_file_name) {
+    function lfHasSameProductImage($product_id, $arrImageKey, $image_file_name) {
         if (!SC_Utils_Ex::sfIsInt($product_id))
             return false;
         if (!$arrImageKey)
@@ -922,21 +878,20 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
 
         $objQuery = & SC_Query_Ex::getSingletonInstance();
         $exists = $objQuery->exists('dtb_products', $where, $sqlval);
-
         return $exists;
     }
 
     /**
-     * DBから求人データを取得する
+     * DBから商品データを取得する
      *
-     * @param  integer $product_id 求人ID
-     * @return string   求人データ配列
+     * @param integer $product_id 商品ID
+     * @return array 商品データ配列
      */
-    public function lfGetProductData_FromDB($product_id) {
+    function lfGetProductData_FromDB($product_id) {
         $objQuery = & SC_Query_Ex::getSingletonInstance();
         $arrProduct = array();
 
-        // 求人データ取得
+        // 商品データ取得
         $col = '*';
         $table = <<< __EOF__
             dtb_products AS T1
@@ -953,13 +908,20 @@ Thông tin đơn giản về bộ phận kinh doanh：' . $client['introduction_
                     product_type_id,
                     down_filename,
                     down_realfilename
-                FROM dtb_products_class
+                   FROM dtb_products_class
             ) AS T2
                 ON T1.product_id = T2.product_id_sub
 __EOF__;
         $where = 'product_id = ?';
         $objQuery->setLimit('1');
         $arrProduct = $objQuery->select($col, $table, $where, array($product_id));
+
+        // カテゴリID取得
+        $col = 'category_id';
+        $table = 'dtb_product_categories';
+        $where = 'product_id = ?';
+        $objQuery->setOption('');
+        $arrProduct[0]['category_id'] = $objQuery->getCol($col, $table, $where, array($product_id));
 
         // 規格情報ありなしフラグ取得
         $objDb = new SC_Helper_DB_Ex();
@@ -970,36 +932,34 @@ __EOF__;
             $arrProduct[0]['product_class_id'] = SC_Utils_Ex::sfGetProductClassId($product_id, '0', '0');
         }
 
-        // 求人ステータス取得
+        // 商品ステータス取得
         $objProduct = new SC_Product_Ex();
         $productStatus = $objProduct->getProductStatus(array($product_id));
         $arrProduct[0]['product_status'] = $productStatus[$product_id];
 
-        // 関連求人データ取得
+        $arrProduct[0]['employment_status'] = str_split($arrProduct[0]['employment_status']);
+        $arrProduct[0]['appeal_point'] = str_split($arrProduct[0]['appeal_point']);
+        $arrProduct[0]['conditions'] = str_split($arrProduct[0]['conditions']);
+
+        // 関連商品データ取得
         $arrRecommend = $this->lfGetRecommendProductsData_FromDB($product_id);
         $arrProduct[0] = array_merge($arrProduct[0], $arrRecommend);
-
-        list($arrProduct[0]['end_year'], $arrProduct[0]['end_month'], $arrProduct[0]['end_day']) = explode('-', $arrProduct[0]['end_date']);
-        $arrProduct[0]['category_id'] = explode(' ', $arrProduct[0]['category_id']);
-        $arrProduct[0]['sex'] = explode(' ', $arrProduct[0]['sex']);
-        $arrProduct[0]['welfare'] = explode(' ', $arrProduct[0]['welfare']);
-        $arrProduct[0]['selection_process'] = explode(' ', $arrProduct[0]['selection_process']);
 
         return $arrProduct[0];
     }
 
     /**
-     * DBから関連求人データを取得する
+     * DBから関連商品データを取得する
      *
-     * @param  integer $product_id 求人ID
-     * @return array   関連求人データ配列
+     * @param integer $product_id 商品ID
+     * @return array 関連商品データ配列
      */
-    public function lfGetRecommendProductsData_FromDB($product_id) {
+    function lfGetRecommendProductsData_FromDB($product_id) {
         $objQuery = & SC_Query_Ex::getSingletonInstance();
         $arrRecommendProducts = array();
 
         $col = 'recommend_product_id,';
-        $col .= 'comment';
+        $col.= 'comment';
         $table = 'dtb_recommend_products';
         $where = 'product_id = ?';
         $objQuery->setOrder('rank DESC');
@@ -1016,12 +976,12 @@ __EOF__;
     }
 
     /**
-     * 関連求人データ表示用配列を取得する
+     * 関連商品データ表示用配列を取得する
      *
-     * @param  string $arrForm フォーム入力パラメーター配列
-     * @return array  関連求人データ配列
+     * @param string $arrForm フォーム入力パラメーター配列
+     * @return array 関連商品データ配列
      */
-    public function lfGetRecommendProducts(&$arrForm) {
+    function lfGetRecommendProducts(&$arrForm) {
         $arrRecommend = array();
 
         for ($i = 1; $i <= RECOMMEND_PRODUCT_MAX; $i++) {
@@ -1039,7 +999,6 @@ __EOF__;
                 $arrRecommend[$i]['comment'] = $arrForm[$commentkey];
             }
         }
-
         return $arrRecommend;
     }
 
@@ -1050,7 +1009,7 @@ __EOF__;
      * @param void
      * @return array カテゴリマスターデータ配列
      */
-    public function lfGetCategoryList_Edit() {
+    function lfGetCategoryList_Edit() {
         $objDb = new SC_Helper_DB_Ex();
         $arrCategoryList = array();
 
@@ -1063,54 +1022,129 @@ __EOF__;
     }
 
     /**
-     * ページonload用JavaScriptを取得する
-     * - 入力画面
+     * 入力フォームパラメーターの規格ありなしフラグを判定
      *
-     * @param  string $anchor_hash アンカー用ハッシュ文字列(省略可)
-     * @return string ページonload用JavaScript
+     * @param string $has_product_class 入力フォームパラメーターの規格ありなしフラグ
+     * @return boolean true: 規格あり, false: 規格なし
      */
-    public function lfSetOnloadJavaScript_InputPage($anchor_hash = '') {
-        return "eccube.checkStockLimit('" . DISABLED_RGB . "'); " . $anchor_hash;
+    function lfGetProductClassFlag($has_product_class) {
+        if ($has_product_class == '1') {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
-     * DBに求人データを登録する
+     * ページonload用JavaScriptを取得する
+     * - 入力画面
      *
-     * @param  SC_UploadFile_Ex  $objUpFile   SC_UploadFileインスタンス
-     * @param  SC_UploadFile_Ex  $objDownFile SC_UploadFileインスタンス
-     * @param  array   $arrList     フォーム入力パラメーター配列
-     * @return integer 登録求人ID
+     * @param string $anchor_hash アンカー用ハッシュ文字列(省略可)
+     * @return string ページonload用JavaScript
      */
-    public function lfRegistProduct(&$objUpFile, &$objDownFile, $arrList) {
+    function lfSetOnloadJavaScript_InputPage($anchor_hash = '') {
+        return "fnCheckStockLimit('" . DISABLED_RGB . "'); fnMoveSelect('category_id_unselect', 'category_id');" . $anchor_hash;
+    }
+
+    /**
+     * DBに商品データを登録する
+     *
+     * @param object $objUpFile SC_UploadFileインスタンス
+     * @param object $objDownFile SC_UploadFileインスタンス
+     * @param array $arrList フォーム入力パラメーター配列
+     * @return integer 登録商品ID
+     */
+    function lfRegistProduct(&$objUpFile, &$objDownFile, $arrList) {
         $objQuery = & SC_Query_Ex::getSingletonInstance();
         $objDb = new SC_Helper_DB_Ex();
 
         // 配列の添字を定義
-        $checkArray = array('name', 'name_vn', 'status', 'main_list_comment', 'main_list_comment_vn', 'main_comment', 'main_comment_vn', 'deliv_fee',
-            'comment1', 'comment2', 'comment3', 'comment4', 'comment5', 'comment6', 'sale_limit', 'deliv_date_id', 'maker_id', 'note', 'dummy_flg', 
-            'target', 'offer_number', 'client_id', 'client_introduction', 'client_introduction_vn', 'client_zip01', 'client_zip02', 'client_pref', 'client_addr01', 
-            'employment_status', 'salary_type', 'position', 'currency', 'salary_max', 'salary_min', 'salary', 'salary_vn', 'exchange_rate', 'region', 'city', 'work_location', 'work_location_vn', 
-            'traffic_access', 'traffic_access_vn', 'working_hour', 'working_hour_vn', 'working_day', 'working_day_vn', 'lunch_time', 'lunch_time_vn',
-            'trial_period', 'trial_period_vn', 'qualification', 'qualification_vn', 'personality', 'personality_vn', 'skill', 'skill_vn', 'payrise', 'payrise_vn', 
-            'bonus', 'bonus_vn', 'insurance', 'insurance_vn', 'other_welfare', 'other_welfare_vn', 'medical_checkup', 'medical_checkup_vn', 'applicate_method', 'applicate_method_vn', 'concierge');
+        $checkArray = array('agency_id', 'corporate_id',
+            'name', 'status', 'product_mode', 'employment_status', 'conditions',
+            'appeal_point', 'work_location_flg', 'dummy_flg',
+            'main_list_comment', 'main_comment',
+            'deliv_fee', 'comment1', 'comment2', 'comment3',
+            'comment4', 'comment5', 'comment6',
+            //項目追加
+            'comment7', 'comment8', 'comment9', 'comment10',
+            'comment11', 'comment12', 'comment13', 'comment14',
+            'comment15', 'comment16', 'comment17', 'comment18',
+            'comment19', 'comment20',
+            'main_list_comment',
+            'sale_limit', 'deliv_date_id', 'maker_id', 'note',
+            'shipping_pharmacy', 'pharmacist_name1', 'pharmacist_name2',
+            'pharmacist_kana1', 'pharmacist_kana2', 'zip1', 'zip2',
+            'addr1', 'addr2', 'tel1', 'tel2', 'tel3');
         $arrList = SC_Utils_Ex::arrayDefineIndexes($arrList, $checkArray);
 
         // INSERTする値を作成する。
-        foreach ($checkArray as $field) {
-            if ($field != 'deliv_fee' && $field != 'sale_limit')
-                $sqlval[$field] = $arrList[$field];
-        }
+        $sqlval['agency_id'] = $arrList['agency_id'];
+        $sqlval['corporate_id'] = $arrList['corporate_id'];
+        $sqlval['name'] = $arrList['name'];
+        $sqlval['status'] = $arrList['status'];
+        $sqlval['product_mode'] = $arrList['product_mode'];
+        foreach ($arrList['employment_status'] as $status)
+            $sqlval['employment_status'] .= $status;
+        foreach ($arrList['appeal_point'] as $a_status)
+            $sqlval['appeal_point'] .= $a_status;
+        foreach ($arrList['conditions'] as $c_status)
+            $sqlval['conditions'] .= $c_status;
+        $sqlval['work_location_flg'] = $arrList['work_location_flg'];
+        $sqlval['dummy_flg'] = $arrList['dummy_flg'];
+        $sqlval['main_list_comment'] = $arrList['main_list_comment'];
+        $sqlval['main_comment'] = $arrList['main_comment'];
+        $sqlval['comment1'] = $arrList['comment1'];
+        $sqlval['comment2'] = $arrList['comment2'];
+        $sqlval['comment3'] = $arrList['comment3'];
+        $sqlval['comment4'] = $arrList['comment4'];
+        $sqlval['comment5'] = $arrList['comment5'];
+        $sqlval['comment6'] = $arrList['comment6'];
+        $sqlval['comment7'] = $arrList['comment7'];
+        $sqlval['comment8'] = $arrList['comment8'];
+        $sqlval['comment9'] = $arrList['comment9'];
+        $sqlval['comment10'] = $arrList['comment10'];
+        $sqlval['comment11'] = $arrList['comment11'];
+        $sqlval['comment12'] = $arrList['comment12'];
+        $sqlval['comment13'] = $arrList['comment13'];
+        $sqlval['comment14'] = $arrList['comment14'];
+        $sqlval['comment15'] = $arrList['comment15'];
+        $sqlval['comment16'] = $arrList['comment16'];
+        $sqlval['comment17'] = $arrList['comment17'];
+        $sqlval['comment18'] = $arrList['comment18'];
+        $sqlval['comment19'] = $arrList['comment19'];
+        $sqlval['comment20'] = $arrList['comment20'];
+        $sqlval['main_list_comment'] = $arrList['main_list_comment'];
+        $sqlval['deliv_date_id'] = $arrList['deliv_date_id'];
+        $sqlval['maker_id'] = $arrList['maker_id'];
+        $sqlval['shipping_pharmacy'] = $arrList['shipping_pharmacy'];
+        $sqlval['pharmacist_name1'] = $arrList['pharmacist_name1'];
+        $sqlval['pharmacist_name2'] = $arrList['pharmacist_name2'];
+        $sqlval['pharmacist_kana1'] = $arrList['pharmacist_kana1'];
+        $sqlval['pharmacist_kana2'] = $arrList['pharmacist_kana2'];
+        $sqlval['zip1'] = $arrList['zip1'];
+        $sqlval['zip2'] = $arrList['zip2'];
+        $sqlval['addr1'] = $arrList['addr1'];
+        $sqlval['addr2'] = $arrList['addr2'];
+        $sqlval['tel1'] = $arrList['tel1'];
+        $sqlval['tel2'] = $arrList['tel2'];
+        $sqlval['tel3'] = $arrList['tel3'];
+        $sqlval['note'] = $arrList['note'];
         $sqlval['update_date'] = 'CURRENT_TIMESTAMP';
         $sqlval['creator_id'] = $_SESSION['member_id'];
+        if (!SC_Utils_Ex::isBlank($arrList['year'])) {
+            $sqlval['end_date'] = $arrList['year'] . '/'
+                    . $arrList['month'] . '/'
+                    . $arrList['day'];
+        }
         $arrRet = $objUpFile->getDBFileList();
         $sqlval = array_merge($sqlval, $arrRet);
 
-        if ($arrList['end_year'] > 0)
-            $sqlval['end_date'] = $arrList['end_year'] . '-' . $arrList['end_month'] . '-' . $arrList['end_day'];
-        $sqlval['category_id'] = implode(" ", $arrList['category_id']);
-        $sqlval['sex'] = implode(" ", $arrList['sex']);
-        $sqlval['welfare'] = implode(" ", $arrList['welfare']);
-        $sqlval['selection_process'] = implode(" ", $arrList['selection_process']);
+        for ($cnt = 1; $cnt <= PRODUCTSUB_MAX; $cnt++) {
+            if ($cnt < 12 || $cnt > 19) {
+                $sqlval['sub_title' . $cnt] = $arrList['sub_title' . $cnt];
+                $sqlval['sub_comment' . $cnt] = $arrList['sub_comment' . $cnt];
+            }
+        }
 
         $objQuery->begin();
 
@@ -1123,11 +1157,32 @@ __EOF__;
             $sqlval['create_date'] = 'CURRENT_TIMESTAMP';
             $objQuery->insert('dtb_products', $sqlval);
 
+            //insert into dtb_news
+            $arrNewsData = array();
+            $arrNewsData['news_date'] = 'CURRENT_TIMESTAMP';
+            $arrNewsData['news_title'] = $sqlval['name'];
+            $arrNewsData['news_comment'] = $sqlval['sub_comment1'];
+            $arrNewsData['news_url'] = '/products/detail.php?product_id=' . $sqlval['product_id'];
+            $arrNewsData['status'] = $sqlval['employment_status'];
+            $arrNewsData['rec_news_flg'] = $arrList['rec_news_flg'];
+            $max = $objQuery->max('rank', 'dtb_news', 'del_flg = 0');
+            $arrNewsData['rank'] = $max + 1;
+            $max_newsId = $objQuery->max('news_id', 'dtb_news');
+            $arrNewsData['news_id'] = $max_newsId + 1;
+            $arrNewsData['create_date'] = 'CURRENT_TIMESTAMP';
+            $arrNewsData['update_date'] = 'CURRENT_TIMESTAMP';
+            if ($arrList['status'] == 2 || $arrList['news_flg'] == 2)
+                $arrNewsData['del_flg'] = 1;
+            $objQuery->insert('dtb_news', $arrNewsData);
+
             $arrList['product_id'] = $product_id;
 
-            // 複製求人の場合には規格も複製する
+            // カテゴリを更新
+            $objDb->updateProductCategories($arrList['category_id'], $product_id);
+
+            // 複製商品の場合には規格も複製する
             if ($arrList['copy_product_id'] != '' && SC_Utils_Ex::sfIsInt($arrList['copy_product_id'])) {
-                if (!$arrList['has_product_class']) {
+                if ($this->lfGetProductClassFlag($arrList['has_product_class']) == false) {
                     //規格なしの場合、複製は価格等の入力が発生しているため、その内容で追加登録を行う
                     $this->lfCopyProductClass($arrList, $objQuery);
                 } else {
@@ -1139,10 +1194,10 @@ __EOF__;
 
                     // 複製しない列
                     unset($arrColList[$arrColList_tmp['product_class_id']]);     //規格ID
-                    unset($arrColList[$arrColList_tmp['product_id']]);           //求人ID
+                    unset($arrColList[$arrColList_tmp['product_id']]);           //商品ID
                     unset($arrColList[$arrColList_tmp['create_date']]);
 
-                    // 複製元求人の規格データ取得
+                    // 複製元商品の規格データ取得
                     $col = SC_Utils_Ex::sfGetCommaList($arrColList);
                     $table = 'dtb_products_class';
                     $where = 'product_id = ?';
@@ -1154,9 +1209,6 @@ __EOF__;
                     foreach ($arrProductsClass as $arrData) {
                         $sqlval = $arrData;
                         $sqlval['product_class_id'] = $objQuery->nextVal('dtb_products_class_product_class_id');
-                        $sqlval['deliv_fee'] = $arrList['deliv_fee'];
-                        $sqlval['point_rate'] = $arrList['point_rate'];
-                        $sqlval['sale_limit'] = $arrList['sale_limit'];
                         $sqlval['product_id'] = $product_id;
                         $sqlval['create_date'] = 'CURRENT_TIMESTAMP';
                         $sqlval['update_date'] = 'CURRENT_TIMESTAMP';
@@ -1187,44 +1239,69 @@ __EOF__;
             // UPDATEの実行
             $where = 'product_id = ?';
             $objQuery->update('dtb_products', $sqlval, $where, array($product_id));
-        }
 
-        // 求人登録の時は規格を生成する。複製の場合は規格も複製されるのでこの処理は不要。
+            // カテゴリを更新
+            $objDb->updateProductCategories($arrList['category_id'], $product_id);
+
+            //update dtb_news
+            $news_url = '/products/detail.php?product_id=' . $product_id;
+            $newses = $objQuery->select('*', 'dtb_news', 'news_url = ?', array($news_url));
+            $news_id = $newses[0]['news_id'];
+            if ($arrList['status'] == 1) {
+                $arrNewsData = array();
+                $arrNewsData['news_title'] = $sqlval['name'];
+                $arrNewsData['news_comment'] = $sqlval['sub_comment1'];
+                $arrNewsData['status'] = $sqlval['employment_status'];
+                $arrNewsData['rec_news_flg'] = $arrList['rec_news_flg'];
+                $arrNewsData['update_date'] = 'CURRENT_TIMESTAMP';
+                $arrNewsData['del_flg'] = 0;
+                $objQuery->update('dtb_news', $arrNewsData, 'news_id = ?', array($news_id));
+
+                if ($arrList['news_flg'] == 1) {
+                    $arrNewsData = array();
+                    $arrNewsData['news_date'] = 'CURRENT_TIMESTAMP';
+                    $objQuery->update('dtb_news', $arrNewsData, 'news_id = ?', array($news_id));
+
+                    $objDb->sfMoveRank('dtb_news', 'news_id', $news_id, 1);
+                } else if ($arrList['news_flg'] == 2) {
+                    $arrDEL = array('del_flg' => 1);
+                    $objQuery->update('dtb_news', $arrDEL, 'news_id = ?', array($news_id));
+                }
+            } else if ($arrList['status'] == 2) {
+                $arrDEL = array('del_flg' => 1);
+                $objQuery->update('dtb_news', $arrDEL, 'news_id = ?', array($news_id));
+            }
+        }
+        // 商品登録の時は規格を生成する。複製の場合は規格も複製されるのでこの処理は不要。
         if ($arrList['copy_product_id'] == '') {
             // 規格登録
             if ($objDb->sfHasProductClass($product_id)) {
-                // 規格あり求人（求人規格テーブルのうち、求人登録フォームで設定するパラメーターのみ更新）
+                // 規格あり商品（商品規格テーブルのうち、商品登録フォームで設定するパラメーターのみ更新）
                 $this->lfUpdateProductClass($arrList);
             } else {
-                // 規格なし求人（求人規格テーブルの更新）
-                $arrList['product_class_id'] = $this->lfInsertDummyProductClass($arrList);
+                // 規格なし商品（商品規格テーブルの更新）
+                $this->lfInsertDummyProductClass($arrList);
             }
         }
 
-        // 求人ステータス設定
+        // 商品ステータス設定
         $objProduct = new SC_Product_Ex();
         $objProduct->setProductStatus($product_id, $arrList['product_status']);
 
-        // 税情報設定
-        if (OPTION_PRODUCT_TAX_RULE && !$objDb->sfHasProductClass($product_id)) {
-            SC_Helper_TaxRule_Ex::setTaxRuleForProduct($arrList['tax_rate'], $arrList['product_id'], $arrList['product_class_id']);
-        }
-
-        // 関連求人登録
+        // 関連商品登録
         $this->lfInsertRecommendProducts($objQuery, $arrList, $product_id);
 
         $objQuery->commit();
-
         return $product_id;
     }
 
     /**
-     * 規格を設定していない求人を求人規格テーブルに登録
+     * 規格を設定していない商品を商品規格テーブルに登録
      *
-     * @param  array $arrList
+     * @param array $arrList
      * @return void
      */
-    public function lfInsertDummyProductClass($arrList) {
+    function lfInsertDummyProductClass($arrList) {
         $objQuery = & SC_Query_Ex::getSingletonInstance();
         $objDb = new SC_Helper_DB_Ex();
 
@@ -1247,17 +1324,16 @@ __EOF__;
             // UPDATEの実行
             $objQuery->update('dtb_products_class', $sqlval, 'product_class_id = ?', array($sqlval['product_class_id']));
         }
-        return $sqlval['product_class_id'];
     }
 
     /**
-     * 規格を設定している求人の求人規格テーブルを更新
+     * 規格を設定している商品の商品規格テーブルを更新
      * (deliv_fee, point_rate, sale_limit)
      *
-     * @param  array $arrList
+     * @param array $arrList
      * @return void
      */
-    public function lfUpdateProductClass($arrList) {
+    function lfUpdateProductClass($arrList) {
         $objQuery = & SC_Query_Ex::getSingletonInstance();
         $sqlval = array();
 
@@ -1269,15 +1345,15 @@ __EOF__;
     }
 
     /**
-     * DBに関連求人データを登録する
+     * DBに関連商品データを登録する
      *
-     * @param  SC_Query  $objQuery   SC_Queryインスタンス
-     * @param  string  $arrList    フォーム入力パラメーター配列
-     * @param  integer $product_id 登録する求人ID
+     * @param object $objQuery SC_Queryインスタンス
+     * @param string $arrList フォーム入力パラメーター配列
+     * @param integer $product_id 登録する商品ID
      * @return void
      */
-    public function lfInsertRecommendProducts(&$objQuery, $arrList, $product_id) {
-        // 一旦関連求人を全て削除する
+    function lfInsertRecommendProducts(&$objQuery, $arrList, $product_id) {
+        // 一旦関連商品をすべて削除する
         $objQuery->delete('dtb_recommend_products', 'product_id = ?', array($product_id));
         $sqlval['product_id'] = $product_id;
         $rank = RECOMMEND_PRODUCT_MAX;
@@ -1305,11 +1381,11 @@ __EOF__;
     /**
      * 規格データをコピーする
      *
-     * @param  array   $arrList  フォーム入力パラメーター配列
-     * @param  SC_Query  $objQuery SC_Queryインスタンス
+     * @param array $arrList フォーム入力パラメーター配列
+     * @param object $objQuery SC_Queryインスタンス
      * @return boolean エラーフラグ
      */
-    public function lfCopyProductClass($arrList, &$objQuery) {
+    function lfCopyProductClass($arrList, &$objQuery) {
         // 複製元のdtb_products_classを取得（規格なしのため、1件のみの取得）
         $col = '*';
         $table = 'dtb_products_class';
@@ -1350,17 +1426,16 @@ __EOF__;
         } else {
             $objQuery->commit();
         }
-
         return !$err_flag;
     }
 
     /**
      * リネームする際は、自動生成される画像名に一意となるように、Suffixを付ける
      *
-     * @param  string $to_key
+     * @param string $to_key
      * @return string
      */
-    public function lfGetAddSuffix($to_key) {
+    function lfGetAddSuffix($to_key) {
         if (IMAGE_RENAME === true)
             return;
 
@@ -1374,22 +1449,42 @@ __EOF__;
                 $dist_name = '_m';
                 break;
             default:
-                $arrRet = explode('sub_image', $to_key);
-                $dist_name = '_sub' . $arrRet[1];
                 break;
         }
-
         return $dist_name;
+    }
+
+    /**
+     * サブ情報の登録があるかを取得する
+     * タイトル, コメント, 画像のいずれかに登録があれば「あり」と判定する
+     *
+     * @param array $arrSubProductData サブ情報配列
+     * @return boolean true: サブ情報あり, false: サブ情報なし
+     */
+    function hasSubProductData($arrSubProductData) {
+        $has_subproduct_data = false;
+
+        for ($i = 1; $i <= PRODUCTSUB_MAX; $i++) {
+            if ($cnt < 12 || $cnt > 19) {
+                if (SC_Utils_Ex::isBlank($arrSubProductData['sub_title' . $i]) == false || SC_Utils_Ex::isBlank($arrSubProductData['sub_comment' . $i]) == false
+                ) {
+                    $has_subproduct_data = true;
+                    break;
+                }
+            }
+        }
+
+        return $has_subproduct_data;
     }
 
     /**
      * アンカーハッシュ文字列を取得する
      * アンカーキーをサニタイジングする
      *
-     * @param  string $anchor_key フォーム入力パラメーターで受け取ったアンカーキー
+     * @param string $anchor_key フォーム入力パラメーターで受け取ったアンカーキー
      * @return <type>
      */
-    public function getAnchorHash($anchor_key) {
+    function getAnchorHash($anchor_key) {
         if ($anchor_key != '') {
             return "location.hash='#" . htmlspecialchars($anchor_key) . "'";
         } else {

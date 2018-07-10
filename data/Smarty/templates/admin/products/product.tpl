@@ -2,7 +2,7 @@
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -21,180 +21,93 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 *}-->
-<link rel="stylesheet" href="<!--{$TPL_URLPATH}-->jquery.multiselect2side/css/jquery.multiselect2side.css" type="text/css" media="screen" />
-<style>
-    #products label {
-        white-space: normal;
-        display: inline-block;
-    }
-</style>
 
-<script type="text/javascript" src="<!--{$TPL_URLPATH}-->jquery.multiselect2side/js/jquery.multiselect2side.js" ></script>
 <script type="text/javascript">
-    // 表示非表示切り替え
-    function lfDispSwitch(id){
-        var obj = document.getElementById(id);
-        if (obj.style.display == 'none') {
-            obj.style.display = '';
-        } else {
-            obj.style.display = 'none';
-        }
+// 表示非表示切り替え
+function lfDispSwitch(id){
+    var obj = document.getElementById(id);
+    if (obj.style.display == 'none') {
+        obj.style.display = '';
+    } else {
+        obj.style.display = 'none';
     }
+}
 
-    // 求人種別によってダウンロード求人のフォームの表示非表示を切り替える
-    function toggleDownloadFileForms(value) {
-        if (value == '2') {
-            $('.type-download').show('fast');
-        } else {
-            $('.type-download').hide('fast');
+// セレクトボックスのリストを移動
+// (移動元セレクトボックスID, 移動先セレクトボックスID)
+function fnMoveSelect(select, target) {
+    $('#' + select).children().each(function() {
+        if (this.selected) {
+            $('#' + target).append(this);
+            $(this).attr({selected: false});
         }
+    });
+    // IE7再描画不具合対策
+    if ($.browser.msie && $.browser.version >= 7) {
+        $('#' + select).hide();
+        $('#' + select).show();
+        $('#' + target).hide();
+        $('#' + target).show();
     }
+}
 
-    $(function(){
-        var form_product_type = $('input[name=product_type_id]');
-        form_product_type.click(function(){
-            toggleDownloadFileForms(form_product_type.filter(':checked').val());
-        });
-        toggleDownloadFileForms(form_product_type.filter(':checked').val());
-        
-        $('#selection_process').multiselect2side({
-            selectedPosition: 'right',
-            moveOptions: true,
-            labelsx: '出力しない項目',
-            labeldx: '出力する項目',
-            labelTop: '一番上',
-            labelBottom: '一番下',
-            labelUp: '一つ上',
-            labelDown: '一つ下',
-            labelSort: '項目順序'
-        });
-        // multiselect2side の初期選択を解除
-        $('.ms2side__div select').val(null);
-        // [Sort] ボタンは混乱防止のため非表示
-        // FIXME 選択・非選択のボタンと比べて、位置ズレしている
-        $('.ms2side__div .SelSort').hide();
-        
-        $('select[name=region]').change(function(){
-            $("select[name=city]").find('option').not(':first').remove();
-            if($(this).val() !== '' && $(this).val() > 0){
-                <!--{foreach key=key item=item from=$arrCityByRegion}-->
-                    if($(this).val() == <!--{$key}-->){
-                        <!--{foreach key=c_key item=c_item  from=$item}-->
-                            $("select[name=city]").append( $("<option>")
-                                .val("<!--{$c_key}-->")
-                                .html("<!--{$c_item}-->")
-                            );
-                        <!--{/foreach}-->
-                    }
-                <!--{/foreach}-->
-                
-            }
-        });
-              
-        var targetId = 0;
-        if($('input[name=target]:checked').length > 0){
-            targetId = $('input[name=target]:checked').val();
+// target の子要素を選択状態にする
+function selectAll(target) {
+    $('#' + target).children().attr({selected: true});
+}
+
+function throwAlert(id){
+	<!--{foreach key=key item=item from=$arrWorkLocationFlg}-->
+		if(id == <!--{$key}-->){
+			alert('地域は（ <!--{$item}--> ）でよろしいですか。');
+		}
+	<!--{/foreach}-->
+}
+
+function fill_subcomment(no, checked_flg, val){
+	if(checked_flg == true){
+		var cmt = document.getElementsByName('sub_comment'+no);
+		cmt[0].value = cmt[0].value+' '+val;
+	}
+}
+
+function agencyChanged(agencySelect){
+    if(agencySelect.selectedIndex !== 0){
+        var corporateSelect = document.getElementById('corporate_id');
+        corporateSelect.options.length = 0;
+        var newOption = document.createElement('option');
+        newOption.value = '';
+        if (typeof newOption.textContent === 'undefined')
+        {
+            newOption.innerText = '選択してください';
         }
-                
-        var employmentStatus = $('input[name=employment_status]').closest('span');
-        $('input[name=target]').change(function(){
-            if(targetId > 0 && targetId != $(this).val() || targetId == 0 && $(this).val() == 2){
-                var employmentStatusId = 0;
-                if($('input[name=employment_status]:checked').length > 0){
-                    employmentStatusId = $('input[name=employment_status]:checked').val();
-                }
-                employmentStatus.html('');
-                <!--{foreach key=key item=item from=$arrEmploymentStatusByTarget}-->
-                    if($(this).val() == <!--{$key}-->){
-                        <!--{foreach key=c_key item=c_item  from=$item}-->
-                            var label = $('<label />', { text: '<!--{$c_item}-->' });
-                            var input = $('<input />', { type: 'radio', name: 'employment_status', value: <!--{$c_key}--> });
-                            label.prepend(input);
-                            employmentStatus.append(label);
-                            employmentStatus.append('&nbsp;&nbsp;');
-                        <!--{/foreach}-->
-                    }
-                <!--{/foreach}-->
-                targetId = $(this).val();
-                if(employmentStatusId > 0){
-                    $('input[name=employment_status][value=' + employmentStatusId + ']').prop('checked', 'checked');
-                }
-            }
-        });
-        
-        var prevTarget = 0;
-        if(parseInt('<!--{$arrForm.employment_status}-->', 10) == 1)  {
-            prevTarget = 2;
-        } else if (parseInt('<!--{$arrForm.employment_status}-->', 10) == 2 || parseInt('<!--{$arrForm.employment_status}-->', 10) == 3) {
-            prevTarget = 1;
+        else
+        {
+            newOption.textContent = '選択してください';
         }
+        corporateSelect.appendChild(newOption);
         
-        var salaryType = $('input[name=salary_type]').closest('span');
-        var currency = $('input[name=currency]').closest('span');
-        var categoryId = $('input[name="category_id[]"]').closest('span');
-        $("body").on("click", "input[name=employment_status]", function (e) {
-            if( $(this).val() == 2 || $(this).val() == 3 ){
-                $("input[name='position']").closest('tr').find('th span').hide();
-                $("textarea[name='salary']").closest('tr').find('th span').hide();
-            } else {
-                $("input[name='position']").closest('tr').find('th span').show();
-                $("textarea[name='salary']").closest('tr').find('th span').show();
+        <!--{foreach from=$arrCORPORATE key=k item=v}-->
+            if(agencySelect.selectedIndex == '<!--{$k}-->'){
+                <!--{foreach from=$v key=index item=value}-->
+                    newOption = document.createElement('option');
+                    newOption.value = '<!--{$index}-->';
+                    if (typeof newOption.textContent === 'undefined')
+                    {
+                        newOption.innerText = '<!--{$value}-->';
+                    }
+                    else
+                    {
+                        newOption.textContent = '<!--{$value}-->';
+                    }
+                    corporateSelect.appendChild(newOption);
+                <!--{/foreach}-->
             }
-        
-            var target = detectTargetByEmpStatus();
-            if(prevTarget != target){
-                salaryType.html('');
-                currency.html('');
-                categoryId.html('');
-                <!--{foreach key=key item=item from=$arrSalaryTypeByTarget}-->
-                    if(target == <!--{$key}-->){
-                        <!--{foreach key=c_key item=c_item  from=$item}-->
-                            var label = $('<label />', { text: '<!--{$c_item}-->' });
-                            var input = $('<input />', { type: 'radio', name: 'salary_type', value: <!--{$c_key}--> });
-                            label.prepend(input);
-                            salaryType.append(label);
-                            salaryType.append('&nbsp;&nbsp;');
-                        <!--{/foreach}-->
-                    }
-                <!--{/foreach}-->
-                <!--{foreach key=key item=item from=$arrCurrencyByTarget}-->
-                    if(target == <!--{$key}-->){
-                        <!--{foreach key=c_key item=c_item  from=$item}-->
-                            var label = $('<label />', { text: '<!--{$c_item}-->' });
-                            var input = $('<input />', { type: 'radio', name: 'currency', value: <!--{$c_key}--> });
-                            label.prepend(input);
-                            currency.append(label);
-                            currency.append('&nbsp;&nbsp;');
-                        <!--{/foreach}-->
-                    }
-                <!--{/foreach}-->
-                <!--{foreach key=key item=item from=$arrCategoryByTarget}-->
-                    if(target == <!--{$key}-->){
-                        <!--{foreach key=c_key item=c_item  from=$item}-->
-                            var label = $('<label />', { text: '<!--{$c_item}-->' });
-                            var input = $('<input />', { type: 'checkbox', name: 'category_id[]', value: <!--{$c_key}--> });
-                            label.prepend(input);
-                            categoryId.append(label);
-                            categoryId.append('&nbsp;&nbsp;');
-                        <!--{/foreach}-->
-                    }
-                <!--{/foreach}-->
-                prevTarget = target;
-            }
-        });
-        
-        function detectTargetByEmpStatus(){
-            var target = 0;
-            <!--{foreach key=key item=item  from=$arrTargetByEmploymentStatus}-->
-                if($('input[name="employment_status"]:checked').val() == <!--{$key}-->){
-                    target = '<!--{$item}-->';
-                }
-            <!--{/foreach}-->
-            return target;
-        }
-    })
+        <!--{/foreach}-->
+    }
+}
+
 </script>
-<style>.ms2side__options, .ms2side__updown { width: 60px !important; }</style>
 
 <form name="form1" id="form1" method="post" action="?" enctype="multipart/form-data">
 <input type="hidden" name="<!--{$smarty.const.TRANSACTION_ID_NAME}-->" value="<!--{$transactionid}-->" />
@@ -209,481 +122,540 @@
 <!--{/foreach}-->
 <input type="hidden" name="mode" value="edit" />
 <input type="hidden" name="image_key" value="" />
-<input type="hidden" name="down_key" value="" />
+<input type="hidden" name="down_key" value="">
 <input type="hidden" name="product_id" value="<!--{$arrForm.product_id|h}-->" />
 <input type="hidden" name="product_class_id" value="<!--{$arrForm.product_class_id|h}-->" />
 <input type="hidden" name="copy_product_id" value="<!--{$arrForm.copy_product_id|h}-->" />
 <input type="hidden" name="anchor_key" value="" />
 <input type="hidden" name="select_recommend_no" value="" />
 <input type="hidden" name="has_product_class" value="<!--{$arrForm.has_product_class|h}-->" />
-<input type="hidden" name="edit_client_id" value="" />
 <!--{foreach key=key item=item from=$arrForm.arrHidden}-->
 <input type="hidden" name="<!--{$key}-->" value="<!--{$item|h}-->" />
 <!--{/foreach}-->
+    
+    
+<div ID="admin_sample_01" onClick="document.all.item('admin_sample_01').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_01.png" width="600" height="600"/></div>
+<div ID="admin_sample_02" onClick="document.all.item('admin_sample_02').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_02.png" width="600" height="600"/></div>
+<div ID="admin_sample_03" onClick="document.all.item('admin_sample_03').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_03.png" width="600" height="600"/></div>
+<div ID="admin_sample_04" onClick="document.all.item('admin_sample_04').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_04.png" width="600" height="600"/></div>
+<div ID="admin_sample_05" onClick="document.all.item('admin_sample_05').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_05.png" width="600" height="600"/></div>
+<div ID="admin_sample_06" onClick="document.all.item('admin_sample_06').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_06.png" width="600" height="600"/></div>
+<div ID="admin_sample_07" onClick="document.all.item('admin_sample_07').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_07.png" width="600" height="600"/></div>
+<div ID="admin_sample_08" onClick="document.all.item('admin_sample_08').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_08.png" width="600" height="600"/></div>
+<div ID="admin_sample_09" onClick="document.all.item('admin_sample_09').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_09.png" width="600" height="600"/></div>
+<div ID="admin_sample_10" onClick="document.all.item('admin_sample_10').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_10.png" width="600" height="600"/></div>
+<div ID="admin_sample_11" onClick="document.all.item('admin_sample_11').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_11.png" width="600" height="600"/></div>
+<div ID="admin_sample_12" onClick="document.all.item('admin_sample_12').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_12.png" width="600" height="600"/></div>
+<div ID="admin_sample_13" onClick="document.all.item('admin_sample_13').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_13.png" width="600" height="600"/></div>
+<div ID="admin_sample_14" onClick="document.all.item('admin_sample_14').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_14.png" width="600" height="600"/></div>
+<div ID="admin_sample_15" onClick="document.all.item('admin_sample_15').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_15.png" width="600" height="600"/></div>
+<div ID="admin_sample_16" onClick="document.all.item('admin_sample_16').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_16.png" width="600" height="600"/></div>
+<div ID="admin_sample_17" onClick="document.all.item('admin_sample_17').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_17.png" width="600" height="600"/></div>
+<div ID="admin_sample_18" onClick="document.all.item('admin_sample_18').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_18.png" width="600" height="600"/></div>
+<div ID="admin_sample_19" onClick="document.all.item('admin_sample_19').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_19.png" width="600" height="600"/></div>
+<div ID="admin_sample_20" onClick="document.all.item('admin_sample_20').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_20.png" width="600" height="600"/></div>
+<div ID="admin_sample_21" onClick="document.all.item('admin_sample_21').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_21.png" width="600" height="600"/></div>
+<div ID="admin_sample_22" onClick="document.all.item('admin_sample_22').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_22.png" width="600" height="600"/></div>
+<div ID="admin_sample_23" onClick="document.all.item('admin_sample_23').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_23.png" width="600" height="600"/></div>
+<div ID="admin_sample_24" onClick="document.all.item('admin_sample_24').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_24.png" width="600" height="600"/></div>
+<div ID="admin_sample_25" onClick="document.all.item('admin_sample_25').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_25.png" width="600" height="600"/></div>
+<div ID="admin_sample_26" onClick="document.all.item('admin_sample_26').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_26.png" width="600" height="600"/></div>
+<div ID="admin_sample_27" onClick="document.all.item('admin_sample_27').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_27.png" width="600" height="600"/></div>
+<div ID="admin_sample_28" onClick="document.all.item('admin_sample_28').style.display='none'" style="display:none;"><img src="<!--{$TPL_URLPATH}-->img/admin/admin_sample_28.png" width="600" height="600"/></div>
+    
 <div id="products" class="contents-main">
     <h2>基本情報</h2>
 
     <table class="form">
         <tr>
-            <th>求人ID</th>
+            <th>会社名<span class="attention"> *</span></th>
+            <td>
+                <!--{assign var=key value="agency_id"}-->
+                <!--{if $smarty.session.authority == 2 || $smarty.session.authority == 3}-->
+                    <!--{$arrAGENCY[$smarty.session.agency_id]}--><input type="hidden" name="<!--{$key}-->" value="<!--{$smarty.session.agency_id}-->" />
+                <!--{else}-->
+                    <span class="attention"><!--{$arrErr[$key]}--></span>
+                    <select id="<!--{$key}-->" name="<!--{$key}-->" style="<!--{$arrErr[$key]|sfGetErrorColor}-->" onchange="agencyChanged(this);">
+                        <option value="">選択してください</option>
+                        <!--{html_options options=$arrAGENCY selected=$arrForm[$key]}-->
+                    </select>
+                <!--{/if}-->
+            </td>
+        </tr>
+
+        <tr>
+            <th>薬局名<span class="attention"> *</span></th>
+            <td>
+                <!--{assign var=key value="corporate_id"}-->
+                <!--{if $smarty.session.authority == 3}-->
+                    <!--{$arrCORPORATE[$smarty.session.agency_id][$smarty.session.corporate_id]}--><input type="hidden" name="<!--{$key}-->" value="<!--{$smarty.session.corporate_id}-->" />
+                <!--{else}-->
+                    <span class="attention"><!--{$arrErr[$key]}--></span>
+                    <select id="<!--{$key}-->" name="<!--{$key}-->" style="<!--{$arrErr[$key]|sfGetErrorColor}-->">
+                        <option value="">選択してください</option>
+                        <!--{html_options options=$arrCORPORATE[$arrForm.agency_id] selected=$arrForm[$key]}-->
+                    </select>
+                <!--{/if}-->
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2">求人ID</span></th>
             <td><!--{$arrForm.product_id|h}--></td>
         </tr>
         <tr>
-            <th>ダミーフラグ<span class="attention"> *</span></th>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_01').style.display='block'" onClick="document.all.item('admin_sample_01').style.display='none'">求人名</span><span class="attention"> *</span></span>
+                </th>
             <td>
-                <span class="attention"><!--{$arrErr.dummy_flg}--></span>
-                <span <!--{if $arrErr.dummy_flg != ""}--><!--{sfSetErrorStyle}--><!--{/if}-->>
-                    <!--{html_radios name="dummy_flg" options=$arrDummyFlg selected=$arrForm.dummy_flg separator='&nbsp;&nbsp;'}-->
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <th>仕事名<span class="attention"> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.name}--><!--{$arrErr.name_vn}--></span>
-                <input type="text" name="name" value="<!--{$arrForm.name|h}-->" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.name != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="60" class="box60 top" />
-                <span class="attention"> (上限<!--{$smarty.const.STEXT_LEN}-->文字)</span>
-                <br />
-                <input type="text" name="name_vn" value="<!--{$arrForm.name_vn|h}-->" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.name_vn != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="60" class="box60 vn_field" />
+                <span class="attention"><!--{$arrErr.name}--></span>
+                <input type="text" name="name" value="<!--{$arrForm.name|h}-->" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.name != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="60" class="box60" />
                 <span class="attention"> (上限<!--{$smarty.const.STEXT_LEN}-->文字)</span>
             </td>
         </tr>
         <tr>
-            <th><span class="attention2">求人ステータス</span></th>
+            <th>おすすめ情報フラグ</th>
             <td>
-                <!--{html_checkboxes name="product_status" options=$arrSTATUS selected=$arrForm.product_status separator='&nbsp;&nbsp;'}-->
+                <!--{html_radios name="rec_news_flg" options=$arrRECNEWSFLG selected=$arrForm.rec_news_flg separator='&nbsp;&nbsp;'}-->
             </td>
         </tr>
         <tr>
-            <th>公開・非公開<span class="attention"> *</span></th>
+            <th>新着求人情報</th>
+            <td>
+                <!--{html_radios name="news_flg" options=$arrNEWSFLG selected=$arrForm.news_flg separator='&nbsp;&nbsp;'}-->
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_22').style.display='block'" onClick="document.all.item('admin_sample_22').style.display='none'">求人カテゴリ</span><span class="attention"> *</span></span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.category_id}--></span>
+                <table class="layout">
+                    <tr>
+                        <td>
+                            <select name="category_id[]" id="category_id" style="<!--{if $arrErr.category_id != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}--> height: 120px; min-width: 200px;" onchange="" size="10" multiple>
+                            </select>
+                        </td>
+                        <td style="padding: 15px;">
+                            <a class="btn-normal" href="javascript:;" name="on_select" onclick="fnMoveSelect('category_id_unselect','category_id'); return false;">&nbsp;&nbsp;&lt;-&nbsp;登録&nbsp;&nbsp;</a><br /><br />
+                            <a class="btn-normal" href="javascript:;" name="un_select" onclick="fnMoveSelect('category_id','category_id_unselect'); return false;">&nbsp;&nbsp;削除&nbsp;-&gt;&nbsp;&nbsp;</a>
+                        </td>
+                        <td>
+                            <select name="category_id_unselect[]" id="category_id_unselect" onchange="" size="10" style="height: 120px; min-width: 200px;" multiple>
+                                <!--{html_options values=$arrCatVal output=$arrCatOut selected=$arrForm.category_id}-->
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2">公開・非公開<span class="attention"> *</span></span></th>
             <td>
                 <!--{html_radios name="status" options=$arrDISP selected=$arrForm.status separator='&nbsp;&nbsp;'}-->
             </td>
         </tr>
-        <!--{if $arrForm.has_product_class == false}-->
-        <input type="hidden" name="product_type_id" value="<!--{$arrForm.product_type_id}-->" />
-        <input type="hidden" name="price02" value="0" />
-        <input type="hidden" name="stock_unlimited" value="1" />
-        <!--{/if}-->
-        <input type="hidden" name="point_rate" value="0" />
         <tr>
-            <th>検索ワード<br />※複数の場合は、カンマ( , )区切りで入力して下さい</th>
+            <th>ダミーフラグ</th>
             <td>
-                <span class="attention"><!--{$arrErr.comment3}--></span>
-                <textarea name="comment3" cols="60" rows="8" class="area60" maxlength="<!--{$smarty.const.LLTEXT_LEN}-->" style="<!--{$arrErr.comment3|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.comment3|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.LLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <!--{assign var=key value="main_large_image"}-->
-            <th>画像<br />[<!--{$smarty.const.LARGE_IMAGE_WIDTH}-->×<!--{$smarty.const.LARGE_IMAGE_HEIGHT}-->]</th>
-            <td>
-                <a name="<!--{$key}-->"></a>
-                <span class="attention"><!--{$arrErr[$key]}--></span>
-                <!--{if $arrForm.arrFile[$key].filepath != ""}-->
-                <img src="<!--{$arrForm.arrFile[$key].filepath}-->" alt="<!--{$arrForm.name|h}-->" />　<a href="" onclick="eccube.setModeAndSubmit('delete_image', 'image_key', '<!--{$key}-->'); return false;">[画像の取り消し]</a><br />
-                <!--{/if}-->
-                <input type="file" name="<!--{$key}-->" size="40" style="<!--{$arrErr[$key]|sfGetErrorColor}-->" />
-                <a class="btn-normal" href="javascript:;" name="btn" onclick="eccube.setModeAndSubmit('upload_image', 'image_key', '<!--{$key}-->'); return false;">アップロード</a>
+                <!--{html_radios name="dummy_flg" options=$arrDUMMYFLG selected=$arrForm.dummy_flg separator='&nbsp;&nbsp;'}-->
             </td>
         </tr>
         <tr>
             <th>掲載終了日</th>
             <td>
-                <span class="attention"><!--{$arrErr.end_year}--></span>
-                <select name="end_year" <!--{if $arrErr.end_year != ""}--><!--{sfSetErrorStyle}--><!--{/if}--> >
+                <span class="attention"><!--{$arrErr.year}--></span>
+                <select name="year" <!--{if $arrErr.year != ""}--><!--{sfSetErrorStyle}--><!--{/if}--> >
                     <option value="" selected="selected">------</option>
-                    <!--{html_options options=$arrEndYear selected=$arrForm.end_year}-->
+                    <!--{html_options options=$arrYear selected=$arrForm.year}-->
                 </select>年
-                <select name="end_month" <!--{if $arrErr.end_year != ""}--><!--{sfSetErrorStyle}--><!--{/if}--> >
+                <select name="month" <!--{if $arrErr.year != ""}--><!--{sfSetErrorStyle}--><!--{/if}--> >
                     <option value="" selected="selected">----</option>
-                    <!--{html_options options=$arrMonth selected=$arrForm.end_month}-->
+                    <!--{html_options options=$arrMonth selected=$arrForm.month}-->
                 </select>月
-                <select name="end_day" <!--{if $arrErr.end_year != ""}--><!--{sfSetErrorStyle}--><!--{/if}--> >
+                <select name="day" <!--{if $arrErr.year != ""}--><!--{sfSetErrorStyle}--><!--{/if}--> >
                     <option value="" selected="selected">----</option>
-                    <!--{html_options options=$arrDay selected=$arrForm.end_day}-->
+                    <!--{html_options options=$arrDay selected=$arrForm.day"}-->
                 </select>日
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_10').style.display='block'" onClick="document.all.item('admin_sample_10').style.display='none'">優遇/待遇/シフト 【合計14件目安】</span></span></th>
+            <td>
+                <!--{html_checkboxes name="product_status" options=$arrSTATUS selected=$arrForm.product_status separator='&nbsp;&nbsp;'}-->
+            </td>
+        </tr>
+        <!--{if $arrForm.has_product_class == false}-->
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_10').style.display='block'" onClick="document.all.item('admin_sample_10').style.display='none'">雇用形態 【合計14件目安】</span></span></th>
+            <td>
+                <!--{html_checkboxes name="employment_status" options=$arrEMPSTATUS selected=$arrForm.employment_status separator='&nbsp;&nbsp;'}-->
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_10').style.display='block'" onClick="document.all.item('admin_sample_10').style.display='none'">アピールポイント 【合計14件目安】</span></span></th>
+            <td>
+                <!--{html_checkboxes name="appeal_point" options=$arrAPPEALPOINT selected=$arrForm.appeal_point separator='&nbsp;&nbsp;'}-->
+            </td>
+        </tr>
+		<input type="hidden" value="1" name="product_type_id" />
+        <tr>   
+            <th>ダウンロードファイル名</th>
+            <td>
+                <span class="attention"><!--{$arrErr.down_filename}--></span>
+                <input type="text" name="down_filename" value="<!--{$arrForm.down_filename|h}-->" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.down_filename != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}--><!--{/if}-->" size="60" class="box60" />
+                <span class="red"> (上限<!--{$smarty.const.STEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <!--{assign var=key value="down_file"}-->
+            <th>ダウンロードファイルアップロード</th>
+            <td>
+                <a name="<!--{$key}-->"></a>
+                <span class="attention"><!--{$arrErr[$key]}--><!--{$arrErr.down_realfilename}--></span>
+                    <!--{if $arrForm.down_realfilename != ""}-->
+                       <!--{$arrForm.down_realfilename|h}--><input type="hidden" name="down_realfilename" value="<!--{$arrForm.down_realfilename|h}-->">
+                     <a href="" onclick="selectAll('category_id'); fnModeSubmit('delete_down', 'down_key', '<!--{$key}-->'); return false;">[ファイルの取り消し]</a><br>
+                   <!--{/if}-->
+                   <input type="file" name="down_file" size="40" style="<!--{$arrErr[$key]|sfGetErrorColor}-->" />
+                    <a class="btn-normal" href="javascript:;" name="btn" onclick="selectAll('category_id'); fnModeSubmit('upload_down', 'down_key', '<!--{$key}-->'); return false;">アップロード</a><br />登録可能拡張子：<!--{$smarty.const.DOWNLOAD_EXTENSION}-->　(パラメーター DOWNLOAD_EXTENSION)
+            </td>
+        </tr>
+		<tr>
+            <th><span class="attention2">取引先 就業先<span class="attention"> *</span></span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.product_code}--></span>
+                <input type="text" name="product_code" value="<!--{$arrForm.product_code|h}-->" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.product_code != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="60" class="box60" />
+                <span class="attention"> (上限<!--{$smarty.const.STEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+<!--{*
+/*        
+*         <tr>
+*            <th><!--{$smarty.const.NORMAL_PRICE_TITLE}--></th>
+*            <td>
+*                <span class="attention"><!--{$arrErr.price01}--></span>
+*                <input type="text" name="price01" value="<!--{$arrForm.price01|h}-->" size="6" class="box6" maxlength="<!--{$smarty.const.PRICE_LEN}-->" style="<!--{if $arrErr.price01 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>円
+*                <span class="attention"> (半角数字で入力)</span>
+*            </td>
+*        </tr>
+*/
+*}--> 
+         <tr>
+             <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_07').style.display='block'" onClick="document.all.item('admin_sample_07').style.display='none'"><!--{$smarty.const.SALE_PRICE_TITLE}--></span></span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.price02}--></span>
+                <input type="text" name="price02" value="<!--{$arrForm.price02|h}-->" size="6" class="box6" maxlength="<!--{$smarty.const.PRICE_LEN}-->" style="<!--{if $arrErr.price02 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>円
             </td>
         </tr>
         <tr>
             <th>求人数<span class="attention"> *</span></th>
             <td>
-                <span class="attention"><!--{$arrErr.offer_number}--></span>
-                <input type="text" name="offer_number" value="<!--{$arrForm.offer_number|h}-->" size="6" class="box6" style="<!--{if $arrErr.offer_number != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
-                <span class="attention"> (半角数字で入力)</span>
+                <span class="attention"><!--{$arrErr.stock}--></span>
+                <input type="text" name="stock" value="<!--{$arrForm.stock|h}-->" size="6" class="box6" maxlength="<!--{$smarty.const.AMOUNT_LEN}-->" style="<!--{if $arrErr.stock != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
+                <input type="checkbox" name="stock_unlimited" value="1" <!--{if $arrForm.stock_unlimited == "1"}-->checked<!--{/if}--> onclick="fnCheckStockLimit('<!--{$smarty.const.DISABLED_RGB}-->');"/>無制限
             </td>
         </tr>
-        <tr>
-            <th>対象<span class="attention"> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.target}--></span>
-                <span <!--{if $arrErr.target != ""}--><!--{sfSetErrorStyle}--><!--{/if}-->>
-                    <!--{html_radios name="target" options=$arrTarget selected=$arrForm.target separator='&nbsp;&nbsp;'}-->
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <th>雇用形態<span class="attention"> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.employment_status}--></span>
-                <span <!--{if $arrErr.employment_status != ""}--><!--{sfSetErrorStyle}--><!--{/if}-->>
-                    <!--{if $arrForm.target != '' && $arrForm.target > 0}-->
-                        <!--{html_radios name="employment_status" options=$arrEmploymentStatusByTarget[$arrForm.target] selected=$arrForm.employment_status separator='&nbsp;&nbsp;'}-->
-                    <!--{else}-->
-                        <!--{html_radios name="employment_status" options=$arrEmploymentStatus selected=$arrForm.employment_status separator='&nbsp;&nbsp;'}-->
-                    <!--{/if}-->
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <th>ポジション<span class="attention" <!--{if $arrForm.employment_status == 2 || $arrForm.employment_status == 3}-->style='display: none'<!--{/if}-->> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.position}--></span>
-                <span <!--{if $arrErr.position != ""}--><!--{sfSetErrorStyle}--><!--{/if}-->>
-                    <!--{html_radios name="position" options=$arrPosition selected=$arrForm.position separator='&nbsp;&nbsp;'}-->
-                </span>
-            </td>
-        </tr>
-        <!--{assign var=targetId value="0"}-->
-        <!--{if $arrForm.employment_status == 1}-->
-            <!--{assign var=targetId value="2"}-->
-        <!--{else if $arrForm.employment_status == 2 || $arrForm.employment_status == 3}-->
-            <!--{assign var=targetId value="1"}-->
         <!--{/if}-->
+<!--{*
+/*
+*         <tr>
+*            <th>（商品送料）</th>
+*            <td>
+*                <span class="attention"><!--{$arrErr.deliv_fee}--></span>
+*                <input type="text" name="deliv_fee" value="<!--{$arrForm.deliv_fee|h}-->" size="6" class="box6" maxlength="<!--{$smarty.const.PRICE_LEN}-->" style="<!--{if $arrErr.deliv_fee != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>円
+*                <span class="attention"> (半角数字で入力)</span>
+*                <!--{if $smarty.const.OPTION_PRODUCT_DELIV_FEE != 1}--><br /><span class="attention">※現在無効です</span> (パラメーター OPTION_PRODUCT_DELIV_FEE)<!--{/if}-->
+*            </td>
+*        </tr>
+*        <tr>
+*            <th>(ポイント付与率）<span class="attention"> *</span></th>
+*            <td>
+*                <span class="attention"><!--{$arrErr.point_rate}--></span>
+*                <input type="text" name="point_rate" value="<!--{$arrForm.point_rate|default:$arrForm.arrInfo.point_rate|h}-->" size="6" class="box6" maxlength="<!--{$smarty.const.PERCENTAGE_LEN}-->" style="<!--{if $arrErr.point_rate != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>％
+*                <span class="attention"> (半角数字で入力)</span>
+*            </td>
+*        </tr>
+*        <tr>
+*            <th>（発送日目安）</th>
+*            <td>
+*                <span class="attention"><!--{$arrErr.deliv_date_id}--></span>
+*                <select name="deliv_date_id" style="<!--{$arrErr.deliv_date_id|sfGetErrorColor}-->">
+*                    <option value="">選択してください</option>
+*                    <!--{html_options options=$arrDELIVERYDATE selected=$arrForm.deliv_date_id}-->
+*                </select>
+*            </td>
+*        </tr>    
+*		 <tr>
+*            <th>応募制限数</th>
+*            <td>
+*                <span class="attention"><!--{$arrErr.sale_limit}--></span>
+*                <input type="text" name="sale_limit" value="<!--{$arrForm.sale_limit|h}-->" size="6" class="box6" maxlength="<!--{$smarty.const.AMOUNT_LEN}-->" style="<!--{if $arrErr.sale_limit != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
+*                <span class="attention"> (半角数字で入力)</span>
+*            </td>
+*        </tr>
+*/
+*}-->   
+		<input type="hidden" name="sale_limit" value="1" />
         <tr>
-            <th>給与区分<span class="attention"> *</span></th>
+            <th>会社名</th>
             <td>
-                <span class="attention"><!--{$arrErr.salary_type}--></span>
-                <span <!--{if $arrErr.salary_type != ""}--><!--{sfSetErrorStyle}--><!--{/if}-->>
-                    <!--{if $targetId > 0}-->
-                        <!--{html_radios name="salary_type" options=$arrSalaryTypeByTarget[$targetId] selected=$arrForm.salary_type separator='&nbsp;&nbsp;'}-->
-                    <!--{else}-->
-                        <!--{html_radios name="salary_type" options=$arrSalaryType selected=$arrForm.salary_type separator='&nbsp;&nbsp;'}-->
-                    <!--{/if}-->
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <th>通貨<span class="attention"> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.currency}--></span>
-                <span <!--{if $arrErr.currency != ""}--><!--{sfSetErrorStyle}--><!--{/if}-->>
-                    <!--{html_radios name="currency" options=$arrCurrency selected=$arrForm.currency separator='&nbsp;&nbsp;'}-->
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <th>給与上限<span class="attention"> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.salary_min}--></span>
-                <input type="text" name="salary_min" value="<!--{$arrForm.salary_min|h}-->" size="60" class="box60" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.salary_min != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
-            </td>
-        </tr>
-        <tr>
-            <th>給与下限<span class="attention"> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.salary_max}--></span>
-                <input type="text" name="salary_max" value="<!--{$arrForm.salary_max|h}-->" size="60" class="box60" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.salary_max != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
-            </td>
-        </tr>
-        <tr>
-            <th>給与詳細<span class="attention" <!--{if $arrForm.employment_status == 2 || $arrForm.employment_status == 3}-->style='display: none'<!--{/if}-->> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.salary}--><!--{$arrErr.salary_vn}--></span>
-                <textarea name="salary" cols="60" rows="8" class="area60 top" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.salary|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.salary|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="salary_vn" cols="60" rows="8" class="area60 vn_field" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.salary_vn|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.salary_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>為替相場</th>
-            <td>
-                <span class="attention"><!--{$arrErr.exchange_rate}--></span>
-                <input type="text" name="exchange_rate" value="<!--{$arrForm.exchange_rate|h}-->" size="60" class="box60" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.exchange_rate != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
-            </td>
-        </tr>
-        <tr>
-            <th>職種<span class="attention"> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.category_id}--></span>
-                <span <!--{if $arrErr.category_id != ""}--><!--{sfSetErrorStyle}--><!--{/if}-->>
-                    <!--{if $targetId > 0}-->
-                        <!--{html_checkboxes name="category_id" options=$arrCategoryByTarget[$targetId] selected=$arrForm.category_id separator='&nbsp;&nbsp;'}-->
-                    <!--{else}-->
-                        <!--{html_checkboxes name="category_id" options=$arrCategory selected=$arrForm.category_id separator='&nbsp;&nbsp;'}-->
-                    <!--{/if}-->
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <th>勤務地<span class="attention"> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.region}--><!--{$arrErr.city}--><!--{$arrErr.work_location}--><!--{$arrErr.work_location_vn}--></span>
-                <select class="top" name="region" <!--{if $arrErr.region != ""}--><!--{sfSetErrorStyle}--><!--{/if}--> >
-                    <option value="" selected="selected">都道府県を選択</option>
-                    <!--{html_options options=$arrRegion selected=$arrForm.region}-->
-                </select> &nbsp; 
-                <select class="top" name="city" <!--{if $arrErr.city != ""}--><!--{sfSetErrorStyle}--><!--{/if}--> >
-                    <option value="">市区町村を選択</option>
-                    <!--{if $arrForm.region > 0}-->
-                        <!--{html_options options=$arrCityByRegion[$arrForm.region] selected=$arrForm.city}-->
-                    <!--{/if}-->
-                </select>
-                <br />
-                <input type="text" name="work_location" value="<!--{$arrForm.work_location|h}-->" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.work_location != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="60" class="box60 top" />
-                <br />
-                <input type="text" name="work_location_vn" value="<!--{$arrForm.work_location_vn|h}-->" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.work_location_vn != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="60" class="box60 vn_field" />
-            </td>
-        </tr>
-        <tr>
-            <th>交通アクセス</th>
-            <td>
-                <span class="attention"><!--{$arrErr.traffic_access}--><!--{$arrErr.traffic_access_vn}--></span>
-                <textarea name="traffic_access" cols="60" rows="8" class="area60 top" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.traffic_access|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.traffic_access|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="traffic_access_vn" cols="60" rows="8" class="area60 vn_field" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.traffic_access_vn|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.traffic_access_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>勤務時間<span class="attention"> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.working_hour}--><!--{$arrErr.working_hour_vn}--></span>
-                <textarea name="working_hour" cols="60" rows="8" class="area60 top" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.working_hour|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.working_hour|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="working_hour_vn" cols="60" rows="8" class="area60 vn_field" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.working_hour_vn|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.working_hour_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>勤務曜日<span class="attention"> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.working_day}--><!--{$arrErr.working_day_vn}--></span>
-                <textarea name="working_day" cols="60" rows="8" class="area60 top" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.working_day|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.working_day|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="working_day_vn" cols="60" rows="8" class="area60 vn_field" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.working_day_vn|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.working_day_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>昼休み時間<span class="attention"> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.lunch_time}--><!--{$arrErr.lunch_time_vn}--></span>
-                <textarea name="lunch_time" cols="60" rows="8" class="area60 top" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.lunch_time|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.lunch_time|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="lunch_time_vn" cols="60" rows="8" class="area60 vn_field" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.lunch_time_vn|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.lunch_time_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>試用期間</th>
-            <td>
-                <span class="attention"><!--{$arrErr.trial_period}--><!--{$arrErr.trial_period_vn}--></span>
-                <textarea name="trial_period" cols="60" rows="8" class="area60 top" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.trial_period|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.trial_period|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="trial_period_vn" cols="60" rows="8" class="area60 vn_field" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.trial_period_vn|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.trial_period_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>簡単な仕事情報<span class="attention"> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.main_list_comment}--><!--{$arrErr.main_list_comment_vn}--></span>
-                <textarea name="main_list_comment" maxlength="<!--{$smarty.const.MTEXT_LEN}-->" style="<!--{if $arrErr.main_list_comment != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" cols="60" rows="8" class="area60 top"><!--{"\n"}--><!--{$arrForm.main_list_comment|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="main_list_comment_vn" maxlength="<!--{$smarty.const.MTEXT_LEN}-->" style="<!--{if $arrErr.main_list_comment_vn != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" cols="60" rows="8" class="area60 vn_field"><!--{"\n"}--><!--{$arrForm.main_list_comment_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>仕事詳細<span class="attention">(タグ許可)*</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.main_comment}--><!--{$arrErr.main_comment_vn}--></span>
-                <textarea name="main_comment" maxlength="<!--{$smarty.const.LLTEXT_LEN}-->" style="<!--{if $arrErr.main_comment != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" cols="60" rows="8" class="area60 top"><!--{"\n"}--><!--{$arrForm.main_comment|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.LLTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="main_comment_vn" maxlength="<!--{$smarty.const.LLTEXT_LEN}-->" style="<!--{if $arrErr.main_comment_vn != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" cols="60" rows="8" class="area60 vn_field"><!--{"\n"}--><!--{$arrForm.main_comment_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.LLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>性別</th>
-            <td>
-                <!--{html_checkboxes name="sex" options=$arrSex selected=$arrForm.sex separator='&nbsp;&nbsp;'}-->
-            </td>
-        </tr>
-        <tr>
-            <th>資格<span class="attention"> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.qualification}--><!--{$arrErr.qualification_vn}--></span>
-                <textarea name="qualification" cols="60" rows="8" class="area60 top" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.qualification|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.qualification|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="qualification_vn" cols="60" rows="8" class="area60 vn_field" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.qualification_vn|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.qualification_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>性格</th>
-            <td>
-                <span class="attention"><!--{$arrErr.personality}--><!--{$arrErr.personality_vn}--></span>
-                <textarea name="personality" cols="60" rows="8" class="area60 top" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.personality|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.personality|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="personality_vn" cols="60" rows="8" class="area60 vn_field" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.personality_vn|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.personality_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>経験・スキルの詳細<span class="attention"> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.skill}--><!--{$arrErr.skill_vn}--></span>
-                <textarea name="skill" cols="60" rows="8" class="area60 top" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.skill|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.skill|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="skill_vn" cols="60" rows="8" class="area60 vn_field" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.skill_vn|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.skill_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>昇給</th>
-            <td>
-                <span class="attention"><!--{$arrErr.payrise}--><!--{$arrErr.payrise_vn}--></span>
-                <textarea name="payrise" cols="60" rows="8" class="area60 top" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.payrise|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.payrise|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="payrise_vn" cols="60" rows="8" class="area60 vn_field" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.payrise_vn|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.payrise_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>賞与</th>
-            <td>
-                <span class="attention"><!--{$arrErr.bonus}--><!--{$arrErr.bonus_vn}--></span>
-                <textarea name="bonus" cols="60" rows="8" class="area60 top" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.bonus|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.bonus|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="bonus_vn" cols="60" rows="8" class="area60 vn_field" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.bonus_vn|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.bonus_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>保険</th>
-            <td>
-                <span class="attention"><!--{$arrErr.insurance}--><!--{$arrErr.insurance_vn}--></span>
-                <textarea name="insurance" cols="60" rows="8" class="area60 top" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.insurance|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.insurance|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="insurance_vn" cols="60" rows="8" class="area60 vn_field" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.insurance_vn|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.insurance_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>福利</th>
-            <td>
-                <!--{html_checkboxes name="welfare" options=$arrWelfare selected=$arrForm.welfare separator='&nbsp;&nbsp;'}-->
-            </td>
-        </tr>
-        <tr>
-            <th>その他の福利</th>
-            <td>
-                <span class="attention"><!--{$arrErr.other_welfare}--><!--{$arrErr.other_welfare_vn}--></span>
-                <textarea name="other_welfare" cols="60" rows="8" class="area60 top" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.other_welfare|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.other_welfare|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="other_welfare_vn" cols="60" rows="8" class="area60 vn_field" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.other_welfare_vn|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.other_welfare_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>健康診断</th>
-            <td>
-                <span class="attention"><!--{$arrErr.medical_checkup}--><!--{$arrErr.medical_checkup_vn}--></span>
-                <textarea name="medical_checkup" cols="60" rows="8" class="area60 top" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.medical_checkup|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.medical_checkup|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="medical_checkup_vn" cols="60" rows="8" class="area60 vn_field" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.medical_checkup_vn|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.medical_checkup_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>応募方法<span class="attention"> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.applicate_method}--><!--{$arrErr.applicate_method_vn}--></span>
-                <textarea name="applicate_method" cols="60" rows="8" class="area60 top" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.applicate_method|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.applicate_method|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-                <br />
-                <textarea name="applicate_method_vn" cols="60" rows="8" class="area60 vn_field" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{$arrErr.applicate_method_vn|sfGetErrorColor}-->"><!--{"\n"}--><!--{$arrForm.applicate_method_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
-            </td>
-        </tr>
-        <tr>
-            <th>選考プロセス<span class="attention"> *</span></th>
-            <td>
-                <span class="attention"><!--{$arrErr.selection_process}--></span>
-                <select multiple="multiple" name="selection_process[]" style="<!--{$arrErr.selection_process|sfGetErrorColor}-->;" id="selection_process" size="10">
-                    <!--{html_options options=$arrProcess selected=$arrForm.selection_process}-->
+                <span class="attention"><!--{$arrErr.maker_id}--></span>
+                <select name="maker_id" style="<!--{$arrErr.maker_id|sfGetErrorColor}-->">
+                    <option value="">選択してください</option>
+                    <!--{html_options options=$arrMaker selected=$arrForm.maker_id}-->
                 </select>
             </td>
         </tr>
         <tr>
-            <th>コンシェルジュ</th>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_27').style.display='block'" onClick="document.all.item('admin_sample_27').style.display='none'">URL</span></th>
             <td>
-                <span class="attention"><!--{$arrErr.concierge}--></span>
-                <select name="concierge" <!--{if $arrErr.concierge != ""}--><!--{sfSetErrorStyle}--><!--{/if}--> >
-                    <option value="" selected="selected">------</option>
-                    <!--{html_options options=$arrConcierge selected=$arrForm.concierge}-->
-                </select>
+                <span class="attention"><!--{$arrErr.comment1}--></span>
+                <input type="text" name="comment1" value="<!--{$arrForm.comment1|h}-->" maxlength="<!--{$smarty.const.URL_LEN}-->" size="60" class="box60" style="<!--{$arrErr.comment1|sfGetErrorColor}-->" />
+                <span class="attention"> (上限<!--{$smarty.const.URL_LEN}-->文字)</span>
             </td>
         </tr>
-    </table>
+        <tr>
+            <th>条件</th>
+            <td>
+                <!--{html_checkboxes name="conditions" options=$arrCONDITION selected=$arrForm.conditions separator='&nbsp;&nbsp;'}-->
+            </td>
+        </tr>
+<!--{*
+        <tr>
+            <th>薬局名</th>
+　　　　　　<td>
+                <span class="attention"><!--{$arrErr.shipping_pharmacy}--></span>
+                <input type="text" name="shipping_pharmacy" value="<!--{$arrForm.shipping_pharmacy|h}-->" size="50" class="box50" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.shipping_pharmacy != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
+            </td>　
+       </tr>
+        <tr>
+            <th>求人担当者名</th>
+　　　　　　<td>
+                <span class="attention"><!--{$arrErr.pharmacist_name1}--></span>
+                <input type="text" name="pharmacist_name1" value="<!--{$arrForm.pharmacist_name1|h}-->" size="25" class="box25" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.pharmacist_name1 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
+                <span class="attention"><!--{$arrErr.pharmacist_name2}--></span>
+                <input type="text" name="pharmacist_name2" value="<!--{$arrForm.pharmacist_name2|h}-->" size="25" class="box25" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.pharmacist_name2 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
+            </td>　
+       </tr>
+　　　　<tr>
+            <th>求人担当者名(カナ)</th>
+　　　　　　<td>
+                <span class="attention"><!--{$arrErr.pharmacist_kana1}--></span>
+                <input type="text" name="pharmacist_kana1" value="<!--{$arrForm.pharmacist_kana1|h}-->" size="25" class="box25" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.pharmacist_kana1 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
+                <span class="attention"><!--{$arrErr.pharmacist_kana2}--></span>
+                <input type="text" name="pharmacist_kana2" value="<!--{$arrForm.pharmacist_kana2|h}-->" size="25" class="box25" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.pharmacist_kana2 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
+            </td>　
+       </tr>
+　　　　<tr>
+            <th>郵便番号</th>
+　　　　　　<td>
+                <span class="attention"><!--{$arrErr.zip1}--></span>
+                <input type="text" name="zip1" value="<!--{$arrForm.zip1|h}-->" size="10" class="box10" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.zip1 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
+                <span class="attention"><!--{$arrErr.zip2}--></span>
+                <input type="text" name="zip2" value="<!--{$arrForm.zip2|h}-->" size="10" class="box10" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.zip2 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
+            </td>　
+        </tr>　
+        <tr>
+            <th>住所</th>
+　　　　　　<td>
+                <span class="attention"><!--{$arrErr.addr1}--></span>
+                <input type="text" name="addr1" value="<!--{$arrForm.addr1|h}-->" size="50" class="box50" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.addr1 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
                 
-    <h2>企業情報 <a class="btn-normal" href="javascript:;" name="address_input" onclick="eccube.openWindow('<!--{$smarty.const.ROOT_URLPATH}--><!--{$smarty.const.ADMIN_DIR}-->customer/search_client.php','search','600','650',{resizable:'no',focus:false}); return false;">企業検索</a></h2>
-
-    <a name="client_area"></a>
-    <table class="form">
-        <tr>
-            <th>企業ID<span class="attention"> *</span></th>
+                <span class="attention"><!--{$arrErr.addr2}--></span>
+                <input type="text" name="addr2" value="<!--{$arrForm.addr2|h}-->" size="50" class="box50" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.addr2 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
+            </td>　
+       </tr>
+　　　　<tr>
+            <th>電話番号</th>
+　　　　　　<td>
+                <span class="attention"><!--{$arrErr.tel1}--></span>
+                <input type="text" name="tel1" value="<!--{$arrForm.tel1|h}-->" size="10" class="box10" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.tel1 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
+                <span class="attention"><!--{$arrErr.tel2}--></span>
+                <input type="text" name="tel2" value="<!--{$arrForm.tel2|h}-->" size="10" class="box10" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.tel2 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
+                <span class="attention"><!--{$arrErr.tel3}--></span>
+                <input type="text" name="tel3" value="<!--{$arrForm.tel3|h}-->" size="10" class="box10" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.tel3 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"/>
+            </td>　
+       </tr>
+ *}-->
+　　　　<tr>
+        <th><span class="attention2">検索ワード</span><br />※複数の場合は、カンマ( , )区切りで入力して下さい</th>
             <td>
-                <span class="attention"><!--{$arrErr.client_id}--></span>
-                <!--{if $arrForm.client_id.value > 0}-->
-                    <!--{$arrForm.client_id.value|h}-->
-                    <input type="hidden" name="client_id" value="<!--{$arrForm.client_id.value|h}-->" />
-                <!--{else}-->
-                    (非会員)
+                <span class="attention"><!--{$arrErr.comment3}--></span>
+                <textarea name="comment3" cols="60" rows="8" class="area60" maxlength="<!--{$smarty.const.LLTEXT_LEN}-->" style="<!--{$arrErr.comment3|sfGetErrorColor}-->"><!--{$arrForm.comment3|h}--></textarea><br />
+                <span class="attention"> (上限<!--{$smarty.const.LLTEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th>備考欄(SHOP専用)</th>
+            <td>
+                <span class="attention"><!--{$arrErr.note}--></span>
+                <textarea name="note" cols="60" rows="8" class="area60" maxlength="<!--{$smarty.const.LLTEXT_LEN}-->" style="<!--{$arrErr.note|sfGetErrorColor}-->"><!--{$arrForm.note|h}--></textarea><br />
+                <span class="attention"> (上限<!--{$smarty.const.LLTEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th>一覧-メインコメント</th>
+            <td>
+                <span class="attention"><!--{$arrErr.main_list_comment}--></span>
+                <textarea name="main_list_comment" maxlength="<!--{$smarty.const.MTEXT_LEN}-->" style="<!--{if $arrErr.main_list_comment != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" cols="60" rows="8" class="area60"><!--{$arrForm.main_list_comment|h}--></textarea><br />
+                <span class="attention"> (上限<!--{$smarty.const.MTEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_02').style.display='block'" onClick="document.all.item('admin_sample_02').style.display='none'">サブタイトル</span></span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.comment7}--></span>
+                <input type="text" name="comment7" value="<!--{$arrForm.comment7|h}-->" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.comment7 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="60" class="box60" />
+<span class="attention"> (上限<!--{$smarty.const.STEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_03').style.display='block'" onClick="document.all.item('admin_sample_03').style.display='none'">サブタイトル/コメント</span></span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.comment8}--></span>
+                <textarea type="text" name="comment8" value="<!--{$arrForm.comment8|nl2br}-->" maxlength="135" style="<!--{if $arrErr.comment8 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" cols="60" rows="4" class="area60"><!--{$arrForm.comment8|h}--></textarea><br />
+<span class="attention"> (上限 4行まで 135文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_05').style.display='block'" onClick="document.all.item('admin_sample_05').style.display='none'">募集職種</span></span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.comment9}--></span>
+                <input type="text" name="comment9" value="<!--{$arrForm.comment9|h}-->" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.comment9 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="60" class="box60" />
+<span class="attention"> (上限<!--{$smarty.const.STEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_13').style.display='block'" onClick="document.all.item('admin_sample_13').style.display='none'">追加エリア用 アピールタイトルA</span></span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.comment10}--></span>
+                <input type="text" name="comment10" value="<!--{$arrForm.comment10|h}-->" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.comment10 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="60" class="box60" />
+<span class="attention"> (上限<!--{$smarty.const.STEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_14').style.display='block'" onClick="document.all.item('admin_sample_14').style.display='none'">追加エリア用 アピールコメントA</span></span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.comment11}--></span>
+                <textarea type="text" name="comment11" value="<!--{$arrForm.comment11|nl2br}-->" maxlength="300" style="<!--{if $arrErr.comment11 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"  cols="60" rows="4" class="area60"><!--{$arrForm.comment11|h}--></textarea><br />
+<span class="attention"> (上限 7行まで 300文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_15').style.display='block'" onClick="document.all.item('admin_sample_15').style.display='none'">追加エリア用 アピールタイトルB</span></span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.comment12}--></span>
+                <input type="text" name="comment12" value="<!--{$arrForm.comment12|h}-->" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.comment12 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="60" class="box60" />
+<span class="attention"> (上限<!--{$smarty.const.STEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_16').style.display='block'" onClick="document.all.item('admin_sample_16').style.display='none'">追加エリア用 アピールコメントB</span></span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.comment13}--></span>
+                <textarea type="text" name="comment13" value="<!--{$arrForm.comment13|nl2br}-->" maxlength="300" style="<!--{if $arrErr.comment13 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"  cols="60" rows="4" class="area60"><!--{$arrForm.comment13|h}--></textarea><br />
+<span class="attention"> (上限 7行まで 300文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_18').style.display='block'" onClick="document.all.item('admin_sample_18').style.display='none'">追加エリア用 アピールタイトルC</span></span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.comment14}--></span>
+                <input type="text" name="comment14" value="<!--{$arrForm.comment14|h}-->" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.comment14 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="60" class="box60" />
+<span class="attention"> (上限<!--{$smarty.const.STEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_19').style.display='block'" onClick="document.all.item('admin_sample_19').style.display='none'">追加エリア用 アピールコメントC</span></span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.comment15}--></span>
+                <textarea type="text" name="comment15" value="<!--{$arrForm.comment15|nl2br}-->" maxlength="300" style="<!--{if $arrErr.comment15 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"  cols="60" rows="4" class="area60"><!--{$arrForm.comment15|h}--></textarea><br />
+<span class="attention"> (上限 7行まで 300文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_06').style.display='block'" onClick="document.all.item('admin_sample_06').style.display='none'">時給or日給 表記</span></span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.comment16}--></span>
+                <input value="時給" type="text" name="comment16" value="<!--{$arrForm.comment16|h}-->" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.comment16 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="60" class="box60" />
+<span class="attention"> (上限<!--{$smarty.const.STEXT_LEN}-->文字)</span>                
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_27').style.display='block'" onClick="document.all.item('admin_sample_27').style.display='none'">住所</span></span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.comment17}--></span>
+                <input type="text" name="comment17" value="<!--{$arrForm.comment17|h}-->" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.comment17 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="60" class="box60" />
+<span class="attention"> (上限<!--{$smarty.const.STEXT_LEN}-->文字)</span>              
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_12').style.display='block'" onClick="document.all.item('admin_sample_12').style.display='none'">googlemap用url</span></span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.comment18}--></span>
+                <input value="https://www.google.co.jp/maps/place/" type="text" name="comment18" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.comment18 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="60" class="box60" />
+<span class="attention"> (上限<!--{$smarty.const.STEXT_LEN}-->文字)</span>                
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_28').style.display='block'" onClick="document.all.item('admin_sample_28').style.display='none'">勤務先エリア (市町村)</span></span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.comment19}--></span>
+                <input type="text" name="comment19" value="<!--{$arrForm.comment19|h}-->" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr.comment19 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="60" class="box60" />
+<span class="attention"> (上限<!--{$smarty.const.STEXT_LEN}-->文字)</span>                
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2">給与備考</span><span class="attention">　</span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.comment20}--></span>
+                <textarea type="text" name="comment20" value="<!--{$arrForm.comment20|nl2br}-->" maxlength="300" style="<!--{if $arrErr.comment20 != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->"  cols="60" rows="4" class="area60"><!--{$arrForm.comment20|h}--></textarea><br />
+<span class="attention"> (上限 7行まで 300文字)</span>              
+            </td>
+        </tr>
+        <tr>
+            <th>詳細-メインコメント<span class="attention">(タグ許可)*</span></th>
+            <td>
+                <span class="attention"><!--{$arrErr.main_comment}--></span>
+                <textarea name="main_comment" maxlength="<!--{$smarty.const.LLTEXT_LEN}-->" style="<!--{if $arrErr.main_comment != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" cols="60" rows="8" class="area60"><!--{$arrForm.main_comment|h}--></textarea><br />
+                <span class="attention"> (上限<!--{$smarty.const.LLTEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+　　　　<tr>
+            <!--{assign var=key value="main_list_image"}-->
+        <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_04').style.display='block'" onClick="document.all.item('admin_sample_04').style.display='none'">画像１</span></span><br />[<!--{$smarty.const.SMALL_IMAGE_WIDTH}-->×<!--{$smarty.const.SMALL_IMAGE_HEIGHT}-->]</th>
+            <td>
+                <a name="<!--{$key}-->"></a>
+                <a name="main_image"></a>
+                <a name="main_large_image"></a>
+                <span class="attention"><!--{$arrErr[$key]}--></span>
+                <!--{if $arrForm.arrFile[$key].filepath != ""}-->
+                <img src="<!--{$arrForm.arrFile[$key].filepath}-->" alt="<!--{$arrForm.name|h}-->" />　<a href="" onclick="selectAll('category_id'); fnModeSubmit('delete_image', 'image_key', '<!--{$key}-->'); return false;">[画像の取り消し]</a><br />
                 <!--{/if}-->
+                <input type="file" name="main_list_image" size="40" style="<!--{$arrErr[$key]|sfGetErrorColor}-->" />
+                <a class="btn-normal" href="javascript:;" name="btn" onclick="selectAll('category_id'); fnModeSubmit('upload_image', 'image_key', '<!--{$key}-->'); return false;">アップロード</a>
             </td>
         </tr>
         <tr>
-            <th>会社紹介<span class="attention"> *</span></th>
+            <!--{assign var=key value="main_image"}-->
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_17').style.display='block'" onClick="document.all.item('admin_sample_17').style.display='none'">画像２</span></span><br />[<!--{$smarty.const.NORMAL_IMAGE_WIDTH}-->×<!--{$smarty.const.NORMAL_IMAGE_HEIGHT}-->]</th>
             <td>
-                <span class="attention"><!--{$arrErr.client_introduction}--><!--{$arrErr.client_introduction_vn}--></span>
-                <textarea name="client_introduction" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{if $arrErr.client_introduction != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" cols="60" rows="8" class="area60 top"><!--{"\n"}--><!--{$arrForm.client_introduction|h}--></textarea>
-                <br />
-                <textarea name="client_introduction_vn" maxlength="<!--{$smarty.const.MLTEXT_LEN}-->" style="<!--{if $arrErr.client_introduction_vn != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" cols="60" rows="8" class="area60 vn_field"><!--{"\n"}--><!--{$arrForm.client_introduction_vn|h}--></textarea><br />
-                <span class="attention"> (上限<!--{$smarty.const.MLTEXT_LEN}-->文字)</span>
+                <span class="attention"><!--{$arrErr[$key]}--></span>
+                <!--{if $arrForm.arrFile[$key].filepath != ""}-->
+                <img src="<!--{$arrForm.arrFile[$key].filepath}-->" alt="<!--{$arrForm.name|h}-->" />　<a href="" onclick="selectAll('category_id'); fnModeSubmit('delete_image', 'image_key', '<!--{$key}-->'); return false;">[画像の取り消し]</a><br />
+                <!--{/if}-->
+                <input type="file" name="main_image" size="40" style="<!--{$arrErr[$key]|sfGetErrorColor}-->" />
+                <a class="btn-normal" href="javascript:;" name="btn" onclick="selectAll('category_id'); fnModeSubmit('upload_image', 'image_key', '<!--{$key}-->'); return false;">アップロード</a>
             </td>
         </tr>
         <tr>
-            <th>企業の本社住所<span class="attention"> *</span></th>
+            <!--{assign var=key value="main_large_image"}-->
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_20').style.display='block'" onClick="document.all.item('admin_sample_20').style.display='none'">画像３</span></span><br />[<!--{$smarty.const.LARGE_IMAGE_WIDTH}-->×<!--{$smarty.const.LARGE_IMAGE_HEIGHT}-->]</th>
             <td>
-                <span class="attention"><!--{$arrErr.client_zip01}--><!--{$arrErr.client_zip02}--><!--{$arrErr.client_pref}--><!--{$arrErr.client_addr01}--></span>
-                〒&nbsp;<input type="text" name="client_zip01" value="<!--{$arrForm.client_zip01|h}-->" maxlength="<!--{$smarty.const.ZIP01_LEN}-->" <!--{if $arrErr.client_zip01 != ""}--><!--{sfSetErrorStyle}--><!--{/if}--> size="6" class="box6" /> - <input type="text" name="client_zip02" value="<!--{$arrForm.client_zip02|h}-->" maxlength="<!--{$smarty.const.ZIP02_LEN}-->" <!--{if $arrErr.client_zip02 != ""}--><!--{sfSetErrorStyle}--><!--{/if}--> size="6" class="box6" />
-                <a class="btn-normal" href="javascript:;" name="address_input" onclick="eccube.getAddress('<!--{$smarty.const.INPUT_ZIP_URLPATH}-->', 'client_zip01', 'client_zip02', 'client_pref', 'client_addr01'); return false;">住所入力</a><br />
-                <select name="client_pref" <!--{if $arrErr.client_pref != ""}--><!--{sfSetErrorStyle}--><!--{/if}-->>
-                    <option value="" selected="selected">都道府県を選択</option>
-                    <!--{html_options options=$arrPref selected=$arrForm.client_pref}-->
-                </select><br />
-                <input type="text" name="client_addr01" value="<!--{$arrForm.client_addr01|h}-->" <!--{if $arrErr.client_addr01 != ""}--><!--{sfSetErrorStyle}--><!--{/if}--> size="60" class="box60" /><br />
-                <!--{$smarty.const.SAMPLE_ADDRESS1}-->
+                <span class="attention"><!--{$arrErr[$key]}--></span>
+                <!--{if $arrForm.arrFile[$key].filepath != ""}-->
+                <img src="<!--{$arrForm.arrFile[$key].filepath}-->" alt="<!--{$arrForm.name|h}-->" />　<a href="" onclick="selectAll('category_id'); fnModeSubmit('delete_image', 'image_key', '<!--{$key}-->'); return false;">[画像の取り消し]</a><br />
+                <!--{/if}-->
+                <input type="file" name="<!--{$key}-->" size="40" style="<!--{$arrErr[$key]|sfGetErrorColor}-->" />
+                <a class="btn-normal" href="javascript:;" name="btn" onclick="selectAll('category_id'); fnModeSubmit('upload_image', 'image_key', '<!--{$key}-->'); return false;">アップロード</a>
             </td>
         </tr>
     </table>
@@ -693,14 +665,200 @@
     <!--{include file=`$smarty.const.MODULE_REALDIR`mdl_opebuilder/admin_ope_view.tpl}-->
     <!--{/if}-->
 
+    <div class="btn">
+        <a class="btn-normal" href="javascript:;" onclick="selectAll('category_id'); lfDispSwitch('sub_detail1'); return false;"><span>サブ情報１表示/非表示</span></a>
+    </div>
+
+    <!--{if $arrForm.sub_find == true}-->
+    <div id="sub_detail1" style="">
+    <!--{else}-->
+    <div id="sub_detail1" style="display:none">
+    <!--{/if}-->
+    <h2>サブ情報</h2>
+    <table class="form">
+		<tr>
+            <th><span class="attention2">地域</span></th>
+            <td>
+                <!--{html_radios name="work_location_flg" options=$arrWorkLocationFlg selected=$arrForm.work_location_flg separator='&nbsp;&nbsp;' onchange="throwAlert(this.value);"}-->
+            </td>
+        </tr>
+
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_27').style.display='block'" onClick="document.all.item('admin_sample_27').style.display='none'"><!--{$arrSUBTITLE[1]}--></span></span><span class="attention">(タグ許可)</span></th>
+            <td>
+                <span class="attention"><!--{$arrErr[$key]}--></span>
+                <textarea name="sub_comment1" cols="60" rows="8" class="area60" maxlength="<!--{$smarty.const.LLTEXT_LEN}-->" style="<!--{$arrErr[$key]|sfGetErrorColor}-->"><!--{$arrForm.sub_comment1|h}--></textarea><br />
+                <span class="attention"> (上限<!--{$smarty.const.LLTEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_11').style.display='block'" onClick="document.all.item('admin_sample_11').style.display='none'"><!--{$arrSUBTITLE[2]}--></span></span><span class="attention">(タグ許可)</span></th>
+            <td>
+                <span class="attention"><!--{$arrErr[$key]}--></span>
+                <textarea name="sub_comment2" cols="60" rows="8" class="area60" maxlength="<!--{$smarty.const.LLTEXT_LEN}-->" style="<!--{$arrErr[$key]|sfGetErrorColor}-->"><!--{$arrForm.sub_comment2|h}--></textarea><br />
+                <span class="attention"> (上限<!--{$smarty.const.LLTEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_09').style.display='block'" onClick="document.all.item('admin_sample_09').style.display='none'"><!--{$arrSUBTITLE[3]}--></span></span><span class="attention">(タグ許可)</span></th>
+            <td>
+                <span class="attention"><!--{$arrErr[$key]}--></span>
+                <textarea name="sub_comment3" cols="60" rows="8" class="area60" maxlength="<!--{$smarty.const.LLTEXT_LEN}-->" style="<!--{$arrErr[$key]|sfGetErrorColor}-->"><!--{$arrForm.sub_comment3|h}--></textarea><br />
+                <span class="attention"> (上限<!--{$smarty.const.LLTEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_08').style.display='block'" onClick="document.all.item('admin_sample_08').style.display='none'"><!--{$arrSUBTITLE[4]}--></span></span><span class="attention">(タグ許可)</span></th>
+            <td>
+                <span class="attention"><!--{$arrErr[$key]}--></span>
+                <textarea name="sub_comment4" cols="60" rows="8" class="area60" maxlength="<!--{$smarty.const.LLTEXT_LEN}-->" style="<!--{$arrErr[$key]|sfGetErrorColor}-->"><!--{$arrForm.sub_comment4|h}--></textarea><br />
+                <span class="attention"> (上限<!--{$smarty.const.LLTEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_23').style.display='block'" onClick="document.all.item('admin_sample_23').style.display='none'"><!--{$arrSUBTITLE[5]}--></span></span><span class="attention">(タグ許可)</span></th>
+            <td>
+                <span class="attention"><!--{$arrErr[$key]}--></span>
+                <textarea name="sub_comment5" cols="60" rows="8" class="area60" maxlength="<!--{$smarty.const.LLTEXT_LEN}-->" style="<!--{$arrErr[$key]|sfGetErrorColor}-->"><!--{$arrForm.sub_comment5|h}--></textarea><br />
+                <span class="attention"> (上限<!--{$smarty.const.LLTEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_21').style.display='block'" onClick="document.all.item('admin_sample_21').style.display='none'"><!--{$arrSUBTITLE[8]}--></span></span><span class="attention">(タグ許可)</span></th>
+            <td>
+                <span class="attention"><!--{$arrErr[$key]}--></span>
+                <textarea name="sub_comment8" cols="60" rows="8" class="area60" maxlength="<!--{$smarty.const.LLTEXT_LEN}-->" style="<!--{$arrErr[$key]|sfGetErrorColor}-->"><!--{$arrForm.sub_comment8|h}--></textarea><br />
+                <span class="attention"> (上限<!--{$smarty.const.LLTEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_24').style.display='block'" onClick="document.all.item('admin_sample_24').style.display='none'"><!--{$arrSUBTITLE[9]}--></span></span><span class="attention">(タグ許可)</span></th>
+            <td>
+                <span class="attention"><!--{$arrErr[$key]}--></span>
+                <textarea name="sub_comment9" cols="60" rows="8" class="area60" maxlength="<!--{$smarty.const.LLTEXT_LEN}-->" style="<!--{$arrErr[$key]|sfGetErrorColor}-->"><!--{$arrForm.sub_comment9|h}--></textarea><br />
+                <span class="attention"> (上限<!--{$smarty.const.LLTEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_25').style.display='block'" onClick="document.all.item('admin_sample_25').style.display='none'"><!--{$arrSUBTITLE[10]}--></span></span><span class="attention">(タグ許可)</span></th>
+            <td>
+                <span class="attention"><!--{$arrErr[$key]}--></span>
+                <textarea name="sub_comment10" cols="60" rows="8" class="area60" maxlength="<!--{$smarty.const.LLTEXT_LEN}-->" style="<!--{$arrErr[$key]|sfGetErrorColor}-->"><!--{$arrForm.sub_comment10|h}--></textarea><br />
+                <span class="attention"> (上限<!--{$smarty.const.LLTEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <tr>
+            <th><span class="attention2"><span class="admin_sample" onClick="document.all.item('admin_sample_26').style.display='block'" onClick="document.all.item('admin_sample_26').style.display='none'"><!--{$arrSUBTITLE[11]}--></span></span><span class="attention">(タグ許可)</span></th>
+            <td>
+                <span class="attention"><!--{$arrErr[$key]}--></span>
+                <textarea name="sub_comment11" cols="60" rows="8" class="area60" maxlength="<!--{$smarty.const.LLTEXT_LEN}-->" style="<!--{$arrErr[$key]|sfGetErrorColor}-->"><!--{$arrForm.sub_comment11|h}--></textarea><br />
+                <span class="attention"> (上限<!--{$smarty.const.LLTEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+    </table>
+    </div>
+
+	<div class="btn">
+        <a class="btn-normal" href="javascript:;" onclick="selectAll('category_id'); lfDispSwitch('sub_detail2'); return false;"><span>サブ情報２表示/非表示</span></a>
+    </div>
+
+    <!--{if $arrForm.sub_find == true}-->
+    <div id="sub_detail2" style="">
+    <!--{else}-->
+    <div id="sub_detail2" style="display:none">
+    <!--{/if}-->
+    <h2>サブ情報</h2>
+    <table class="form">
+        <!--{section name=cnt loop=$smarty.const.PRODUCTSUB_MAX}-->
+		<!--{assign var=sub_no value="`$smarty.section.cnt.iteration`"}-->
+		<!--{if $sub_no > 19}-->
+        <!--▼商品<!--{$smarty.section.cnt.iteration}-->-->
+        <tr>
+            <th><!--{$arrSUBTITLE[$sub_no]}--><span class="attention">(タグ許可)</span></th>
+            <!--{assign var=key value="sub_comment`$smarty.section.cnt.iteration`"}-->
+            <td>
+				<!--{if $sub_no == 39}-->
+				<input type="checkbox" name="add_subcomment39" value="交通費全額支給" onchange="fill_subcomment(39, this.checked, this.value);">交通費全額支給
+				<input type="checkbox" name="add_subcomment39" value="白衣貸与" onchange="fill_subcomment(39, this.checked, this.value);">白衣貸与<br>
+				<!--{elseif $sub_no == 40}-->
+				<input type="checkbox" name="add_subcomment40" value="総合" onchange="fill_subcomment(40, this.checked, this.value);">総合
+				<input type="checkbox" name="add_subcomment40" value="内科" onchange="fill_subcomment(40, this.checked, this.value);">内科
+				<input type="checkbox" name="add_subcomment40" value="耳鼻科" onchange="fill_subcomment(40, this.checked, this.value);">耳鼻科
+				<input type="checkbox" name="add_subcomment40" value="小児科" onchange="fill_subcomment(40, this.checked, this.value);">小児科
+				<input type="checkbox" name="add_subcomment40" value="精神科" onchange="fill_subcomment(40, this.checked, this.value);">精神科
+				<input type="checkbox" name="add_subcomment40" value="皮膚科" onchange="fill_subcomment(40, this.checked, this.value);">皮膚科
+				<input type="checkbox" name="add_subcomment40" value="眼科" onchange="fill_subcomment(40, this.checked, this.value);">眼科
+				<input type="checkbox" name="add_subcomment40" value="整形外科" onchange="fill_subcomment(40, this.checked, this.value);">整形外科
+				<!--{/if}-->
+                <span class="attention"><!--{$arrErr[$key]}--></span>
+
+				<!--{if $sub_no == 20 || $sub_no == 21 || $sub_no == 22 || $sub_no == 24 || $sub_no == 25 || $sub_no == 27 || $sub_no == 41}-->
+                <input type="text" name="sub_comment<!--{$smarty.section.cnt.iteration}-->" value="<!--{$arrForm[$key]|h}-->" maxlength="<!--{$smarty.const.STEXT_LEN}-->" style="<!--{if $arrErr[$key] != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="60" class="box60" />
+                <span class="attention"> (上限<!--{$smarty.const.STEXT_LEN}-->文字)</span>
+				<!--{else}-->
+				<textarea name="sub_comment<!--{$smarty.section.cnt.iteration}-->" cols="60" rows="8" class="area60" maxlength="<!--{$smarty.const.LLTEXT_LEN}-->" style="<!--{$arrErr[$key]|sfGetErrorColor}-->"><!--{$arrForm[$key]|h}--></textarea><br />
+                <span class="attention"> (上限<!--{$smarty.const.LLTEXT_LEN}-->文字)</span>
+				<!--{/if}-->
+
+            </td>
+        </tr>
+        <!--▲商品<!--{$smarty.section.cnt.iteration}-->-->
+		<!--{/if}-->
+        <!--{/section}-->
+    </table>
+    </div>
+
+    <div class="btn">
+        <a class="btn-normal" href="javascript:;" onclick="selectAll('category_id'); lfDispSwitch('recommend_select'); return false;"><span>関連商品表示/非表示</span></a>
+    </div>
+
+    <!--{if $smarty.const.OPTION_RECOMMEND == 1}-->
+    <!--{if count($arrRecommend) > 0}-->
+    <div id="recommend_select" style="">
+    <!--{else}-->
+    <div id="recommend_select" style="display:none">
+    <!--{/if}-->
+    <h2>関連商品</h2>
+    <table class="form">
+        <!--▼関連商品-->
+        <!--{section name=cnt loop=$smarty.const.RECOMMEND_PRODUCT_MAX}-->
+        <!--{assign var=recommend_no value="`$smarty.section.cnt.iteration`"}-->
+        <tr>
+            <!--{assign var=key value="recommend_id`$smarty.section.cnt.iteration`"}-->
+            <!--{assign var=anckey value="recommend_no`$smarty.section.cnt.iteration`"}-->
+            <th>関連商品(<!--{$smarty.section.cnt.iteration}-->)<br />
+                <!--{if $arrRecommend[$recommend_no].product_id}-->
+                    <img src="<!--{$smarty.const.ROOT_URLPATH}-->resize_image.php?image=<!--{$arrRecommend[$recommend_no].main_list_image|sfNoImageMainList|h}-->&width=65&height=65" alt="<!--{$arrRecommend[$recommend_no].name|h}-->" />
+                <!--{/if}-->
+            </th>
+            <td>
+                <a name="<!--{$anckey}-->"></a>
+                <input type="hidden" name="<!--{$key}-->" value="<!--{$arrRecommend[$recommend_no].product_id|h}-->" />
+                <a class="btn-normal" href="javascript:;" name="change" onclick="selectAll('category_id'); win03('./product_select.php?no=<!--{$smarty.section.cnt.iteration}-->', 'search', '615', '500'); return false;">変更</a>
+                <!--{assign var=key value="recommend_delete`$smarty.section.cnt.iteration`"}-->
+                <input type="checkbox" name="<!--{$key}-->" value="1" />削除<br />
+                <!--{assign var=key value="recommend_comment`$smarty.section.cnt.iteration`"}-->
+                <span class="attention"><!--{$arrErr[$key]}--></span>
+                商品コード:<!--{$arrRecommend[$recommend_no].product_code_min}--><br />
+                商品名:<!--{$arrRecommend[$recommend_no].name|h}--><br />
+                <textarea name="<!--{$key}-->" cols="60" rows="8" class="area60" style="<!--{$arrErr[$key]|sfGetErrorColor}-->" ><!--{$arrRecommend[$recommend_no].comment|h}--></textarea><br />
+                <span class="attention"> (上限<!--{$smarty.const.LTEXT_LEN}-->文字)</span>
+            </td>
+        </tr>
+        <!--{/section}-->
+        <!--▲関連商品-->
+    </table>
+    </div>
+    <!--{/if}-->
+
     <div class="btn-area">
         <!--{if count($arrSearchHidden) > 0}-->
         <!--▼検索結果へ戻る-->
         <ul>
-            <li><a class="btn-action" href="javascript:;" onclick="eccube.changeAction('<!--{$smarty.const.ADMIN_PRODUCTS_URLPATH}-->'); eccube.setModeAndSubmit('search','',''); return false;"><span class="btn-prev">検索画面に戻る</span></a></li>
+            <li><a class="btn-action" href="javascript:;" onclick="fnChangeAction('<!--{$smarty.const.ADMIN_PRODUCTS_URLPATH}-->'); fnModeSubmit('search','',''); return false;"><span class="btn-prev">検索画面に戻る</span></a></li>
         <!--▲検索結果へ戻る-->
         <!--{/if}-->
-            <li><a class="btn-action" href="javascript:;" onclick="document.form1.submit(); return false;"><span class="btn-next">確認ページへ</span></a></li>
+            <li><a class="btn-action" href="javascript:;" onclick="selectAll('category_id'); document.form1.submit(); return false;"><span class="btn-next">確認ページへ</span></a></li>
         </ul>
     </div>
 </div>

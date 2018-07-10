@@ -2,7 +2,7 @@
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2014 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) 2000-2012 LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
@@ -21,6 +21,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// {{{ requires
 require_once CLASS_EX_REALDIR . 'page_extends/LC_Page_Ex.php';
 
 /**
@@ -30,18 +31,20 @@ require_once CLASS_EX_REALDIR . 'page_extends/LC_Page_Ex.php';
  * @author LOCKON CO.,LTD.
  * @version $Id$
  */
-class LC_Page_AbstractMypage extends LC_Page_Ex
-{
+class LC_Page_AbstractMypage extends LC_Page_Ex {
+
+    // }}}
+    // {{{ functions
+
     /**
      * Page を初期化する.
      *
      * @return void
      */
-    public function init()
-    {
+    function init() {
         parent::init();
         // mypage 共通
-        $this->tpl_title        = 'マイページ';
+        $this->tpl_title        = 'MYページ';
         $this->tpl_navi         = 'mypage/navi.tpl';
         $this->tpl_mainno       = 'mypage';
     }
@@ -51,8 +54,8 @@ class LC_Page_AbstractMypage extends LC_Page_Ex
      *
      * @return void
      */
-    public function process()
-    {
+    function process() {
+
         parent::process();
         // ログインチェック
         $objCustomer = new SC_Customer_Ex();
@@ -60,7 +63,7 @@ class LC_Page_AbstractMypage extends LC_Page_Ex
         // ログインしていない場合は必ずログインページを表示する
         if ($objCustomer->isLoginSuccess(true) === false) {
             // クッキー管理クラス
-            $objCookie = new SC_Cookie_Ex();
+            $objCookie = new SC_Cookie_Ex(COOKIE_EXPIRE);
             // クッキー判定(メールアドレスをクッキーに保存しているか）
             $this->tpl_login_email = $objCookie->getCookie('login_email');
             if ($this->tpl_login_email != '') {
@@ -78,17 +81,29 @@ class LC_Page_AbstractMypage extends LC_Page_Ex
             if (SC_Display_Ex::detectDevice() === DEVICE_TYPE_MOBILE) {
                 $this->tpl_valid_phone_id = $objCustomer->checkMobilePhoneId();
             }
-            $this->tpl_title        = 'マイページ(ログイン)';
+            $this->tpl_title        = 'MYページ(ログイン)';
             $this->tpl_mainpage     = 'mypage/login.tpl';
+
         } else {
             //マイページ会員情報表示用共通処理
             $this->tpl_login     = true;
-            $this->CustomerName1 = $objCustomer->getValue('name01');
-            $this->CustomerName2 = $objCustomer->getValue('name02');
-            $this->CustomerPoint = $objCustomer->getValue('point');
+            $this->CustomerName1 = $objCustomer->getvalue('name01');
+            $this->CustomerName2 = $objCustomer->getvalue('name02');
+            $this->CustomerPoint = $objCustomer->getvalue('point');
+            $this->CustomerSalaryType = $objCustomer->getvalue('salary_type');
             $this->action();
         }
 
+
         $this->sendResponse();
+    }
+
+    /**
+     * デストラクタ.
+     *
+     * @return void
+     */
+    function destroy() {
+        parent::destroy();
     }
 }

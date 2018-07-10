@@ -1,4 +1,4 @@
-@charset "utf-8";
+﻿@charset "utf-8";
 
 /************************************************
  tables
@@ -25,9 +25,6 @@ table td {
     padding: 8px;
     border-right: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
-}
-table td > label{
-    display: inline-block;
 }
 
 /* 見出し
@@ -73,4 +70,3 @@ table select {
     margin-bottom: 7px;
     border: solid 1px #ccc;
 }
-
